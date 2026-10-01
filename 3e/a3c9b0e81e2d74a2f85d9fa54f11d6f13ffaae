@@ -1,0 +1,41 @@
+src/evaluate.py
+  s_01cab1dc59a0e1::t_34f762e164f35a 1-61
+tests/test_metrics.py
+  s_01cab1dc59a0e1::t_f0c485689099c7 1-156
+AGENTS.md
+  s_01cab1dc59a0e1::t_1fa92b735129a5 1-39
+docs/competition-brief.md
+  s_01cab1dc59a0e1::t_9e58f9e06b85b6 1-129
+CLAUDE.md
+  s_01cab1dc59a0e1::t_c7c2a07582d7ef 1-9
+docs/experiments.md
+  s_01cab1dc59a0e1::t_f007e1683e9592 1-14
+GEMINI.md
+  s_01cab1dc59a0e1::t_bdae1b6a495e46 1-9
+.gitignore
+  s_01cab1dc59a0e1::t_3a5c05b4721150 2-5
+src/validator.py
+  s_01cab1dc59a0e1::t_54df3f5cbba548 1-119
+src/config.py
+  s_01cab1dc59a0e1::t_afa766af883bcd 10-23,25
+src/metrics.py
+  s_01cab1dc59a0e1::t_8b634527f8f4b1 1-140
+src/models/baseline_heuristics.py
+  s_01cab1dc59a0e1::t_d2457fcfc67c1c 1-169
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "3ea3c9b0e81e2d74a2f85d9fa54f11d6f13ffaae",
+  "prompts": {},
+  "sessions": {
+    "s_01cab1dc59a0e1": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "7c5ded7b-af7b-45ca-9e80-af2885de6ba9",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
