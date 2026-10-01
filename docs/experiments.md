@@ -12,3 +12,4 @@
 | Exp ID | Model / Strategy | Local CV (Eval) | Train CV | Public LB | Notes / Findings |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `baseline-01` | Geometric transforms (rot/flip/transpose) + 1-to-1 color mapping | 0.0000 (0/172) | 0.0102 (11/1076) | - | End-to-end evaluation harness and submission verification pipeline verified. 11 training tasks solved by simple symmetry/color-swap; 0 evaluation tasks solved, confirming ARC-AGI-2 requirement for multi-step program synthesis or deep priors. |
+| `dsl-01` | Symbolic DSL & Object Perception Engine (connected components, gravity, content crop, symmetries, 1- & 2-step search) | 0.0000 (0/172) | 0.0269 (29/1076) | - | 28 training tasks solved (2.5x increase over baseline-01). 22 unit tests passing in tests/test_dsl.py. Instant execution (~0.1s total). |
