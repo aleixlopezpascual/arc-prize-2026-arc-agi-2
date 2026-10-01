@@ -23,7 +23,7 @@ def build():
     # Create arc_dsl.py content
     arc_dsl_content = "%%writefile arc_dsl.py\n"
     arc_dsl_content += "# Combined ARC DSL primitives, search, and solver\n"
-    arc_dsl_content += "import copy\nimport numpy as np\nfrom collections import Counter, deque\nfrom dataclasses import dataclass\nfrom typing import Any, Callable, Sequence, Union\n\n"
+    arc_dsl_content += "import copy\nimport numpy as np\nfrom collections import Counter, deque\nfrom dataclasses import dataclass, field\nfrom typing import Any, Callable, Sequence, Union\n\n"
     arc_dsl_content += "Grid = list[list[int]]\n\n"
 
     # Add grid_equal helper
