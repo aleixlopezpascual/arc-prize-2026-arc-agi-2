@@ -401,3 +401,49 @@ class TestDSLSearchAndSolver:
             assert len(pred["attempt_1"]) > 0
             assert len(pred["attempt_2"]) > 0
 
+    def test_connect_matching_dots(self):
+        from src.dsl import connect_matching_dots
+
+        grid = [
+            [1, 0, 0, 1],
+            [0, 0, 0, 0],
+            [2, 0, 0, 0],
+            [2, 0, 0, 0],
+        ]
+        connected = connect_matching_dots(grid, background=0)
+        # Row 0 connected with 1s
+        assert connected[0] == [1, 1, 1, 1]
+        # Col 0 connected with 2s
+        assert [connected[r][0] for r in range(4)] == [1, 0, 2, 2]
+
+    def test_crop_hollow_rectangle_interior(self):
+        from src.dsl import crop_hollow_rectangle_interior
+
+        grid = [
+            [0, 0, 0, 0, 0],
+            [0, 3, 3, 3, 0],
+            [0, 3, 5, 3, 0],
+            [0, 3, 3, 3, 0],
+            [0, 0, 0, 0, 0],
+        ]
+        inner = crop_hollow_rectangle_interior(grid, background=0)
+        assert inner == [[5]]
+
+    def test_search_and_solve_connect_dots(self):
+        from src.dsl import DSLSolver, search_dsl_programs, connect_matching_dots
+
+        train_pairs = [
+            {"input": [[1, 0, 1]], "output": [[1, 1, 1]]},
+            {"input": [[2, 0, 2]], "output": [[2, 2, 2]]},
+        ]
+        test_pairs = [{"input": [[3, 0, 3]]}]
+        task = {"train": train_pairs, "test": test_pairs}
+
+        programs = search_dsl_programs(train_pairs)
+        assert len(programs) >= 1
+
+        solver = DSLSolver()
+        preds = solver.solve_task(task)
+        assert preds[0]["attempt_1"] == [[3, 3, 3]]
+
+

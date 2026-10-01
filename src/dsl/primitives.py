@@ -540,3 +540,156 @@ def remove_small_objects(
                 arr[r, c] = replacement
     return arr.tolist()
 
+
+def connect_matching_dots(grid: Grid | np.ndarray, background: int = 0) -> Grid:
+    """Connects pairs of identical colored dots with orthogonal or diagonal lines."""
+    arr = to_array(grid).copy()
+    colors = set(np.unique(arr)) - {background}
+    for c in colors:
+        coords = list(zip(*np.where(arr == c)))
+        for i in range(len(coords)):
+            for j in range(i + 1, len(coords)):
+                r1, c1 = coords[i]
+                r2, c2 = coords[j]
+                # Same row -> draw horizontal line
+                if r1 == r2:
+                    start_c, end_c = min(c1, c2), max(c1, c2)
+                    path = [arr[r1, k] for k in range(start_c, end_c + 1)]
+                    if all(v in (background, c) for v in path):
+                        arr[r1, start_c : end_c + 1] = c
+                # Same column -> draw vertical line
+                elif c1 == c2:
+                    start_r, end_r = min(r1, r2), max(r1, r2)
+                    path = [arr[k, c1] for k in range(start_r, end_r + 1)]
+                    if all(v in (background, c) for v in path):
+                        arr[start_r : end_r + 1, c1] = c
+                # Diagonal
+                elif abs(r1 - r2) == abs(c1 - c2):
+                    dr = 1 if r2 > r1 else -1
+                    dc = 1 if c2 > c1 else -1
+                    length = abs(r1 - r2)
+                    path = [arr[r1 + k * dr, c1 + k * dc] for k in range(length + 1)]
+                    if all(v in (background, c) for v in path):
+                        for k in range(length + 1):
+                            arr[r1 + k * dr, c1 + k * dc] = c
+    return arr.tolist()
+
+
+def repair_room_2d_periodic(room_arr: np.ndarray, is_vertical: bool = True) -> np.ndarray:
+    """Detects and repairs the dominant 2D periodic motif in a rectangular room."""
+    h, w = room_arr.shape
+    if h == 0 or w == 0:
+        return room_arr
+
+    if is_vertical:
+        best_p, best_score, best_block = None, 0.0, None
+        for p in range(2, min(9, h // 2 + 1)):
+            block = np.zeros((p, w), dtype=int)
+            for r in range(p):
+                for c in range(w):
+                    vals = [room_arr[k, c] for k in range(r, h, p)]
+                    block[r, c] = Counter(vals).most_common(1)[0][0]
+            cell_matches = sum(
+                room_arr[k, c] == block[k % p, c] for k in range(h) for c in range(w)
+            )
+            score = cell_matches / (h * w) if h * w > 0 else 0.0
+            if score > best_score:
+                best_score = score
+                best_p = p
+                best_block = block
+        if best_block is not None and best_score >= 0.70:
+            repaired = np.zeros_like(room_arr)
+            for k in range(h):
+                repaired[k, :] = best_block[k % best_p, :]
+            return repaired
+    else:
+        best_p, best_score, best_block = None, 0.0, None
+        for p in range(2, min(9, w // 2 + 1)):
+            block = np.zeros((h, p), dtype=int)
+            for r in range(h):
+                for c in range(p):
+                    vals = [room_arr[r, k] for k in range(c, w, p)]
+                    block[r, c] = Counter(vals).most_common(1)[0][0]
+            cell_matches = sum(
+                room_arr[r, k] == block[r, k % p] for r in range(h) for k in range(w)
+            )
+            score = cell_matches / (h * w) if h * w > 0 else 0.0
+            if score > best_score:
+                best_score = score
+                best_p = p
+                best_block = block
+        if best_block is not None and best_score >= 0.70:
+            repaired = np.zeros_like(room_arr)
+            for k in range(w):
+                repaired[:, k] = best_block[:, k % best_p]
+            return repaired
+
+    return room_arr
+
+
+def repair_periodic_subgrids(grid: Grid | np.ndarray, pad: int = 2) -> Grid:
+    """Identifies rooms bounded by grid divider lines and repairs periodic 2D motifs."""
+    arr = to_array(grid).copy()
+    h, w = arr.shape
+    r_divs = (
+        [0]
+        + [
+            r
+            for r in range(1, h - 1)
+            if len(set(arr[r, :])) <= 2 and Counter(arr[r, :]).most_common(1)[0][1] >= w - 1
+        ]
+        + [h - 1]
+    )
+    c_divs = (
+        [0]
+        + [
+            c
+            for c in range(1, w - 1)
+            if len(set(arr[:, c])) <= 2 and Counter(arr[:, c]).most_common(1)[0][1] >= h - 1
+        ]
+        + [w - 1]
+    )
+    r_divs = sorted(list(set(r_divs)))
+    c_divs = sorted(list(set(c_divs)))
+
+    out = arr.copy()
+    for r_idx in range(len(r_divs) - 1):
+        r_start, r_end = r_divs[r_idx], r_divs[r_idx + 1]
+        for c_idx in range(len(c_divs) - 1):
+            c_start, c_end = c_divs[c_idx], c_divs[c_idx + 1]
+            room_h = r_end - r_start + 1
+            room_w = c_end - c_start + 1
+
+            if room_h > room_w and room_h >= 2 * pad + 2:
+                interior = arr[r_start + pad : r_end - pad + 1, c_start + pad : c_end - pad + 1]
+                repaired = repair_room_2d_periodic(interior, is_vertical=True)
+                out[r_start + pad : r_end - pad + 1, c_start + pad : c_end - pad + 1] = repaired
+            elif room_w >= room_h and room_w >= 2 * pad + 2:
+                interior = arr[r_start + pad : r_end - pad + 1, c_start + pad : c_end - pad + 1]
+                repaired = repair_room_2d_periodic(interior, is_vertical=False)
+                out[r_start + pad : r_end - pad + 1, c_start + pad : c_end - pad + 1] = repaired
+
+    return out.tolist()
+
+
+def crop_hollow_rectangle_interior(grid: Grid | np.ndarray, background: int = 0) -> Grid:
+    """Finds a hollow rectangular frame of uniform color and extracts its interior."""
+    arr = to_array(grid)
+    for c in sorted(set(np.unique(arr)) - {background}):
+        coords = list(zip(*np.where(arr == c)))
+        if len(coords) < 8:
+            continue
+        min_r, min_c = min(r for r, _ in coords), min(col for _, col in coords)
+        max_r, max_c = max(r for r, _ in coords), max(col for _, col in coords)
+        if max_r - min_r >= 2 and max_c - min_c >= 2:
+            top = all(arr[min_r, col] == c for col in range(min_c, max_c + 1))
+            bot = all(arr[max_r, col] == c for col in range(min_c, max_c + 1))
+            left = all(arr[row, min_c] == c for row in range(min_r, max_r + 1))
+            right = all(arr[row, max_c] == c for row in range(min_r, max_r + 1))
+            if top and bot and left and right:
+                inner = arr[min_r + 1 : max_r, min_c + 1 : max_c]
+                if inner.size > 0:
+                    return inner.tolist()
+    return to_grid(grid)
+
+

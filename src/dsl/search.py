@@ -131,6 +131,36 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
+    # 4b. Connect matching dots
+    for bg in sorted(bg_candidates):
+        cmd_name = f"connect_dots_bg{bg}"
+        progs.append(
+            Program(
+                name=cmd_name,
+                steps=[(cmd_name, lambda g, b=bg: P.connect_matching_dots(g, background=b))],
+            )
+        )
+
+    # 4c. Repair periodic rooms / subgrids
+    for pad in [1, 2]:
+        per_name = f"repair_periodic_pad{pad}"
+        progs.append(
+            Program(
+                name=per_name,
+                steps=[(per_name, lambda g, p=pad: P.repair_periodic_subgrids(g, pad=p))],
+            )
+        )
+
+    # 4d. Crop hollow rectangle interior
+    for bg in sorted(bg_candidates):
+        hr_name = f"crop_hollow_rect_bg{bg}"
+        progs.append(
+            Program(
+                name=hr_name,
+                steps=[(hr_name, lambda g, b=bg: P.crop_hollow_rectangle_interior(g, background=b))],
+            )
+        )
+
     # 5. Symmetry completions
     for axis in ["vertical", "horizontal"]:
         for src in (["left", "right"] if axis == "vertical" else ["top", "bottom"]):
