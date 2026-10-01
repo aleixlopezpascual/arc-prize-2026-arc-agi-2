@@ -1,0 +1,20 @@
+notebooks/submissions/baseline_lb3389/kernel-metadata.json
+  s_01cab1dc59a0e1::t_cd6c91d5d94ec3 15
+  s_01cab1dc59a0e1::t_3c6f9004c705b3 14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "f94353bd5383d31b7a7b6046918159fbdc766257",
+  "prompts": {},
+  "sessions": {
+    "s_01cab1dc59a0e1": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "7c5ded7b-af7b-45ca-9e80-af2885de6ba9",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
