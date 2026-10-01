@@ -11,6 +11,8 @@
   "keywords": [
     "gpu"
   ],
+  "docker_image_pinning_type": "original",
+  "docker_image": "gcr.io/kaggle-private-byod/python@sha256:320043e14c68293f1c946585b9257123385205a58af4b94b17d31868cae4e868",
   "dataset_sources": [],
   "kernel_sources": [
     "sorokin/pip-install-unsloth-flash-patch"
