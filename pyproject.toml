@@ -1,0 +1,19 @@
+[project]
+name = "arc-prize-2026-arc-agi-2"
+version = "0.1.0"
+description = "Kaggle competition workspace for arc-prize-2026-arc-agi-2"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "lightgbm",
+    "xgboost",
+    "catboost",
+    "pytest",
+    "ruff",
+]
+
+[tool.ruff]
+line-length = 100
