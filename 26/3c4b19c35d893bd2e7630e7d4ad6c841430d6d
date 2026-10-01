@@ -1,0 +1,39 @@
+tests/test_neural.py
+  s_01cab1dc59a0e1::t_857ec0f6bd7f85 1-99
+src/evaluate.py
+  s_01cab1dc59a0e1::t_a7c0f5b3a840b4 3,11-12,15-23,46,57,70-73
+src/dsl/primitives.py
+  s_01cab1dc59a0e1::t_c2ef4f0768d643 456-542
+src/dsl/__init__.py
+  s_01cab1dc59a0e1::t_1d2c60de8b8b46 9-10,14,26,44-45,49,61
+src/models/hybrid_solver.py
+  s_01cab1dc59a0e1::t_608cdfc8707638 1-174
+src/neural/tokenizer.py
+  s_01cab1dc59a0e1::t_f5abed603ace1d 1-88
+src/dsl/search.py
+  s_01cab1dc59a0e1::t_3bf94c1c97de46 84-122
+docs/experiments.md
+  s_01cab1dc59a0e1::t_22116b96540490 16
+src/neural/__init__.py
+  s_01cab1dc59a0e1::t_0bb4d67aed3b33 1-25
+tests/test_dsl.py
+  s_01cab1dc59a0e1::t_6c46cd837a79c9 299-343
+src/neural/augmentation.py
+  s_01cab1dc59a0e1::t_87955d3d547045 1-133
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "263c4b19c35d893bd2e7630e7d4ad6c841430d6d",
+  "prompts": {},
+  "sessions": {
+    "s_01cab1dc59a0e1": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "7c5ded7b-af7b-45ca-9e80-af2885de6ba9",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
