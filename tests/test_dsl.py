@@ -296,6 +296,51 @@ class TestColorOperators:
         assert least_frequent_color(grid, ignore_background=True, background=0) == 2
 
 
+class TestAdvancedObjectPrimitives:
+    def test_fill_enclosed_regions(self):
+        from src.dsl import fill_enclosed_regions
+
+        grid = [
+            [0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 0],
+            [0, 1, 0, 1, 0],
+            [0, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0],
+        ]
+        filled = fill_enclosed_regions(grid, fill_color=2, background=0)
+        assert filled[2][2] == 2
+        assert filled[0][0] == 0
+        assert filled[1][1] == 1
+
+    def test_crop_largest_and_smallest_object(self):
+        from src.dsl import crop_largest_object, crop_smallest_object
+
+        grid = [
+            [1, 1, 0, 0],
+            [1, 1, 0, 2],
+            [0, 0, 0, 0],
+        ]
+        largest = crop_largest_object(grid, background=0)
+        assert largest == [[1, 1], [1, 1]]
+
+        smallest = crop_smallest_object(grid, background=0)
+        assert smallest == [[2]]
+
+    def test_remove_small_objects(self):
+        from src.dsl import remove_small_objects
+
+        grid = [
+            [1, 1, 0, 3],
+            [1, 1, 0, 0],
+        ]
+        # Color 3 has size 1, color 1 has size 4
+        cleaned = remove_small_objects(grid, max_size=1, background=0, replacement=0)
+        assert cleaned == [
+            [1, 1, 0, 0],
+            [1, 1, 0, 0],
+        ]
+
+
 class TestDSLSearchAndSolver:
     def test_search_and_solve_rotation(self):
         from src.dsl import DSLSolver, search_dsl_programs, rotate_90

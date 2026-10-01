@@ -81,6 +81,45 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
                 steps=[(crop_name, lambda g, b=bg: P.crop_to_content(g, background=b))],
             )
         )
+        # Crop largest / smallest object
+        for conn in [4, 8]:
+            p_lg = f"crop_largest_bg{bg}_c{conn}"
+            progs.append(
+                Program(
+                    name=p_lg,
+                    steps=[(p_lg, lambda g, b=bg, c=conn: P.crop_largest_object(g, background=b, connectivity=c))],
+                )
+            )
+            p_sm = f"crop_smallest_bg{bg}_c{conn}"
+            progs.append(
+                Program(
+                    name=p_sm,
+                    steps=[(p_sm, lambda g, b=bg, c=conn: P.crop_smallest_object(g, background=b, connectivity=c))],
+                )
+            )
+        # Noise removal
+        p_noise = f"remove_noise_bg{bg}"
+        progs.append(
+            Program(
+                name=p_noise,
+                steps=[(p_noise, lambda g, b=bg: P.remove_small_objects(g, max_size=1, background=b))],
+            )
+        )
+
+    # Enclosed region filling
+    output_colors = set()
+    for p in train_pairs:
+        output_colors.update(np.unique(np.asarray(p["output"])).tolist())
+    for fill_c in sorted(output_colors):
+        for bg in sorted(bg_candidates):
+            if fill_c != bg:
+                enc_name = f"fill_enclosed_bg{bg}_c{fill_c}"
+                progs.append(
+                    Program(
+                        name=enc_name,
+                        steps=[(enc_name, lambda g, b=bg, fc=fill_c: P.fill_enclosed_regions(g, fill_color=fc, background=b))],
+                    )
+                )
 
     # 4. Mirror appending
     for axis in ["vertical", "horizontal", "both"]:

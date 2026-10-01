@@ -453,3 +453,90 @@ def least_frequent_color(
     if not counts:
         return None
     return min(counts.items(), key=lambda x: (x[1], x[0]))[0]
+
+
+def fill_enclosed_regions(
+    grid: Grid | np.ndarray,
+    fill_color: int,
+    background: int = 0,
+) -> Grid:
+    """Fills background regions that are fully enclosed by non-background pixels."""
+    arr = to_array(grid).copy()
+    h, w = arr.shape
+
+    # Find all exterior background cells via flood-fill from boundary
+    visited = np.zeros((h, w), dtype=bool)
+    queue = deque()
+
+    # Seed boundary background cells
+    for r in range(h):
+        for c in (0, w - 1):
+            if arr[r, c] == background and not visited[r, c]:
+                visited[r, c] = True
+                queue.append((r, c))
+    for c in range(w):
+        for r in (0, h - 1):
+            if arr[r, c] == background and not visited[r, c]:
+                visited[r, c] = True
+                queue.append((r, c))
+
+    deltas = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    while queue:
+        curr_r, curr_c = queue.popleft()
+        for dr, dc in deltas:
+            nr, nc = curr_r + dr, curr_c + dc
+            if 0 <= nr < h and 0 <= nc < w and not visited[nr, nc] and arr[nr, nc] == background:
+                visited[nr, nc] = True
+                queue.append((nr, nc))
+
+    # Any background cell not visited from boundary is enclosed
+    for r in range(h):
+        for c in range(w):
+            if arr[r, c] == background and not visited[r, c]:
+                arr[r, c] = fill_color
+
+    return arr.tolist()
+
+
+def crop_largest_object(
+    grid: Grid | np.ndarray,
+    background: int = 0,
+    connectivity: int = 4,
+) -> Grid:
+    """Finds the largest connected component and crops to its bounding box."""
+    objs = find_connected_components(grid, background=background, connectivity=connectivity)
+    if not objs:
+        return to_grid(grid)
+    largest = max(objs, key=lambda o: o.size)
+    return largest.crop_from(grid)
+
+
+def crop_smallest_object(
+    grid: Grid | np.ndarray,
+    background: int = 0,
+    connectivity: int = 4,
+) -> Grid:
+    """Finds the smallest connected component and crops to its bounding box."""
+    objs = find_connected_components(grid, background=background, connectivity=connectivity)
+    if not objs:
+        return to_grid(grid)
+    smallest = min(objs, key=lambda o: o.size)
+    return smallest.crop_from(grid)
+
+
+def remove_small_objects(
+    grid: Grid | np.ndarray,
+    max_size: int = 1,
+    background: int = 0,
+    replacement: int = 0,
+    connectivity: int = 4,
+) -> Grid:
+    """Removes noise or small connected components whose size <= max_size."""
+    arr = to_array(grid).copy()
+    objs = find_connected_components(arr, background=background, connectivity=connectivity)
+    for obj in objs:
+        if obj.size <= max_size:
+            for r, c in obj.coords:
+                arr[r, c] = replacement
+    return arr.tolist()
+

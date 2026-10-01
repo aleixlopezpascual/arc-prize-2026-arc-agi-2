@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 import time
@@ -7,15 +8,23 @@ import time
 from src import config
 from src.metrics import compute_competition_metric
 from src.models.baseline_heuristics import BaselineHeuristicSolver
-from src.validator import validate_submission_dict, validate_submission_file
+from src.models.hybrid_solver import HybridSolver
+from src.validator import validate_submission_dict
 
 
-def run_evaluation() -> dict:
+def run_evaluation(solver_name: str = "hybrid") -> dict:
+    if solver_name == "hybrid":
+        solver = HybridSolver()
+        exp_id = "hybrid_01"
+    else:
+        solver = BaselineHeuristicSolver()
+        exp_id = "baseline_01"
+
+    print(f"=== Running Evaluation for [{exp_id}] ({solver.__class__.__name__}) ===")
     print(f"Loading evaluation challenges from {config.EVAL_CHALLENGES_PATH}...")
     eval_chal = json.loads(config.EVAL_CHALLENGES_PATH.read_text())
     eval_sol = json.loads(config.EVAL_SOLUTIONS_PATH.read_text())
 
-    solver = BaselineHeuristicSolver()
     t0 = time.time()
     preds = solver.predict_all(eval_chal)
     elapsed = time.time() - t0
@@ -34,7 +43,7 @@ def run_evaluation() -> dict:
     print(f"    - Solved Tasks: {results['solved_task_ids']}")
 
     # Save to oof
-    oof_path = config.OOF_DIR / f"eval_baseline_01_{results['accuracy']:.4f}.json"
+    oof_path = config.OOF_DIR / f"eval_{exp_id}_{results['accuracy']:.4f}.json"
     oof_path.write_text(json.dumps(preds))
     print(f"[+] Saved evaluation predictions to {oof_path}")
 
@@ -45,7 +54,7 @@ def run_evaluation() -> dict:
     if not is_valid_test:
         raise ValueError(f"Test submission validation failed: {test_errors[:5]}")
 
-    sub_path = config.SUBMISSION_DIR / f"submission_baseline_01_{results['accuracy']:.4f}.json"
+    sub_path = config.SUBMISSION_DIR / f"submission_{exp_id}_{results['accuracy']:.4f}.json"
     sub_path.write_text(json.dumps(test_preds))
     print(f"[+] Saved verified test submission to {sub_path}")
 
@@ -58,4 +67,7 @@ def run_evaluation() -> dict:
 
 
 if __name__ == "__main__":
-    run_evaluation()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--solver", choices=["hybrid", "baseline"], default="hybrid")
+    args = parser.parse_args()
+    run_evaluation(solver_name=args.solver)
