@@ -7,6 +7,12 @@ import numpy as np
 from src.dsl import primitives as P
 from src.metrics import grid_equal
 
+try:
+    from src.dsl.overlay import SPLIT_OVERLAY_OPERATIONS, split_and_overlay
+    from src.dsl.cellular_automata import extract_3x3_local_rules, apply_3x3_local_rules
+except ImportError:
+    pass
+
 Grid = list[list[int]]
 
 
@@ -209,7 +215,6 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
         )
 
     # 9. Split and Logical Overlay
-    from src.dsl.overlay import SPLIT_OVERLAY_OPERATIONS, split_and_overlay
     for op in SPLIT_OVERLAY_OPERATIONS:
         op_name = f"overlay_{op}"
         progs.append(
@@ -220,7 +225,6 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
         )
 
     # 10. Cellular Automata 3x3 Local Rules
-    from src.dsl.cellular_automata import extract_3x3_local_rules, apply_3x3_local_rules
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

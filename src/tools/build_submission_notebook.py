@@ -72,9 +72,12 @@ def grid_equal(g1, g2):
     cleaned_search = "\n".join(
         line
         for line in search_py.splitlines()
-        if not line.startswith("from ")
-        and not line.startswith("import ")
-        and not line.startswith("Grid =")
+        if not line.strip().startswith("from ")
+        and not line.strip().startswith("import ")
+        and not line.strip().startswith("Grid =")
+        and not line.strip().startswith("try:")
+        and not line.strip().startswith("except ")
+        and not line.strip().startswith("pass")
     )
     cleaned_search = cleaned_search.replace("P.", "")
     arc_dsl_content += cleaned_search + "\n\n"
