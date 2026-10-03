@@ -1,0 +1,29 @@
+docs/experiments.md
+  s_01cab1dc59a0e1::t_9bb29dcac91726 20
+src/dsl/__init__.py
+  s_01cab1dc59a0e1::t_3086abada248d7 87-88
+  s_01cab1dc59a0e1::t_4774a4793a5a50 24,44
+src/dsl/search.py
+  s_01cab1dc59a0e1::t_5b9df7f45b0f03 238-255
+src/dsl/primitives.py
+  s_01cab1dc59a0e1::t_fbe00a54ae641d 696-783
+tests/test_dsl.py
+  s_01cab1dc59a0e1::t_ca46d817a6170c 478-497,499-500,502,504-508,510-513
+  s_01cab1dc59a0e1::t_f614be46ddf98e 498,501,503,509
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "9373fead3a0410c491a712a0fbec7c43d19b3cd7",
+  "prompts": {},
+  "sessions": {
+    "s_01cab1dc59a0e1": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "7c5ded7b-af7b-45ca-9e80-af2885de6ba9",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
