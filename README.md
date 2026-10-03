@@ -115,7 +115,21 @@ An exhaustive deep dive across all 100 public kernels on Kaggle revealed:
 | `hybrid-v1-kernel` | Hybrid SOTA v1: Tier 1 Symbolic + Tier 2 Qwen TTT | 0.0291 (5/172) | 0.0400 (43/1076) | **28.89%** (Sub `56772292`) | Validation score jumped 2.5 $\to$ 3.5 |
 | `hybrid-02` | Cellular Automata 3x3 + Split Overlays | 0.0058 (1/172) | 0.0483 (52/1076) | - | 128 Tier 1 hits (12.8%). Solved `135a2760` |
 | `hybrid-03` | Odd-One-Out block selector + Marker-relative windows | 0.0058 (1/172) | 0.0493 (53/1076) | - | 129 Tier 1 hits (12.9%). Solved `a87f7484`, `48d8fb45` |
-| `hybrid-v5-kernel` | Hybrid SOTA v5 with Optimal Union + Compile Gate | 0.0291 (5/172) | 0.0493 (53/1076) | Staged / Queued | Automated pre-compile validation, optimal union |
+| `hybrid-v5-kernel` | Hybrid SOTA v5 with Optimal Union + 129 Symbolic Hits | 0.0233 (4/172) | 0.0493 (53/1076) | Sub ID `56806096` (PENDING) | Auto-submitted! Both Tier 1 (`135a2760`) and Tier 2 (`981571dc`, `aa4ec2a5`) contributing points. |
+
+---
+
+## 📖 Complete Documentation Index
+
+| Document | Purpose / Key Contents |
+| :--- | :--- |
+| **[`README.md`](README.md)** | Master guide, live leaderboard standing, system overview, and developer workflows |
+| **[`docs/hybrid_architecture.md`](docs/hybrid_architecture.md)** | Technical specification of Two-Tier Hybrid Solver and mathematical proof of optimal 2-attempt union |
+| **[`docs/symbolic_primitives_catalog.md`](docs/symbolic_primitives_catalog.md)** | Full catalog of 15+ symbolic primitives, algorithms, and ARC tasks they crack |
+| **[`docs/kaggle_operations_guide.md`](docs/kaggle_operations_guide.md)** | Operations manual: container pinning, builder compile gate, auto-submit watcher, and GPU quotas |
+| **[`docs/nvarc_analysis.md`](docs/nvarc_analysis.md)** | Dissection of 1st-place NVARC TTT loop, rsLoRA, and constrained on-GPU `turbo_dfs` |
+| **[`docs/competition-brief.md`](docs/competition-brief.md)** | Problem formulation, exact-match metric math, dataset splits, and community gotchas |
+| **[`docs/experiments.md`](docs/experiments.md)** | Chronological experiment ledger tracking all 6 model generations and submission IDs |
 
 ---
 
@@ -131,6 +145,8 @@ An exhaustive deep dive across all 100 public kernels on Kaggle revealed:
 │   ├── competition-brief.md   # Problem statement, metric math & gotchas
 │   ├── experiments.md         # Detailed chronological experiment ledger
 │   ├── hybrid_architecture.md # In-depth technical architecture spec
+│   ├── symbolic_primitives_catalog.md # Full catalog of 15+ symbolic primitives
+│   ├── kaggle_operations_guide.md     # Operations & deployment handbook
 │   ├── nvarc_analysis.md      # Dissection of 1st-place NVARC TTT loop
 │   └── intel/                 # Harvested competition intel & forum threads
 ├── input/                     # Downloaded ARC-AGI-2 challenge JSON datasets
