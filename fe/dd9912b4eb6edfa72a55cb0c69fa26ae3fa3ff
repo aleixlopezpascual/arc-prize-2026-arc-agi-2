@@ -1,0 +1,21 @@
+src/dsl/search.py
+  s_01cab1dc59a0e1::t_d172a35ac39d12 10-15
+src/tools/build_submission_notebook.py
+  s_01cab1dc59a0e1::t_84ed4935895326 75-80
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "fedd9912b4eb6edfa72a55cb0c69fa26ae3fa3ff",
+  "prompts": {},
+  "sessions": {
+    "s_01cab1dc59a0e1": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "7c5ded7b-af7b-45ca-9e80-af2885de6ba9",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
