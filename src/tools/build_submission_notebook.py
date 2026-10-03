@@ -13,6 +13,12 @@ def build():
     primitives_py = Path(
         "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/src/dsl/primitives.py"
     ).read_text()
+    overlay_py = Path(
+        "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/src/dsl/overlay.py"
+    ).read_text()
+    ca_py = Path(
+        "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/src/dsl/cellular_automata.py"
+    ).read_text()
     search_py = Path(
         "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/src/dsl/search.py"
     ).read_text()
@@ -44,6 +50,24 @@ def grid_equal(g1, g2):
         and not line.startswith("Grid =")
     )
     arc_dsl_content += cleaned_prims + "\n\n"
+
+    cleaned_overlay = "\n".join(
+        line
+        for line in overlay_py.splitlines()
+        if not line.startswith("from ")
+        and not line.startswith("import ")
+        and not line.startswith("Grid =")
+    )
+    arc_dsl_content += cleaned_overlay + "\n\n"
+
+    cleaned_ca = "\n".join(
+        line
+        for line in ca_py.splitlines()
+        if not line.startswith("from ")
+        and not line.startswith("import ")
+        and not line.startswith("Grid =")
+    )
+    arc_dsl_content += cleaned_ca + "\n\n"
 
     cleaned_search = "\n".join(
         line

@@ -208,6 +208,29 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
+    # 9. Split and Logical Overlay
+    from src.dsl.overlay import SPLIT_OVERLAY_OPERATIONS, split_and_overlay
+    for op in SPLIT_OVERLAY_OPERATIONS:
+        op_name = f"overlay_{op}"
+        progs.append(
+            Program(
+                name=op_name,
+                steps=[(op_name, lambda g, o=op: split_and_overlay(g, op=o) or g)],
+            )
+        )
+
+    # 10. Cellular Automata 3x3 Local Rules
+    from src.dsl.cellular_automata import extract_3x3_local_rules, apply_3x3_local_rules
+    rules_3x3 = extract_3x3_local_rules(train_pairs)
+    if rules_3x3 is not None:
+        ca_name = "cellular_automata_3x3"
+        progs.append(
+            Program(
+                name=ca_name,
+                steps=[(ca_name, lambda g, r=rules_3x3: apply_3x3_local_rules(g, r, fallback_to_input=True) or g)],
+            )
+        )
+
     return progs
 
 

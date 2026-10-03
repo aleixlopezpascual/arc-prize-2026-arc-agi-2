@@ -2,6 +2,14 @@
 
 from __future__ import annotations
 
+from src.dsl.cellular_automata import (
+    apply_3x3_local_rules,
+    extract_3x3_local_rules,
+)
+from src.dsl.overlay import (
+    SPLIT_OVERLAY_OPERATIONS,
+    split_and_overlay,
+)
 from src.dsl.primitives import (
     Object,
     color_counts,
@@ -42,6 +50,10 @@ from src.dsl.solver import DSLSolver
 
 __all__ = [
     "Object",
+    "apply_3x3_local_rules",
+    "extract_3x3_local_rules",
+    "SPLIT_OVERLAY_OPERATIONS",
+    "split_and_overlay",
     "color_counts",
     "complete_symmetry",
     "connect_matching_dots",

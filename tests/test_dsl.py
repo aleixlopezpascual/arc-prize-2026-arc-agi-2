@@ -446,4 +446,34 @@ class TestDSLSearchAndSolver:
         preds = solver.solve_task(task)
         assert preds[0]["attempt_1"] == [[3, 3, 3]]
 
+    def test_extract_and_apply_3x3_local_rules(self):
+        from src.dsl import extract_3x3_local_rules, apply_3x3_local_rules
+
+        # Invert color 1 to 2 whenever surrounded by 0
+        train_pairs = [
+            {"input": [[0, 0, 0], [0, 1, 0], [0, 0, 0]], "output": [[0, 0, 0], [0, 2, 0], [0, 0, 0]]},
+            {"input": [[0, 0, 0], [0, 0, 0], [0, 0, 0]], "output": [[0, 0, 0], [0, 0, 0], [0, 0, 0]]},
+        ]
+        rules = extract_3x3_local_rules(train_pairs)
+        assert rules is not None
+
+        test_in = [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
+        pred = apply_3x3_local_rules(test_in, rules)
+        assert pred == [[0, 0, 0], [0, 2, 0], [0, 0, 0]]
+
+    def test_split_and_overlay(self):
+        from src.dsl import split_and_overlay
+
+        # 2x5 grid with vertical divider at col 2
+        grid = [
+            [1, 0, 5, 0, 2],
+            [0, 3, 5, 4, 0],
+        ]
+        or_result = split_and_overlay(grid, op="vsplit_div_or", background=0)
+        assert or_result == [
+            [1, 2],
+            [4, 3],
+        ]
+
+
 
