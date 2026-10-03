@@ -108,6 +108,15 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
                 steps=[(p_noise, lambda g, b=bg: P.remove_small_objects(g, max_size=1, background=b))],
             )
         )
+        # Rigid body object gravity
+        for direction in ["down", "up", "left", "right"]:
+            p_rg = f"rigid_gravity_{direction}_bg{bg}"
+            progs.append(
+                Program(
+                    name=p_rg,
+                    steps=[(p_rg, lambda g, d=direction, b=bg: P.rigid_object_gravity(g, direction=d, background=b))],
+                )
+            )
 
     # Enclosed region filling
     output_colors = set()

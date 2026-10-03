@@ -780,4 +780,98 @@ def extract_window_relative_to_marker(
     return to_grid(grid)
 
 
+def rigid_object_gravity(
+    grid: Grid | np.ndarray,
+    direction: str = "down",
+    background: int = 0,
+) -> Grid:
+    """Simulates rigid-body physics: each connected component falls until colliding."""
+    arr = to_array(grid).copy()
+    h, w = arr.shape
+    objs = find_connected_components(arr, background=background, connectivity=8)
+    if not objs:
+        return to_grid(grid)
+
+    out = np.full((h, w), background, dtype=int)
+
+    if direction == "down":
+        objs = sorted(objs, key=lambda o: max(r for r, _ in o.coords), reverse=True)
+        for obj in objs:
+            coords = list(obj.coords)
+            max_shift = 0
+            while True:
+                can = True
+                for r, c in coords:
+                    nr = r + max_shift + 1
+                    if nr >= h or out[nr, c] != background:
+                        can = False
+                        break
+                if can:
+                    max_shift += 1
+                else:
+                    break
+            for r, c in coords:
+                out[r + max_shift, c] = arr[r, c]
+
+    elif direction == "up":
+        objs = sorted(objs, key=lambda o: min(r for r, _ in o.coords))
+        for obj in objs:
+            coords = list(obj.coords)
+            max_shift = 0
+            while True:
+                can = True
+                for r, c in coords:
+                    nr = r - max_shift - 1
+                    if nr < 0 or out[nr, c] != background:
+                        can = False
+                        break
+                if can:
+                    max_shift += 1
+                else:
+                    break
+            for r, c in coords:
+                out[r - max_shift, c] = arr[r, c]
+
+    elif direction == "right":
+        objs = sorted(objs, key=lambda o: max(c for _, c in o.coords), reverse=True)
+        for obj in objs:
+            coords = list(obj.coords)
+            max_shift = 0
+            while True:
+                can = True
+                for r, c in coords:
+                    nc = c + max_shift + 1
+                    if nc >= w or out[r, nc] != background:
+                        can = False
+                        break
+                if can:
+                    max_shift += 1
+                else:
+                    break
+            for r, c in coords:
+                out[r, c + max_shift] = arr[r, c]
+
+    elif direction == "left":
+        objs = sorted(objs, key=lambda o: min(c for _, c in o.coords))
+        for obj in objs:
+            coords = list(obj.coords)
+            max_shift = 0
+            while True:
+                can = True
+                for r, c in coords:
+                    nc = c - max_shift - 1
+                    if nc < 0 or out[r, nc] != background:
+                        can = False
+                        break
+                if can:
+                    max_shift += 1
+                else:
+                    break
+            for r, c in coords:
+                out[r, c - max_shift] = arr[r, c]
+
+    return out.tolist()
+
+
+
 

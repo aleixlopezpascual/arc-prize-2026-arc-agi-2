@@ -510,6 +510,25 @@ class TestDSLSearchAndSolver:
             [7, 8, 9],
         ]
 
+    def test_rigid_object_gravity(self):
+        from src.dsl import rigid_object_gravity
+
+        # 4x4 grid: 2x2 square floating at rows 0..1, col 1..2
+        grid = [
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+        ]
+        dropped = rigid_object_gravity(grid, direction="down", background=0)
+        assert dropped == [
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 1, 1, 0],
+            [0, 1, 1, 0],
+        ]
+
+
 
 
 
