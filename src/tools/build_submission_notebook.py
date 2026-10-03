@@ -42,55 +42,39 @@ def grid_equal(g1, g2):
     return a1.shape == a2.shape and bool(np.array_equal(a1, a2))
 \n"""
 
-    cleaned_prims = "\n".join(
-        line
-        for line in primitives_py.splitlines()
-        if not line.startswith("from ")
-        and not line.startswith("import ")
-        and not line.startswith("Grid =")
-    )
+    def clean_code(code_str: str) -> str:
+        lines = []
+        for line in code_str.splitlines():
+            s = line.strip()
+            if s.startswith("from __future__") or s == "Grid = list[list[int]]":
+                continue
+            if s.startswith("from src.") or s.startswith("import src."):
+                continue
+            lines.append(line.replace("P.", ""))
+        return "\n".join(lines)
+
+    cleaned_prims = clean_code(primitives_py)
     arc_dsl_content += cleaned_prims + "\n\n"
 
-    cleaned_overlay = "\n".join(
-        line
-        for line in overlay_py.splitlines()
-        if not line.startswith("from ")
-        and not line.startswith("import ")
-        and not line.startswith("Grid =")
-    )
+    cleaned_overlay = clean_code(overlay_py)
     arc_dsl_content += cleaned_overlay + "\n\n"
 
-    cleaned_ca = "\n".join(
-        line
-        for line in ca_py.splitlines()
-        if not line.startswith("from ")
-        and not line.startswith("import ")
-        and not line.startswith("Grid =")
-    )
+    cleaned_ca = clean_code(ca_py)
     arc_dsl_content += cleaned_ca + "\n\n"
 
-    cleaned_search = "\n".join(
-        line
-        for line in search_py.splitlines()
-        if not line.strip().startswith("from ")
-        and not line.strip().startswith("import ")
-        and not line.strip().startswith("Grid =")
-        and not line.strip().startswith("try:")
-        and not line.strip().startswith("except ")
-        and not line.strip().startswith("pass")
-    )
-    cleaned_search = cleaned_search.replace("P.", "")
+    cleaned_search = clean_code(search_py)
     arc_dsl_content += cleaned_search + "\n\n"
 
-    cleaned_solver = "\n".join(
-        line
-        for line in solver_py.splitlines()
-        if not line.startswith("from ")
-        and not line.startswith("import ")
-        and not line.startswith("Grid =")
-    )
-    cleaned_solver = cleaned_solver.replace("P.", "")
+    cleaned_solver = clean_code(solver_py)
     arc_dsl_content += cleaned_solver + "\n"
+
+    # Pre-compile verification
+    code_to_verify = arc_dsl_content.replace("%%writefile arc_dsl.py\n", "")
+    try:
+        compile(code_to_verify, "arc_dsl.py", "exec")
+        print("[+] Verified: arc_dsl.py compiles cleanly with zero syntax/indentation errors!")
+    except Exception as e:
+        raise RuntimeError(f"Syntax verification failed for arc_dsl.py: {e}")
 
     cells = []
 

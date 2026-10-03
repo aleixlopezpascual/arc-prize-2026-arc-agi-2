@@ -7,11 +7,8 @@ import numpy as np
 from src.dsl import primitives as P
 from src.metrics import grid_equal
 
-try:
-    from src.dsl.overlay import SPLIT_OVERLAY_OPERATIONS, split_and_overlay
-    from src.dsl.cellular_automata import extract_3x3_local_rules, apply_3x3_local_rules
-except ImportError:
-    pass
+from src.dsl.overlay import SPLIT_OVERLAY_OPERATIONS, split_and_overlay
+from src.dsl.cellular_automata import extract_3x3_local_rules, apply_3x3_local_rules
 
 Grid = list[list[int]]
 
