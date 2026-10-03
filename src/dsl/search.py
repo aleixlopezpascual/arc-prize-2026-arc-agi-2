@@ -235,6 +235,24 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
+    # 11. Odd-one-out 3x3 Block Selection
+    progs.append(
+        Program(
+            name="select_odd_one_out_3x3",
+            steps=[("select_odd_one_out_3x3", lambda g: P.select_odd_one_out_block(g, win_h=3, win_w=3))],
+        )
+    )
+
+    # 12. Window Relative to Single Marker
+    for rel in ["below", "above", "center", "right", "left"]:
+        m_name = f"marker_win_{rel}_3x3"
+        progs.append(
+            Program(
+                name=m_name,
+                steps=[(m_name, lambda g, r=rel: P.extract_window_relative_to_marker(g, relation=r, win_h=3, win_w=3))],
+            )
+        )
+
     return progs
 
 

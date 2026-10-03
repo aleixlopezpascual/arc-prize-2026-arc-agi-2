@@ -693,3 +693,91 @@ def crop_hollow_rectangle_interior(grid: Grid | np.ndarray, background: int = 0)
     return to_grid(grid)
 
 
+def select_odd_one_out_block(
+    grid: Grid | np.ndarray,
+    win_h: int = 3,
+    win_w: int = 3,
+) -> Grid:
+    """Finds composite block components and selects the block with unique symmetry."""
+    arr = to_array(grid)
+    h, w = arr.shape
+    blocks: list[np.ndarray] = []
+
+    if h == win_h and w % win_w == 0:
+        for c in range(0, w, win_w):
+            blocks.append(arr[:, c : c + win_w])
+    elif w == win_w and h % win_h == 0:
+        for r in range(0, h, win_h):
+            blocks.append(arr[r : r + win_h, :])
+    elif h % win_h == 0 and w % win_w == 0:
+        for r in range(0, h, win_h):
+            for c in range(0, w, win_w):
+                blocks.append(arr[r : r + win_h, c : c + win_w])
+    else:
+        return to_grid(grid)
+
+    if not blocks:
+        return to_grid(grid)
+
+    def is_sym(b: np.ndarray) -> bool:
+        return bool(np.array_equal(b, np.flipud(b)) and np.array_equal(b, np.fliplr(b)))
+
+    sigs = [is_sym(b) for b in blocks]
+    counts = Counter(sigs)
+    unique_sigs = [s for s, cnt in counts.items() if cnt == 1]
+    if len(unique_sigs) == 1:
+        target_idx = sigs.index(unique_sigs[0])
+        return blocks[target_idx].tolist()
+
+    return blocks[0].tolist()
+
+
+def extract_window_relative_to_marker(
+    grid: Grid | np.ndarray,
+    marker_color: int | None = None,
+    relation: str = "below",
+    win_h: int = 3,
+    win_w: int = 3,
+) -> Grid:
+    """Extracts a subwindow positioned relative to a single-pixel marker."""
+    arr = to_array(grid)
+    h, w = arr.shape
+
+    if marker_color is None:
+        colors, counts = np.unique(arr, return_counts=True)
+        single_colors = [c for c, cnt in zip(colors, counts) if cnt == 1]
+        if not single_colors:
+            return to_grid(grid)
+        marker_color = int(single_colors[0])
+
+    markers = list(zip(*np.where(arr == marker_color)))
+    if not markers:
+        return to_grid(grid)
+
+    r_m, c_m = markers[0]
+
+    if relation == "below":
+        r0, r1 = r_m + 1, r_m + 1 + win_h
+        c0, c1 = c_m - win_w // 2, c_m - win_w // 2 + win_w
+    elif relation == "above":
+        r0, r1 = r_m - win_h, r_m
+        c0, c1 = c_m - win_w // 2, c_m - win_w // 2 + win_w
+    elif relation == "center":
+        r0, r1 = r_m - win_h // 2, r_m - win_h // 2 + win_h
+        c0, c1 = c_m - win_w // 2, c_m - win_w // 2 + win_w
+    elif relation == "right":
+        r0, r1 = r_m - win_h // 2, r_m - win_h // 2 + win_h
+        c0, c1 = c_m + 1, c_m + 1 + win_w
+    elif relation == "left":
+        r0, r1 = r_m - win_h // 2, r_m - win_h // 2 + win_h
+        c0, c1 = c_m - win_w, c_m
+    else:
+        return to_grid(grid)
+
+    if 0 <= r0 and r1 <= h and 0 <= c0 and c1 <= w:
+        return arr[r0:r1, c0:c1].tolist()
+
+    return to_grid(grid)
+
+
+

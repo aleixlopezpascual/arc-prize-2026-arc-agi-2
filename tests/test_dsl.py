@@ -475,5 +475,41 @@ class TestDSLSearchAndSolver:
             [4, 3],
         ]
 
+    def test_select_odd_one_out_block(self):
+        from src.dsl import select_odd_one_out_block
+
+        # 3x6 grid: left 3x3 is symmetric, right 3x3 is asymmetric
+        # And a third 3x3 symmetric block in a 3x9 grid
+        grid = [
+            [1, 0, 1,   2, 0, 0,   3, 0, 3],
+            [0, 1, 0,   0, 2, 0,   0, 3, 0],
+            [1, 0, 1,   0, 0, 2,   3, 0, 3],
+        ]
+        odd = select_odd_one_out_block(grid, win_h=3, win_w=3)
+        assert odd == [
+            [2, 0, 0],
+            [0, 2, 0],
+            [0, 0, 2],
+        ]
+
+    def test_extract_window_relative_to_marker(self):
+        from src.dsl import extract_window_relative_to_marker
+
+        # 5x5 grid with unique marker color 5 at (1, 1)
+        grid = [
+            [0, 0, 0, 0, 0],
+            [0, 5, 0, 0, 0],
+            [1, 2, 3, 0, 0],
+            [4, 0, 6, 0, 0],
+            [7, 8, 9, 0, 0],
+        ]
+        win = extract_window_relative_to_marker(grid, marker_color=5, relation="below", win_h=3, win_w=3)
+        assert win == [
+            [1, 2, 3],
+            [4, 0, 6],
+            [7, 8, 9],
+        ]
+
+
 
 
