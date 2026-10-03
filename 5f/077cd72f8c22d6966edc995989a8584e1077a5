@@ -1,0 +1,21 @@
+README.md
+  s_01cab1dc59a0e1::t_f37cf3778d2025 1-193
+docs/hybrid_architecture.md
+  s_01cab1dc59a0e1::t_31d7a843fc0bc7 1-101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "5f077cd72f8c22d6966edc995989a8584e1077a5",
+  "prompts": {},
+  "sessions": {
+    "s_01cab1dc59a0e1": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "7c5ded7b-af7b-45ca-9e80-af2885de6ba9",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
