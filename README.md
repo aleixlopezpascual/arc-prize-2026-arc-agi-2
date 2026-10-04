@@ -14,7 +14,7 @@ An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle
 
 - **Official Public Leaderboard Score:** **`30.69%`** (Submission ID `56806096`, `SubmissionStatus.COMPLETE`)
 - **Official Competition Rank:** **Rank 563** out of 2,400 teams (+480 positions climbed!)
-- **Daily Submission Quota:** 1 submission remaining today
+- **Active Submission in Evaluation:** **Submission ID `56828374`** (`SubmissionStatus.PENDING`, Hybrid SOTA v6)
 - **Hybrid Kernel Validation Score:** **`3.5`** (up from `2.5` on the pure baseline)
 - **Tier 1 Symbolic Hit Rate:** **129 tasks (12.9% coverage)** across ARC demonstrations in $< 0.01$s per task
 - **Training Set Solved Count:** **49 tasks solved (53 test outputs, 4.93% accuracy)**
