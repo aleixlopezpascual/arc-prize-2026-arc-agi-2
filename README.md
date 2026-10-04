@@ -4,7 +4,7 @@
 [![Leaderboard](https://img.shields.io/badge/Public%20LB-30.69%25-brightgreen?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
 [![Rank](https://img.shields.io/badge/Rank-563%20%2F%202400-gold?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
 [![Kaggle Kernel](https://img.shields.io/badge/Kaggle-4x%20L4%20GPUs-orange?logo=kaggle)](https://www.kaggle.com/code/aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt)
-[![Tests](https://img.shields.io/badge/Unit%20Tests-45%20Passing-success)](tests/)
+[![Tests](https://img.shields.io/badge/Unit%20Tests-47%20Passing-success)](tests/)
 
 An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2) competition on Kaggle, pioneering a **Two-Tier Hybrid Architecture** combining deterministic symbolic program induction with state-of-the-art Test-Time Training (TTT) neural models.
 
@@ -116,7 +116,8 @@ An exhaustive deep dive across all 100 public kernels on Kaggle revealed:
 | `hybrid-v1-kernel` | Hybrid SOTA v1: Tier 1 Symbolic + Tier 2 Qwen TTT | 0.0291 (5/172) | 0.0400 (43/1076) | **28.89%** (Sub `56772292`) | Validation score jumped 2.5 $\to$ 3.5 |
 | `hybrid-02` | Cellular Automata 3x3 + Split Overlays | 0.0058 (1/172) | 0.0483 (52/1076) | - | 128 Tier 1 hits (12.8%). Solved `135a2760` |
 | `hybrid-03` | Odd-One-Out block selector + Marker-relative windows | 0.0058 (1/172) | 0.0493 (53/1076) | - | 129 Tier 1 hits (12.9%). Solved `a87f7484`, `48d8fb45` |
-| `hybrid-v5-kernel` | Hybrid SOTA v5 with Optimal Union + 129 Symbolic Hits | 0.0233 (4/172) | 0.0493 (53/1076) | Sub ID `56806096` (PENDING) | Auto-submitted! Both Tier 1 (`135a2760`) and Tier 2 (`981571dc`, `aa4ec2a5`) contributing points. |
+| `hybrid-v5-kernel` | Hybrid SOTA v5 with Optimal Union + 129 Symbolic Hits | 0.0233 (4/172) | 0.0493 (53/1076) | **30.69%** (Rank 563 / 2,400) | Sub ID `56806096` COMPLETE! Score surged +1.38%, climbed +480 positions to Rank 563. |
+| `hybrid-v6-kernel` | Hybrid SOTA v6: Directional & Bouncing Raycasting + Rigid Gravity | 0.0233 (4/172) | 0.0511 (55/1076) | Queued (Auto-Submit Active) | Pushed as private kernel v6. Background auto-submitter (PID 67918) active. Solves `d037b0a7`, `623ea044`, `1e0a9b12`. |
 
 ---
 
