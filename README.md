@@ -118,7 +118,7 @@ An exhaustive deep dive across all 100 public kernels on Kaggle revealed:
 | `hybrid-03` | Odd-One-Out block selector + Marker-relative windows | 0.0058 (1/172) | 0.0493 (53/1076) | - | 129 Tier 1 hits (12.9%). Solved `a87f7484`, `48d8fb45` |
 | `hybrid-v5-kernel` | Hybrid SOTA v5 with Optimal Union + 129 Symbolic Hits | 0.0233 (4/172) | 0.0493 (53/1076) | **30.69%** (Rank 563 / 2,400) | Sub ID `56806096` COMPLETE! Score surged +1.38%, climbed +480 positions to Rank 563. |
 | `hybrid-v6-kernel` | Hybrid SOTA v6: Directional & Bouncing Raycasting + Rigid Gravity | 0.0233 (4/172) | 0.0511 (55/1076) | Sub ID `56828374` (PENDING) | Officially submitted! Private rerun active across 240 hidden test tasks on 4x L4 GPUs. |
-| `hybrid-v7-kernel` | Hybrid SOTA v7: Kaleidoscope Tiling + Kronecker Fractals + 1x1 Classification | 0.0233 (4/172) | 0.0520 (56/1076) | Queued (Auto-Submit Active) | Pushed as private kernel v7. Background watcher (PID 54081) active. 55 unit tests passing. |
+| `hybrid-v7-kernel` | Hybrid SOTA v7: Kaleidoscope Tiling + Kronecker Fractals + 1x1 Classification | 0.0233 (4/172) | 0.0520 (56/1076) | Completed (Val: 3.5) | Completed on Kaggle 4x L4 cluster. Output verified 100% compliant. Stored at `submissions/submission_hybrid_sota_v7.json`. |
 
 ---
 
