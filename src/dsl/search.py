@@ -275,6 +275,18 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
         )
     )
 
+    # 14. Color Objects by Size, Height, or Width
+    for prop in ["size", "height", "width"]:
+        prop_rule = P.extract_object_property_color_rule(train_pairs, property_name=prop)
+        if prop_rule is not None:
+            p_name = f"color_objs_by_{prop}"
+            progs.append(
+                Program(
+                    name=p_name,
+                    steps=[(p_name, lambda g, pr=prop, pm=prop_rule: P.color_objects_by_property(g, pm, property_name=pr))],
+                )
+            )
+
     return progs
 
 

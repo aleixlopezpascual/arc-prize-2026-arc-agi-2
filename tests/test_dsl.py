@@ -557,6 +557,23 @@ class TestDSLSearchAndSolver:
         assert bounced[1][1] == 7
         assert bounced[2][2] == 7
 
+    def test_color_objects_by_property(self):
+        from src.dsl import color_objects_by_property, extract_object_property_color_rule
+
+        train_pairs = [
+            # Object of size 1 becomes 2, object of size 2 becomes 3
+            {"input": [[1, 0, 1], [0, 0, 1]], "output": [[2, 0, 3], [0, 0, 3]]},
+            {"input": [[1, 0, 0], [0, 0, 1], [0, 0, 1]], "output": [[2, 0, 0], [0, 0, 3], [0, 0, 3]]},
+        ]
+        rule = extract_object_property_color_rule(train_pairs, property_name="size", background=0)
+        assert rule == {1: 2, 2: 3}
+
+        test_in = [[0, 1, 0], [0, 0, 0], [1, 1, 0]]
+        recolored = color_objects_by_property(test_in, rule, property_name="size", background=0)
+        assert recolored == [[0, 2, 0], [0, 0, 0], [3, 3, 0]]
+
+
+
 
 
 

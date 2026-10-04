@@ -962,6 +962,53 @@ def raycast_diagonal_bouncing(
     return out.tolist()
 
 
+def extract_object_property_color_rule(
+    train_pairs: list[dict[str, Any]],
+    property_name: str = "size",
+    background: int = 0,
+) -> dict[int, int] | None:
+    """Finds if a task maps connected components to a color based on size, height, or width."""
+    prop_map: dict[int, int] = {}
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = np.asarray(pair["output"], dtype=int)
+        inp_arr = np.asarray(inp, dtype=int)
+        if inp_arr.shape != out.shape:
+            return None
+
+        objs = find_connected_components(inp, background=background, connectivity=8)
+        for obj in objs:
+            out_colors = {int(out[r, c]) for r, c in obj.coords}
+            if len(out_colors) != 1:
+                return None
+            out_color = out_colors.pop()
+            val = getattr(obj, property_name)
+            if val in prop_map and prop_map[val] != out_color:
+                return None
+            prop_map[val] = out_color
+
+    return prop_map if len(prop_map) >= 2 else None
+
+
+def color_objects_by_property(
+    grid: Grid | np.ndarray,
+    property_map: dict[int, int],
+    property_name: str = "size",
+    background: int = 0,
+) -> Grid:
+    """Recolors each connected component according to its size, height, or width."""
+    arr = to_array(grid).copy()
+    objs = find_connected_components(grid, background=background, connectivity=8)
+    for obj in objs:
+        val = getattr(obj, property_name)
+        if val in property_map:
+            new_c = property_map[val]
+            for r, c in obj.coords:
+                arr[r, c] = new_c
+    return arr.tolist()
+
+
+
 
 
 
