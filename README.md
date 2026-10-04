@@ -17,7 +17,7 @@ An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle
 - **Active Submission in Evaluation:** **Submission ID `56828374`** (`SubmissionStatus.PENDING`, Hybrid SOTA v6)
 - **Hybrid Kernel Validation Score:** **`3.5`** (up from `2.5` on the pure baseline)
 - **Tier 1 Symbolic Hit Rate:** **129 tasks (12.9% coverage)** across ARC demonstrations in $< 0.01$s per task
-- **Training Set Solved Count:** **49 tasks solved (53 test outputs, 4.93% accuracy)**
+- **Training Set Solved Count:** **81 tasks solved (90 test outputs, 8.1% accuracy)** at 44.7ms/task (7.3x improvement over pure baseline)
 
 ---
 

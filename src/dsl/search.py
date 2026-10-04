@@ -423,6 +423,22 @@ def generate_two_step_candidates(
                 )
             )
 
+        # Dynamic intermediate color remapping: learn mapping from p1(X) -> Y
+        try:
+            p1_outs = [p1.execute(pair["input"]) for pair in train_pairs]
+            inter_pairs = [{"input": o1, "output": pair["output"]} for o1, pair in zip(p1_outs, train_pairs)]
+            p1_cmap = find_dynamic_color_mapping(inter_pairs)
+            if p1_cmap is not None:
+                composite_name = f"{p1.name} >> remap_colors"
+                progs.append(
+                    Program(
+                        name=composite_name,
+                        steps=list(p1.steps) + [("remap_colors", lambda g, m=p1_cmap: P.remap_colors(g, m))],
+                    )
+                )
+        except Exception:
+            pass
+
     return progs
 
 
