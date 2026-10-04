@@ -675,6 +675,67 @@ class TestDSLSearchAndSolver:
         assert tiled[1] == [3, 4, 3, 4, 3]
         assert tiled[2] == [1, 2, 1, 2, 1]
 
+    def test_color_objects_by_holes(self):
+        from src.dsl import color_objects_by_holes, extract_holes_to_color_rule
+
+        # Object 1: solid 2x2 square (0 holes)
+        # Object 2: 3x3 hollow square (1 hole)
+        train_pairs = [
+            {
+                "input": [
+                    [1, 1, 0, 2, 2, 2],
+                    [1, 1, 0, 2, 0, 2],
+                    [0, 0, 0, 2, 2, 2],
+                ],
+                "output": [
+                    [3, 3, 0, 4, 4, 4],
+                    [3, 3, 0, 4, 0, 4],
+                    [0, 0, 0, 4, 4, 4],
+                ],
+            },
+            {
+                "input": [
+                    [1, 1, 0, 0, 0, 0],
+                    [1, 1, 0, 0, 0, 0],
+                ],
+                "output": [
+                    [3, 3, 0, 0, 0, 0],
+                    [3, 3, 0, 0, 0, 0],
+                ],
+            },
+        ]
+        h_rule = extract_holes_to_color_rule(train_pairs, background=0)
+        assert h_rule == {0: 3, 1: 4}
+
+        test_in = [
+            [5, 5, 5],
+            [5, 0, 5],
+            [5, 5, 5],
+        ]
+        recolored = color_objects_by_holes(test_in, h_rule, background=0)
+        assert recolored == [
+            [4, 4, 4],
+            [4, 0, 4],
+            [4, 4, 4],
+        ]
+
+    def test_extract_object_by_hole_count(self):
+        from src.dsl import extract_object_by_hole_count
+
+        grid = [
+            [1, 1, 0, 2, 2, 2],
+            [1, 1, 0, 2, 0, 2],
+            [0, 0, 0, 2, 2, 2],
+        ]
+        # Extract object with 1 hole (the 3x3 hollow square of 2s)
+        extracted = extract_object_by_hole_count(grid, target_holes=1, background=0)
+        assert extracted == [
+            [2, 2, 2],
+            [2, 0, 2],
+            [2, 2, 2],
+        ]
+
+
 
 
 

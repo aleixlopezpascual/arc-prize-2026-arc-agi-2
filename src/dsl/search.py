@@ -359,6 +359,26 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
                 )
             )
 
+    # 21. Color Objects by Hole Count (Euler Genus)
+    holes_rule = P.extract_holes_to_color_rule(train_pairs)
+    if holes_rule is not None:
+        progs.append(
+            Program(
+                name="color_objects_by_holes",
+                steps=[("color_objects_by_holes", lambda g, hr=holes_rule: P.color_objects_by_holes(g, hr))],
+            )
+        )
+
+    # 22. Extract Object by Hole Count
+    for h_target in [0, 1, 2]:
+        p_name = f"extract_obj_{h_target}_holes"
+        progs.append(
+            Program(
+                name=p_name,
+                steps=[(p_name, lambda g, ht=h_target: P.extract_object_by_hole_count(g, target_holes=ht))],
+            )
+        )
+
     return progs
 
 

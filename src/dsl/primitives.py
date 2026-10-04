@@ -1128,6 +1128,113 @@ def tile_to_target_shape(
     return tiled[:target_h, :target_w].tolist()
 
 
+def count_holes_in_object(obj: Object, grid_arr: np.ndarray, background: int = 0) -> int:
+    """Counts the number of enclosed topological holes (genus) inside a connected component."""
+    min_r, min_c, max_r, max_c = obj.bbox
+    h, w = max_r - min_r + 1, max_c - min_c + 1
+
+    padded = np.zeros((h + 2, w + 2), dtype=int)
+    for r, c in obj.coords:
+        padded[r - min_r + 1, c - min_c + 1] = 1
+
+    visited = np.zeros_like(padded, dtype=bool)
+    q = deque([(0, 0)])
+    visited[0, 0] = True
+
+    ph, pw = padded.shape
+    while q:
+        cr, cc = q.popleft()
+        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            nr, nc = cr + dr, cc + dc
+            if 0 <= nr < ph and 0 <= nc < pw and not visited[nr, nc] and padded[nr, nc] == 0:
+                visited[nr, nc] = True
+                q.append((nr, nc))
+
+    hole_count = 0
+    hole_visited = np.zeros_like(padded, dtype=bool)
+    for r in range(ph):
+        for c in range(pw):
+            if padded[r, c] == 0 and not visited[r, c] and not hole_visited[r, c]:
+                hole_count += 1
+                hq = deque([(r, c)])
+                hole_visited[r, c] = True
+                while hq:
+                    hr, hc = hq.popleft()
+                    for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                        nhr, nhc = hr + dr, hc + dc
+                        if (
+                            0 <= nhr < ph
+                            and 0 <= nhc < pw
+                            and not hole_visited[nhr, nhc]
+                            and padded[nhr, nhc] == 0
+                            and not visited[nhr, nhc]
+                        ):
+                            hole_visited[nhr, nhc] = True
+                            hq.append((nhr, nhc))
+
+    return hole_count
+
+
+def extract_holes_to_color_rule(
+    train_pairs: list[dict[str, Any]],
+    background: int = 0,
+) -> dict[int, int] | None:
+    """Learns if object color is determined by its number of enclosed topological holes."""
+    hole_map: dict[int, int] = {}
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = np.asarray(pair["output"], dtype=int)
+        inp_arr = np.asarray(inp, dtype=int)
+        if inp_arr.shape != out.shape:
+            return None
+        objs = find_connected_components(inp, background=background, connectivity=8)
+        for obj in objs:
+            out_colors = {int(out[r, c]) for r, c in obj.coords}
+            if len(out_colors) != 1:
+                return None
+            out_color = out_colors.pop()
+            holes = count_holes_in_object(obj, inp_arr, background=background)
+            if holes in hole_map and hole_map[holes] != out_color:
+                return None
+            hole_map[holes] = out_color
+
+    return hole_map if len(hole_map) >= 2 else None
+
+
+def color_objects_by_holes(
+    grid: Grid | np.ndarray,
+    hole_map: dict[int, int],
+    background: int = 0,
+) -> Grid:
+    """Recolors each connected component according to its number of topological holes."""
+    arr = to_array(grid).copy()
+    objs = find_connected_components(grid, background=background, connectivity=8)
+    for obj in objs:
+        holes = count_holes_in_object(obj, arr, background=background)
+        if holes in hole_map:
+            new_c = hole_map[holes]
+            for r, c in obj.coords:
+                arr[r, c] = new_c
+    return arr.tolist()
+
+
+def extract_object_by_hole_count(
+    grid: Grid | np.ndarray,
+    target_holes: int = 1,
+    background: int = 0,
+) -> Grid:
+    """Finds the unique connected component with target_holes and crops it."""
+    arr = to_array(grid)
+    objs = find_connected_components(grid, background=background, connectivity=8)
+    matching = [
+        o for o in objs if count_holes_in_object(o, arr, background=background) == target_holes
+    ]
+    if len(matching) == 1:
+        return matching[0].crop_from(grid)
+    return to_grid(grid)
+
+
+
 
 
 

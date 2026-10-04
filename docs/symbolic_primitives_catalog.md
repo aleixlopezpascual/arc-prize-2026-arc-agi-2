@@ -182,7 +182,17 @@ This catalog details the complete set of verified symbolic perception and transf
 
 ---
 
-## 20. Morphological & Geometric Transforms
+## 20. Topological Hole Counting & Genus Classification (`count_holes_in_object`, `color_objects_by_holes`, `extract_object_by_hole_count`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **5 training tasks** (`0a2355a6`, `37d3e8b2`, `810b9b61`, `1cf80156`, `c909285e`).
+- **Concept:** Measures topological Euler genus (the count of enclosed hollow cavities within a connected component).
+  - 0 holes: Solid blob (solves `1cf80156`).
+  - 1 hole: Hollow frame or donut (solves `c909285e`).
+  - Multiple holes: Maps components to discrete class colors based on cavity count (solves `0a2355a6`, `37d3e8b2`, `810b9b61`).
+
+---
+
+## 21. Morphological & Geometric Transforms
 - **File:** `src/dsl/primitives.py`
 - **`crop_largest_object` & `crop_smallest_object`:** Connected-component bounding box extraction by size extrema.
 - **`remove_small_objects`:** Filters connected components of size $\le \text{threshold}$ (noise suppression).
