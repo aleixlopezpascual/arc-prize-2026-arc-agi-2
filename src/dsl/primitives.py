@@ -873,5 +873,95 @@ def rigid_object_gravity(
     return out.tolist()
 
 
+def raycast_directional(
+    grid: Grid | np.ndarray,
+    direction: str = "down",
+    background: int = 0,
+) -> Grid:
+    """Projects directional rays from non-background pixels across the grid."""
+    arr = to_array(grid).copy()
+    h, w = arr.shape
+    out = arr.copy()
+
+    dirs: list[tuple[int, int]] = []
+    if direction == "down":
+        dirs = [(1, 0)]
+    elif direction == "up":
+        dirs = [(-1, 0)]
+    elif direction == "right":
+        dirs = [(0, 1)]
+    elif direction == "left":
+        dirs = [(0, -1)]
+    elif direction == "horizontal":
+        dirs = [(0, -1), (0, 1)]
+    elif direction == "vertical":
+        dirs = [(-1, 0), (1, 0)]
+    elif direction == "cross":
+        dirs = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    else:
+        return to_grid(grid)
+
+    coords = list(zip(*np.where(arr != background)))
+    if not coords or len(coords) > 25:
+        return to_grid(grid)
+
+    for r, c in coords:
+        color = arr[r, c]
+        for dr, dc in dirs:
+            cr, cc = r + dr, c + dc
+            while 0 <= cr < h and 0 <= cc < w:
+                if out[cr, cc] == background:
+                    out[cr, cc] = color
+                cr += dr
+                cc += dc
+
+    return out.tolist()
+
+
+def raycast_diagonal_bouncing(
+    grid: Grid | np.ndarray,
+    background: int = 0,
+) -> Grid:
+    """Projects 4-way diagonal billiard rays that bounce off grid boundaries."""
+    arr = to_array(grid).copy()
+    h, w = arr.shape
+    out = arr.copy()
+
+    coords = list(zip(*np.where(arr != background)))
+    if not coords or len(coords) > 10:
+        return to_grid(grid)
+
+    visited_states = set()
+    for r, c in coords:
+        color = arr[r, c]
+        for dr, dc in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
+            curr_r, curr_c = r, c
+            curr_dr, curr_dc = dr, dc
+            for _ in range(2 * (h + w)):
+                state = (curr_r, curr_c, curr_dr, curr_dc)
+                if state in visited_states:
+                    break
+                visited_states.add(state)
+
+                nr = curr_r + curr_dr
+                nc = curr_c + curr_dc
+                # Bounce on boundary
+                if nr < 0 or nr >= h:
+                    curr_dr = -curr_dr
+                    nr = curr_r + curr_dr
+                if nc < 0 or nc >= w:
+                    curr_dc = -curr_dc
+                    nc = curr_c + curr_dc
+                if 0 <= nr < h and 0 <= nc < w:
+                    if out[nr, nc] == background:
+                        out[nr, nc] = color
+                    curr_r, curr_c = nr, nc
+                else:
+                    break
+
+    return out.tolist()
+
+
+
 
 

@@ -259,6 +259,22 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
+    # 13. Directional and Diagonal Raycasting
+    for d in ["down", "up", "right", "left", "vertical", "horizontal", "cross"]:
+        rc_name = f"raycast_{d}"
+        progs.append(
+            Program(
+                name=rc_name,
+                steps=[(rc_name, lambda g, d_dir=d: P.raycast_directional(g, direction=d_dir))],
+            )
+        )
+    progs.append(
+        Program(
+            name="raycast_diagonal_bouncing",
+            steps=[("raycast_diagonal_bouncing", lambda g: P.raycast_diagonal_bouncing(g))],
+        )
+    )
+
     return progs
 
 

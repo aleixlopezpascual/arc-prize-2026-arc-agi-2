@@ -528,6 +528,36 @@ class TestDSLSearchAndSolver:
             [0, 1, 1, 0],
         ]
 
+    def test_raycast_directional(self):
+        from src.dsl import raycast_directional
+
+        # 3x3 grid with single pixel 2 at (0, 1)
+        grid = [
+            [0, 2, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+        ]
+        down = raycast_directional(grid, direction="down", background=0)
+        assert down == [
+            [0, 2, 0],
+            [0, 2, 0],
+            [0, 2, 0],
+        ]
+
+    def test_raycast_diagonal_bouncing(self):
+        from src.dsl import raycast_diagonal_bouncing
+
+        # 3x3 grid with single pixel at (0, 0)
+        grid = [
+            [7, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+        ]
+        bounced = raycast_diagonal_bouncing(grid, background=0)
+        assert bounced[1][1] == 7
+        assert bounced[2][2] == 7
+
+
 
 
 

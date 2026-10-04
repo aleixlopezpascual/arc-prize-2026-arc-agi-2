@@ -112,7 +112,21 @@ This catalog details the complete set of verified symbolic perception and transf
 
 ---
 
-## 10. Morphological & Geometric Transforms
+## 10. Directional Raycasting & Shadow Projection (`raycast_directional`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved task **`d037b0a7`** 100% exactly.
+- **Concept:** Non-background pixels project straight directional rays or cast shadows across background cells along cardinal directions (`down`, `up`, `left`, `right`, `vertical`, `horizontal`, `cross`).
+
+---
+
+## 11. Diagonal Billiard Bouncing Rays (`raycast_diagonal_bouncing`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved task **`623ea044`** 100% exactly.
+- **Concept:** A colored pixel projects diagonal laser rays that bounce off grid boundaries like a billiard ball ($dr \to -dr, dc \to -dc$), generating reflective trajectories across the canvas.
+
+---
+
+## 12. Morphological & Geometric Transforms
 - **File:** `src/dsl/primitives.py`
 - **`crop_largest_object` & `crop_smallest_object`:** Connected-component bounding box extraction by size extrema.
 - **`remove_small_objects`:** Filters connected components of size $\le \text{threshold}$ (noise suppression).
