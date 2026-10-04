@@ -1,0 +1,23 @@
+README.md
+  s_01cab1dc59a0e1::t_3ab494ce0d8044 20
+src/dsl/search.py
+  s_01cab1dc59a0e1::t_103a3a9a6763e3 426-441
+src/tools/schedule_daily_submit.py
+  s_01cab1dc59a0e1::t_14392a6416147e 1-121
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "4f3f3057c4d0714bfdd75f85e6c353d4d0470cb4",
+  "prompts": {},
+  "sessions": {
+    "s_01cab1dc59a0e1": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "7c5ded7b-af7b-45ca-9e80-af2885de6ba9",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
