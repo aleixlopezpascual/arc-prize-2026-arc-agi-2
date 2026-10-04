@@ -1,9 +1,10 @@
 # ARC Prize 2026 - ARC-AGI-2: Hybrid Neural-Symbolic Solver
 
 [![Private GitHub](https://img.shields.io/badge/GitHub-Private%20Repo-blue?logo=github)](https://github.com/aleixlopezpascual/arc-prize-2026-arc-agi-2)
-[![Leaderboard](https://img.shields.io/badge/Public%20LB-29.31%25-brightgreen?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
+[![Leaderboard](https://img.shields.io/badge/Public%20LB-30.69%25-brightgreen?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
+[![Rank](https://img.shields.io/badge/Rank-563%20%2F%202400-gold?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
 [![Kaggle Kernel](https://img.shields.io/badge/Kaggle-4x%20L4%20GPUs-orange?logo=kaggle)](https://www.kaggle.com/code/aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt)
-[![Tests](https://img.shields.io/badge/Unit%20Tests-44%20Passing-success)](tests/)
+[![Tests](https://img.shields.io/badge/Unit%20Tests-45%20Passing-success)](tests/)
 
 An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2) competition on Kaggle, pioneering a **Two-Tier Hybrid Architecture** combining deterministic symbolic program induction with state-of-the-art Test-Time Training (TTT) neural models.
 
@@ -11,9 +12,9 @@ An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle
 
 ## 🏆 Current Benchmark & Leaderboard Status
 
-- **Official Public Leaderboard Score:** **`29.31%`** (Submission ID `56755141`, `SubmissionStatus.COMPLETE`)
-- **Official Competition Rank:** **Rank 1,043** out of 2,377 teams
-- **Active Submission in Evaluation:** **Submission ID `56806096`** (`SubmissionStatus.PENDING`, Hybrid SOTA v5)
+- **Official Public Leaderboard Score:** **`30.69%`** (Submission ID `56806096`, `SubmissionStatus.COMPLETE`)
+- **Official Competition Rank:** **Rank 563** out of 2,400 teams (+480 positions climbed!)
+- **Daily Submission Quota:** 1 submission remaining today
 - **Hybrid Kernel Validation Score:** **`3.5`** (up from `2.5` on the pure baseline)
 - **Tier 1 Symbolic Hit Rate:** **129 tasks (12.9% coverage)** across ARC demonstrations in $< 0.01$s per task
 - **Training Set Solved Count:** **49 tasks solved (53 test outputs, 4.93% accuracy)**
