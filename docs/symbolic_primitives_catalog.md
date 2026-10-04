@@ -154,7 +154,35 @@ This catalog details the complete set of verified symbolic perception and transf
 
 ---
 
-## 16. Morphological & Geometric Transforms
+## 16. Kronecker Fractal Self-Expansion (`kronecker_fractal_expansion`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **2 training tasks** (`007bbfb7`, `5b6cbef5`).
+- **Concept:** Computes self-similarity fractal zoom ($A \otimes A$). Each non-background pixel in the $N \times N$ template grid is replaced by a complete copy of the template, expanding into an $N^2 \times N^2$ fractal matrix.
+
+---
+
+## 17. 2x2 Kaleidoscope Mirror Tiling (`tile_kaleidoscope_2x2`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **3 training tasks** (`3af2c5a8`, `62c24649`, `67e8384a`).
+- **Concept:** Assembles a 4-quadrant kaleidoscope matrix of size $(2H, 2W)$ where Quadrant II is $A$, Quadrant I is $\text{fliplr}(A)$, Quadrant III is $\text{flipud}(A)$, and Quadrant IV is $\text{flipud}(\text{fliplr}(A))$.
+
+---
+
+## 18. Horizontal & Vertical Mirror Tiling (`tile_mirror_horizontal`, `tile_mirror_vertical`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **4 training tasks** (`6d0aefbc`, `c9e6f938`, `6fa7a44f`, `8be77c9e`).
+- **Concept:** Doubles canvas along the horizontal axis $[A, \text{fliplr}(A)]$ or vertical axis $\text{vstack}([A, \text{flipud}(A)])$ with reflection symmetry.
+
+---
+
+## 19. Target Shape Periodic Tiling (`tile_to_target_shape`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved task **`d10ecb37`**.
+- **Concept:** Periodically tiles an input pattern along both axes until filling a fixed target bounding dimension $(H_{\text{target}}, W_{\text{target}})$.
+
+---
+
+## 20. Morphological & Geometric Transforms
 - **File:** `src/dsl/primitives.py`
 - **`crop_largest_object` & `crop_smallest_object`:** Connected-component bounding box extraction by size extrema.
 - **`remove_small_objects`:** Filters connected components of size $\le \text{threshold}$ (noise suppression).

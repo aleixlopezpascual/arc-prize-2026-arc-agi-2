@@ -1082,6 +1082,53 @@ def classify_binary_shape(
     return [[target]]
 
 
+def kronecker_fractal_expansion(
+    grid: Grid | np.ndarray,
+    background: int = 0,
+) -> Grid:
+    """Computes self-similarity fractal expansion (Kronecker product of mask with grid)."""
+    arr = to_array(grid)
+    mask = (arr != background).astype(int)
+    return np.kron(mask, arr).tolist()
+
+
+def tile_kaleidoscope_2x2(grid: Grid | np.ndarray) -> Grid:
+    """Tiles grid in a 4-quadrant kaleidoscope pattern with horizontal and vertical mirror reflections."""
+    arr = to_array(grid)
+    top = np.hstack([arr, np.fliplr(arr)])
+    bot = np.hstack([np.flipud(arr), np.flipud(np.fliplr(arr))])
+    return np.vstack([top, bot]).tolist()
+
+
+def tile_mirror_horizontal(grid: Grid | np.ndarray) -> Grid:
+    """Tiles grid horizontally with its horizontal mirror reflection [A, fliplr(A)]."""
+    arr = to_array(grid)
+    return np.hstack([arr, np.fliplr(arr)]).tolist()
+
+
+def tile_mirror_vertical(grid: Grid | np.ndarray) -> Grid:
+    """Tiles grid vertically with its vertical mirror reflection vstack([A, flipud(A)])."""
+    arr = to_array(grid)
+    return np.vstack([arr, np.flipud(arr)]).tolist()
+
+
+def tile_to_target_shape(
+    grid: Grid | np.ndarray,
+    target_h: int,
+    target_w: int,
+) -> Grid:
+    """Tiles grid periodically until reaching the target dimensions (target_h, target_w)."""
+    arr = to_array(grid)
+    h, w = arr.shape
+    if h == 0 or w == 0:
+        return to_grid(grid)
+    reps_h = (target_h + h - 1) // h
+    reps_w = (target_w + w - 1) // w
+    tiled = np.tile(arr, (reps_h, reps_w))
+    return tiled[:target_h, :target_w].tolist()
+
+
+
 
 
 

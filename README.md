@@ -4,7 +4,7 @@
 [![Leaderboard](https://img.shields.io/badge/Public%20LB-30.69%25-brightgreen?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
 [![Rank](https://img.shields.io/badge/Rank-563%20%2F%202400-gold?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
 [![Kaggle Kernel](https://img.shields.io/badge/Kaggle-4x%20L4%20GPUs-orange?logo=kaggle)](https://www.kaggle.com/code/aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt)
-[![Tests](https://img.shields.io/badge/Unit%20Tests-47%20Passing-success)](tests/)
+[![Tests](https://img.shields.io/badge/Unit%20Tests-55%20Passing-success)](tests/)
 
 An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2) competition on Kaggle, pioneering a **Two-Tier Hybrid Architecture** combining deterministic symbolic program induction with state-of-the-art Test-Time Training (TTT) neural models.
 

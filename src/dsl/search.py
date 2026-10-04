@@ -318,6 +318,47 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
+    # 18. Kaleidoscope & Mirror Tiling
+    progs.append(
+        Program(
+            name="tile_kaleidoscope_2x2",
+            steps=[("tile_kaleidoscope_2x2", lambda g: P.tile_kaleidoscope_2x2(g))],
+        )
+    )
+    progs.append(
+        Program(
+            name="tile_mirror_h",
+            steps=[("tile_mirror_h", lambda g: P.tile_mirror_horizontal(g))],
+        )
+    )
+    progs.append(
+        Program(
+            name="tile_mirror_v",
+            steps=[("tile_mirror_v", lambda g: P.tile_mirror_vertical(g))],
+        )
+    )
+
+    # 19. Kronecker Fractal Self-Expansion
+    progs.append(
+        Program(
+            name="kronecker_fractal_expansion",
+            steps=[("kronecker_fractal_expansion", lambda g: P.kronecker_fractal_expansion(g))],
+        )
+    )
+
+    # 20. Fixed Target Shape Tiling
+    out_shapes = {np.asarray(p["output"]).shape for p in train_pairs}
+    if len(out_shapes) == 1:
+        th, tw = list(out_shapes)[0]
+        if th <= 30 and tw <= 30:
+            p_name = f"tile_to_shape_{th}x{tw}"
+            progs.append(
+                Program(
+                    name=p_name,
+                    steps=[(p_name, lambda g, t_h=th, t_w=tw: P.tile_to_target_shape(g, target_h=t_h, target_w=t_w))],
+                )
+            )
+
     return progs
 
 

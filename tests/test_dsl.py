@@ -615,6 +615,67 @@ class TestDSLSearchAndSolver:
         pred = classify_binary_shape(test_in, s_map)
         assert pred == [[4]]
 
+    def test_kronecker_fractal_expansion(self):
+        from src.dsl import kronecker_fractal_expansion
+
+        grid = [
+            [1, 0],
+            [0, 1],
+        ]
+        expanded = kronecker_fractal_expansion(grid, background=0)
+        assert len(expanded) == 4 and len(expanded[0]) == 4
+        # Top-left block is [[1, 0], [0, 1]]
+        assert expanded[0][:2] == [1, 0]
+        assert expanded[1][:2] == [0, 1]
+        # Top-right block is 0s
+        assert expanded[0][2:] == [0, 0]
+        assert expanded[1][2:] == [0, 0]
+
+    def test_tile_kaleidoscope_2x2(self):
+        from src.dsl import tile_kaleidoscope_2x2
+
+        grid = [
+            [1, 2],
+            [3, 4],
+        ]
+        k = tile_kaleidoscope_2x2(grid)
+        assert len(k) == 4 and len(k[0]) == 4
+        # Row 0: [1, 2, 2, 1]
+        assert k[0] == [1, 2, 2, 1]
+        # Row 3: [1, 2, 2, 1]
+        assert k[3] == [1, 2, 2, 1]
+
+    def test_tile_mirror_h_and_v(self):
+        from src.dsl import tile_mirror_horizontal, tile_mirror_vertical
+
+        grid = [
+            [1, 2],
+            [3, 4],
+        ]
+        th = tile_mirror_horizontal(grid)
+        assert th == [
+            [1, 2, 2, 1],
+            [3, 4, 4, 3],
+        ]
+        tv = tile_mirror_vertical(grid)
+        assert tv == [
+            [1, 2],
+            [3, 4],
+            [3, 4],
+            [1, 2],
+        ]
+
+    def test_tile_to_target_shape(self):
+        from src.dsl import tile_to_target_shape
+
+        grid = [[1, 2], [3, 4]]
+        tiled = tile_to_target_shape(grid, target_h=3, target_w=5)
+        assert len(tiled) == 3 and len(tiled[0]) == 5
+        assert tiled[0] == [1, 2, 1, 2, 1]
+        assert tiled[1] == [3, 4, 3, 4, 3]
+        assert tiled[2] == [1, 2, 1, 2, 1]
+
+
 
 
 
