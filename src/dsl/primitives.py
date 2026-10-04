@@ -1008,6 +1008,81 @@ def color_objects_by_property(
     return arr.tolist()
 
 
+def extract_enclosed_pixel_color(
+    grid: Grid | np.ndarray,
+    background: int = 0,
+) -> Grid:
+    """Finds a single pixel enclosed inside a hollow 3x3 square and returns it as a 1x1 grid."""
+    arr = to_array(grid)
+    h, w = arr.shape
+    for r in range(h - 2):
+        for c in range(w - 2):
+            border_c = arr[r, c]
+            if border_c == background:
+                continue
+            perim = [
+                arr[r, c],
+                arr[r, c + 1],
+                arr[r, c + 2],
+                arr[r + 1, c],
+                arr[r + 1, c + 2],
+                arr[r + 2, c],
+                arr[r + 2, c + 1],
+                arr[r + 2, c + 2],
+            ]
+            center_c = arr[r + 1, c + 1]
+            if (
+                all(p == border_c for p in perim)
+                and center_c != border_c
+                and center_c != background
+            ):
+                return [[int(center_c)]]
+    return [[background]]
+
+
+def classify_by_symmetry(
+    grid: Grid | np.ndarray,
+    sym_color: int = 1,
+    asym_color: int = 7,
+) -> Grid:
+    """Classifies grid as symmetric (sym_color) vs asymmetric (asym_color) in a 1x1 grid."""
+    arr = to_array(grid)
+    v_sym = np.array_equal(arr, np.fliplr(arr))
+    h_sym = np.array_equal(arr, np.flipud(arr))
+    return [[sym_color]] if (v_sym or h_sym) else [[asym_color]]
+
+
+def extract_binary_shape_classifier(
+    train_pairs: list[dict[str, Any]],
+) -> dict[tuple[bool, ...], int] | None:
+    """Learns a mapping from input binary shape mask to target 1x1 class color."""
+    shape_map: dict[tuple[bool, ...], int] = {}
+    for tr in train_pairs:
+        out = tr.get("output", [])
+        if len(out) != 1 or len(out[0]) != 1:
+            return None
+        inp = np.asarray(tr["input"])
+        target = int(out[0][0])
+        mask = tuple((inp != 0).flatten().tolist())
+        if mask in shape_map and shape_map[mask] != target:
+            return None
+        shape_map[mask] = target
+    return shape_map if len(shape_map) >= 2 else None
+
+
+def classify_binary_shape(
+    grid: Grid | np.ndarray,
+    shape_map: dict[tuple[bool, ...], int],
+    fallback_color: int = 0,
+) -> Grid:
+    """Classifies an input grid's binary mask into a 1x1 target color."""
+    inp = to_array(grid)
+    mask = tuple((inp != 0).flatten().tolist())
+    target = shape_map.get(mask, fallback_color)
+    return [[target]]
+
+
+
 
 
 

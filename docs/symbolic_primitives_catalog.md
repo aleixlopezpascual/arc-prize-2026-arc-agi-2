@@ -126,7 +126,35 @@ This catalog details the complete set of verified symbolic perception and transf
 
 ---
 
-## 12. Morphological & Geometric Transforms
+## 12. Enclosed Pixel Color Summary (`extract_enclosed_pixel_color`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved task **`d9fac9be`** 100% exactly.
+- **Concept:** Locates a single colored pixel enclosed inside a hollow $3 \times 3$ frame and emits its color as a $1 \times 1$ grid `[[C]]`.
+
+---
+
+## 13. Bilateral Symmetry Binary Classifier (`classify_by_symmetry`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved task **`44f52bb0`** 100% exactly.
+- **Concept:** Recognizes visual mirror symmetry (vertical or horizontal bilateral reflection). Maps symmetric inputs to class color $C_{\text{sym}}$ (e.g. blue) and asymmetric inputs to $C_{\text{asym}}$ (e.g. orange).
+
+---
+
+## 14. Binary Shape-to-Color Class Classifier (`classify_binary_shape`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved task **`27a28665`** 100% exactly.
+- **Concept:** Shape symbol encoder. Converts input to an invariant binary mask and classifies each unique geometrical glyph into a class label.
+
+---
+
+## 15. Component Coloring by Metric Property (`color_objects_by_property`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **4 training tasks** (`1d61978c`, `6e82a1ae`, `ae58858e`, `25d8a9c8`).
+- **Concept:** Recolors connected components based on their geometric metrics (`size`/area, `height`, or `width`).
+
+---
+
+## 16. Morphological & Geometric Transforms
 - **File:** `src/dsl/primitives.py`
 - **`crop_largest_object` & `crop_smallest_object`:** Connected-component bounding box extraction by size extrema.
 - **`remove_small_objects`:** Filters connected components of size $\le \text{threshold}$ (noise suppression).

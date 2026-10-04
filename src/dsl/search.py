@@ -287,6 +287,37 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
                 )
             )
 
+    # 15. Enclosed Pixel Color Summary (1x1 output)
+    progs.append(
+        Program(
+            name="extract_enclosed_pixel_color",
+            steps=[("extract_enclosed_pixel_color", lambda g: P.extract_enclosed_pixel_color(g))],
+        )
+    )
+
+    # 16. Symmetry Binary Classifier (1x1 output)
+    unique_outs = {tr["output"][0][0] for tr in train_pairs if len(tr.get("output", [])) == 1 and len(tr["output"][0]) == 1}
+    if len(unique_outs) == 2:
+        c1, c2 = list(unique_outs)
+        for sym_c, asym_c in [(c1, c2), (c2, c1)]:
+            s_name = f"classify_symmetry_{sym_c}_{asym_c}"
+            progs.append(
+                Program(
+                    name=s_name,
+                    steps=[(s_name, lambda g, sc=sym_c, ac=asym_c: P.classify_by_symmetry(g, sym_color=sc, asym_color=ac))],
+                )
+            )
+
+    # 17. Binary Shape to Color Classifier (1x1 output)
+    shape_rule = P.extract_binary_shape_classifier(train_pairs)
+    if shape_rule is not None:
+        progs.append(
+            Program(
+                name="classify_binary_shape",
+                steps=[("classify_binary_shape", lambda g, sm=shape_rule: P.classify_binary_shape(g, shape_map=sm))],
+            )
+        )
+
     return progs
 
 

@@ -12,6 +12,8 @@ from src.dsl.overlay import (
 )
 from src.dsl.primitives import (
     Object,
+    classify_binary_shape,
+    classify_by_symmetry,
     color_counts,
     color_objects_by_property,
     complete_symmetry,
@@ -22,6 +24,8 @@ from src.dsl.primitives import (
     crop_to_bounding_box,
     crop_to_content,
     detect_symmetry,
+    extract_binary_shape_classifier,
+    extract_enclosed_pixel_color,
     extract_object_property_color_rule,
     extract_window_relative_to_marker,
     fill_enclosed_regions,
@@ -59,6 +63,10 @@ __all__ = [
     "Object",
     "apply_3x3_local_rules",
     "extract_3x3_local_rules",
+    "extract_binary_shape_classifier",
+    "classify_binary_shape",
+    "classify_by_symmetry",
+    "extract_enclosed_pixel_color",
     "extract_object_property_color_rule",
     "color_objects_by_property",
     "SPLIT_OVERLAY_OPERATIONS",

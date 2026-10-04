@@ -572,6 +572,50 @@ class TestDSLSearchAndSolver:
         recolored = color_objects_by_property(test_in, rule, property_name="size", background=0)
         assert recolored == [[0, 2, 0], [0, 0, 0], [3, 3, 0]]
 
+    def test_extract_enclosed_pixel_color(self):
+        from src.dsl import extract_enclosed_pixel_color
+
+        grid = [
+            [0, 0, 0, 0],
+            [0, 2, 2, 2],
+            [0, 2, 5, 2],
+            [0, 2, 2, 2],
+        ]
+        out = extract_enclosed_pixel_color(grid, background=0)
+        assert out == [[5]]
+
+    def test_classify_by_symmetry(self):
+        from src.dsl import classify_by_symmetry
+
+        sym_grid = [
+            [1, 0, 1],
+            [0, 1, 0],
+            [1, 0, 1],
+        ]
+        asym_grid = [
+            [1, 0, 1],
+            [0, 1, 0],
+            [1, 0, 0],
+        ]
+        assert classify_by_symmetry(sym_grid, sym_color=1, asym_color=7) == [[1]]
+        assert classify_by_symmetry(asym_grid, sym_color=1, asym_color=7) == [[7]]
+
+    def test_extract_and_classify_binary_shape(self):
+        from src.dsl import extract_binary_shape_classifier, classify_binary_shape
+
+        train_pairs = [
+            {"input": [[1, 1], [0, 1]], "output": [[4]]},
+            {"input": [[2, 2], [0, 2]], "output": [[4]]},
+            {"input": [[3, 0], [0, 3]], "output": [[9]]},
+        ]
+        s_map = extract_binary_shape_classifier(train_pairs)
+        assert s_map is not None
+
+        test_in = [[8, 8], [0, 8]]
+        pred = classify_binary_shape(test_in, s_map)
+        assert pred == [[4]]
+
+
 
 
 
