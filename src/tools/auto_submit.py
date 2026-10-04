@@ -154,6 +154,13 @@ def watch_and_submit(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--kernel", default="aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt")
-    parser.add_argument("--version", type=int, default=5)
+    parser.add_argument("--version", type=int, default=7)
+    parser.add_argument("--poll-interval", type=int, default=45)
+    parser.add_argument("--max-wait", type=float, default=8.0)
     args = parser.parse_args()
-    watch_and_submit(kernel_slug=args.kernel, version=args.version)
+    watch_and_submit(
+        kernel_slug=args.kernel,
+        version=args.version,
+        poll_interval_sec=args.poll_interval,
+        max_wait_hours=args.max_wait,
+    )
