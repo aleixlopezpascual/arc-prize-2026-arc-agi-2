@@ -1,0 +1,25 @@
+src/dsl/solver.py
+  s_01cab1dc59a0e1::t_b80a420feddf15 16
+tests/test_dsl.py
+  s_01cab1dc59a0e1::t_db90d03feef577 738-751
+src/dsl/search.py
+  s_01cab1dc59a0e1::t_3a03f26c36ea05 516-545
+README.md
+  s_01cab1dc59a0e1::t_a9ebd12c60d6e6 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "de3afa8757cd9aee1d1c53dd6f482691e82e1083",
+  "prompts": {},
+  "sessions": {
+    "s_01cab1dc59a0e1": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "7c5ded7b-af7b-45ca-9e80-af2885de6ba9",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
