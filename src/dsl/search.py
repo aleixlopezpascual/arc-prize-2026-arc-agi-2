@@ -513,4 +513,34 @@ def search_dsl_programs(
                 if len(perfect_programs) >= max_perfect_programs:
                     break
 
+    # Level 3: D4 Dihedral Test-Time Induction (rotations & reflections)
+    if not perfect_programs and max_level >= 3:
+        d4_transforms = [
+            ("rot90", lambda g: np.rot90(g, 1).tolist(), lambda g: np.rot90(g, 3).tolist()),
+            ("rot180", lambda g: np.rot90(g, 2).tolist(), lambda g: np.rot90(g, 2).tolist()),
+            ("rot270", lambda g: np.rot90(g, 3).tolist(), lambda g: np.rot90(g, 1).tolist()),
+            ("fliplr", lambda g: np.fliplr(g).tolist(), lambda g: np.fliplr(g).tolist()),
+            ("flipud", lambda g: np.flipud(g).tolist(), lambda g: np.flipud(g).tolist()),
+        ]
+        for t_name, fwd, inv in d4_transforms:
+            try:
+                aug_train = [{"input": fwd(tr["input"]), "output": fwd(tr["output"])} for tr in train_pairs]
+                aug_progs = search_dsl_programs(aug_train, max_level=1, max_perfect_programs=1)
+                if aug_progs:
+                    best_prog, _ = aug_progs[0]
+                    composite_name = f"{t_name} >> {best_prog.name} >> inv_{t_name}"
+                    tta_prog = Program(
+                        name=composite_name,
+                        steps=[
+                            (t_name, fwd),
+                            *best_prog.steps,
+                            (f"inv_{t_name}", inv),
+                        ],
+                    )
+                    perfect_programs.append((tta_prog, 1.0))
+                    if len(perfect_programs) >= max_perfect_programs:
+                        break
+            except Exception:
+                pass
+
     return perfect_programs

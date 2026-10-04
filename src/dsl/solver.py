@@ -13,7 +13,7 @@ Grid = list[list[int]]
 class DSLSolver:
     """End-to-end ARC puzzle solver using symbolic DSL search and robust fallbacks."""
 
-    def __init__(self, max_level: int = 2) -> None:
+    def __init__(self, max_level: int = 3) -> None:
         self.max_level = max_level
 
     def solve_task(self, task: dict[str, Any]) -> list[dict[str, Grid]]:

@@ -735,6 +735,20 @@ class TestDSLSearchAndSolver:
             [2, 2, 2],
         ]
 
+    def test_d4_tta_search(self):
+        from src.dsl import search_dsl_programs
+
+        # Task that requires horizontal reflection, but oriented vertically
+        train_pairs = [
+            {"input": [[1, 2], [0, 0]], "output": [[1, 2], [1, 2]]},
+            {"input": [[3, 4], [0, 0]], "output": [[3, 4], [3, 4]]},
+        ]
+        progs = search_dsl_programs(train_pairs, max_level=3)
+        assert len(progs) > 0
+        best_prog, score = progs[0]
+        assert score == 1.0
+
+
 
 
 
