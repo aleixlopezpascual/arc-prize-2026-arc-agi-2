@@ -1,0 +1,24 @@
+src/tools/schedule_daily_submit.py
+  s_01cab1dc59a0e1::t_1183dc2609e1a0 110
+README.md
+  s_01cab1dc59a0e1::t_8bb8c6faaa39b1 120-122
+  s_01cab1dc59a0e1::t_357de0a4e7fb13 17,19-20
+docs/experiments.md
+  s_01cab1dc59a0e1::t_27a25d8d8e3447 22-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "7a146c549d4b72aa1e04b4e5f6d785932fca8b8f",
+  "prompts": {},
+  "sessions": {
+    "s_01cab1dc59a0e1": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "7c5ded7b-af7b-45ca-9e80-af2885de6ba9",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
