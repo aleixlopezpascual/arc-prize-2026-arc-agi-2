@@ -1,8 +1,8 @@
 # ARC Prize 2026 - ARC-AGI-2: Hybrid Neural-Symbolic Solver
 
 [![Private GitHub](https://img.shields.io/badge/GitHub-Private%20Repo-blue?logo=github)](https://github.com/aleixlopezpascual/arc-prize-2026-arc-agi-2)
-[![Leaderboard](https://img.shields.io/badge/Public%20LB-30.69%25-brightgreen?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
-[![Rank](https://img.shields.io/badge/Rank-563%20%2F%202400-gold?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
+[![Leaderboard](https://img.shields.io/badge/Public%20LB-30.97%25-brightgreen?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
+[![Rank](https://img.shields.io/badge/Rank-467%20%2F%202460-gold?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
 [![Kaggle Kernel](https://img.shields.io/badge/Kaggle-4x%20L4%20GPUs-orange?logo=kaggle)](https://www.kaggle.com/code/aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt)
 [![Tests](https://img.shields.io/badge/Unit%20Tests-58%20Passing-success)](tests/)
 
@@ -12,9 +12,9 @@ An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle
 
 ## 🏆 Current Benchmark & Leaderboard Status
 
-- **Official Public Leaderboard Score:** **`30.69%`** (Submission ID `56806096`, `SubmissionStatus.COMPLETE`)
-- **Official Competition Rank:** **Rank 563** out of 2,400 teams (+480 positions climbed!)
-- **Active Submission in Evaluation:** **Submission ID `56836175`** (`SubmissionStatus.PENDING`, Hybrid SOTA v7)
+- **Official Public Leaderboard Score:** **`30.97%`** (Submission ID `56836175`, `SubmissionStatus.COMPLETE`)
+- **Official Competition Rank:** **Rank 467** out of 2,460 teams (+576 positions climbed from baseline!)
+- **Next Staged Submission:** **Version 8** (Submission artifact verified at `submissions/submission_hybrid_sota_v8.json`, scheduler PID 90660 active)
 - **Hybrid Kernel Validation Score:** **`3.5`** (up from `2.5` on the pure baseline)
 - **Tier 1 Symbolic Hit Rate:** **134 tasks (13.4% coverage)** across ARC demonstrations in $< 0.01$s per task
 - **Training Set Solved Count:** **86 tasks solved (96 test outputs, 8.6% accuracy)** with D4-TTA induction
