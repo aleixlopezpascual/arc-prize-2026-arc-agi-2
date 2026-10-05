@@ -14,10 +14,10 @@ An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle
 
 - **Official Public Leaderboard Score:** **`30.69%`** (Submission ID `56806096`, `SubmissionStatus.COMPLETE`)
 - **Official Competition Rank:** **Rank 563** out of 2,400 teams (+480 positions climbed!)
-- **Active Submission in Evaluation:** **Submission ID `56828374`** (`SubmissionStatus.PENDING`, Hybrid SOTA v6)
+- **Active Submission in Evaluation:** **Submission ID `56836175`** (`SubmissionStatus.PENDING`, Hybrid SOTA v7)
 - **Hybrid Kernel Validation Score:** **`3.5`** (up from `2.5` on the pure baseline)
-- **Tier 1 Symbolic Hit Rate:** **129 tasks (12.9% coverage)** across ARC demonstrations in $< 0.01$s per task
-- **Training Set Solved Count:** **81 tasks solved (90 test outputs, 8.1% accuracy)** at 44.7ms/task (7.3x improvement over pure baseline)
+- **Tier 1 Symbolic Hit Rate:** **134 tasks (13.4% coverage)** across ARC demonstrations in $< 0.01$s per task
+- **Training Set Solved Count:** **86 tasks solved (96 test outputs, 8.6% accuracy)** with D4-TTA induction
 
 ---
 
@@ -117,9 +117,9 @@ An exhaustive deep dive across all 100 public kernels on Kaggle revealed:
 | `hybrid-02` | Cellular Automata 3x3 + Split Overlays | 0.0058 (1/172) | 0.0483 (52/1076) | - | 128 Tier 1 hits (12.8%). Solved `135a2760` |
 | `hybrid-03` | Odd-One-Out block selector + Marker-relative windows | 0.0058 (1/172) | 0.0493 (53/1076) | - | 129 Tier 1 hits (12.9%). Solved `a87f7484`, `48d8fb45` |
 | `hybrid-v5-kernel` | Hybrid SOTA v5 with Optimal Union + 129 Symbolic Hits | 0.0233 (4/172) | 0.0493 (53/1076) | **30.69%** (Rank 563 / 2,400) | Sub ID `56806096` COMPLETE! Score surged +1.38%, climbed +480 positions to Rank 563. |
-| `hybrid-v6-kernel` | Hybrid SOTA v6: Directional & Bouncing Raycasting + Rigid Gravity | 0.0233 (4/172) | 0.0511 (55/1076) | Sub ID `56828374` (PENDING) | Officially submitted! Private rerun active across 240 hidden test tasks on 4x L4 GPUs. |
-| `hybrid-v7-kernel` | Hybrid SOTA v7: Kaleidoscope Tiling + Kronecker Fractals + 1x1 Classification | 0.0233 (4/172) | 0.0520 (56/1076) | Completed (Val: 3.5) | Completed on Kaggle 4x L4 cluster. Output verified 100% compliant. Stored at `submissions/submission_hybrid_sota_v7.json`. |
-| `hybrid-v8-kernel` | Hybrid SOTA v8: 2-Step Dynamic Color Remapping + Topological Hole Counting | 0.0233 (4/172) | 0.0810 (90/1076) | Queued on Kaggle | Pushed as private kernel v8. Solves 81 training tasks (8.1% coverage). 57 passing unit tests. |
+| `hybrid-v6-kernel` | Hybrid SOTA v6: Directional & Bouncing Raycasting + Rigid Gravity | 0.0233 (4/172) | 0.0511 (55/1076) | **28.47%** (Sub `56828374`) | COMPLETE. Preserved neural guess. Best score remains 30.69% (Rank 563). |
+| `hybrid-v7-kernel` | Hybrid SOTA v7: Kaleidoscope Tiling + Kronecker Fractals + 1x1 Classification | 0.0233 (4/172) | 0.0520 (56/1076) | Sub ID `56836175` (PENDING) | Auto-submitted at 00:00:43 UTC! Currently evaluating on Kaggle 4x L4 cluster. |
+| `hybrid-v8-kernel` | Hybrid SOTA v8: 2-Step Dynamic Color Remapping + Topological Hole Counting | 0.0233 (4/172) | 0.0860 (96/1076) | Completed (Val: 3.5) | Completed on Kaggle 4x L4 cluster. 86 training tasks solved (8.6%). Output staged at `submissions/submission_hybrid_sota_v8.json`. |
 
 ---
 

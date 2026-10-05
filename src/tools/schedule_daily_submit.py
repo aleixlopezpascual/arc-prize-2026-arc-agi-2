@@ -107,7 +107,7 @@ def schedule_and_submit(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--kernel", default="aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt")
-    parser.add_argument("--version", type=int, default=7)
+    parser.add_argument("--version", type=int, default=8)
     parser.add_argument("--comp", default="arc-prize-2026-arc-agi-2")
     parser.add_argument("--poll-interval", type=int, default=60)
     parser.add_argument("--max-wait", type=float, default=12.0)
