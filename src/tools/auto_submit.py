@@ -95,15 +95,25 @@ def watch_and_submit(
                     return False
                 print(f"[+] Output verified: 100% compliant with schema across {len(sub_data)} tasks.")
 
+                # Cache local verified submission
+                cache_dest = ROOT / "submissions" / f"submission_hybrid_sota_v{version}.json"
+                cache_dest.write_text(json.dumps(sub_data, indent=2))
+                print(f"[+] Cached verified submission to {cache_dest}")
+
                 # 3. Check remaining daily limit
                 remaining = check_daily_submission_limit(comp_slug)
                 print(f"[*] Remaining daily submissions: {remaining}")
                 if remaining <= 0:
-                    print("[!] Daily submission quota reached. Cannot submit today.")
-                    return False
+                    print(f"[!] Daily submission quota reached. Handing off to schedule_daily_submit for v{version} at 00:00 UTC.")
+                    from src.tools.schedule_daily_submit import schedule_and_submit
+                    return schedule_and_submit(
+                        kernel_slug=kernel_slug,
+                        version=version,
+                        comp_slug=comp_slug,
+                    )
 
                 # 4. Fire competition submission
-                msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Optimal Union + Raycasting + Rigid Gravity)"
+                msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Optimal Union + 31 Symbolic Primitives + Deep Eval)"
                 print(f"[*] Firing competition submission: '{msg}'...")
                 sub_res = subprocess.run(
                     [
