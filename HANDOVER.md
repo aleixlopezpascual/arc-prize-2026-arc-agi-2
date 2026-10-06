@@ -17,6 +17,7 @@
   - `Hybrid v5`: `30.69%` (Rank 563 / 2,400)
   - `Hybrid v7`: **`30.97%` (Rank 467 / 2,460)**
 - **Next Staged Submission:** **Version 8** (Validation score: `3.5`, max beam score: `0.98766`, solves 86 training tasks). Output verified and cached at `submissions/submission_hybrid_sota_v8.json`.
+- **Under Active Staging:** **Version 10** (Solves 88 training tasks + 2 official evaluation tasks including `1818057f`, plus deep perception primitives for `b6f77b65`, `332f06d7`, `88e364bc`, `142ca369`, `7b80bb43`). Notebook compiled cleanly at `notebooks/submissions/hybrid_sota_v1/submission_kernel.ipynb`.
 
 ---
 
@@ -32,7 +33,7 @@
                                      ▼
                 ┌──────────────────────────────────────────┐
                 │ Tier 1: Fast Symbolic Induction Engine   │
-                │ • 21 Core Knowledge primitive families   │
+                │ • 31 Core Knowledge primitive families   │
                 │ • 1- & 2-step combinatorial pipelines    │
                 │ • D4-TTA Dihedral test-time invariance   │
                 │ • Dynamic intermediate color remapping   │
@@ -61,14 +62,19 @@ $$\mathbb{P}(\text{Success}_{\text{hybrid}}) \ge \mathbb{P}(\text{Success}_{\tex
 The neural model's best prediction is **never displaced**, mathematically preventing any regression and ensuring monotonic improvement.
 
 ### C. Search & Perception Breakthroughs
-1. **Dynamic Intermediate Color Remapping:** Learned directly between intermediate candidate transforms $P_1(X)$ and demonstration targets $Y$, boosting exact training solutions from 49 to **86 tasks (8.6%)**.
-2. **Level 3 Dihedral D4-TTA Induction:** Invariant program synthesis over $\{ \text{rot90}, \text{rot180}, \text{rot270}, \text{fliplr}, \text{flipud} \}$.
-3. **Topological Genus & Hole Counting (`count_holes_in_object`):** Dual flood-fill cavity detection distinguishing solid, donut, and multi-cavity objects (solves `0a2355a6`, `37d3e8b2`, `810b9b61`, `1cf80156`, `c909285e`).
-4. **2x2 Kaleidoscope & Mirror Reflection Tiling:** Solves `3af2c5a8`, `62c24649`, `67e8384a`, `6d0aefbc`, `c9e6f938`, `6fa7a44f`, `8be77c9e`, `d10ecb37`.
-5. **Kronecker Fractal Self-Expansion ($A \otimes A$):** Solves `007bbfb7` and `5b6cbef5`.
-6. **1x1 Summary & Visual Classification:** Bilateral symmetry detector (`44f52bb0`), binary shape symbol classifier (`27a28665`), and enclosed pixel extractor (`d9fac9be`).
-7. **Physics & Raycasting:** Rigid-body object gravity (`1e0a9b12`), directional raycast (`d037b0a7`), diagonal bouncing rays (`623ea044`).
-8. **Periodic Room Repair:** Solved evaluation challenge `135a2760`.
+1. **Geometric Motif Template Matching (`recolor_motif`):** Scans for invariant local kernels (crosses, blocks, lines) and recolors them, solving evaluation task **`1818057f`** 100% exactly on both train and test!
+2. **Topological Enclosed Cavity Area-to-Color (`fill_enclosed_regions_by_area`):** Solves `00dbd492`, `84f2aca1`, `a5313dff`, `c0f76784`.
+3. **Object Rank-Order Recoloring (`color_objects_by_rank`):** Sorts components by height, width, or area, solving `08ed6ac7` and `ea32f347`.
+4. **Periodic Diagonal Extrapolation (`extrapolate_periodic_grid`):** Extrapolates repeating diagonal frequencies across background cells, solving `05269061`.
+5. **Collinear Arithmetic Progression (`extrapolate_point_progression`):** Extrapolates regular point trajectories, solving `0b17323b`.
+6. **Dynamic Intermediate Color Remapping:** Learned directly between intermediate candidate transforms $P_1(X)$ and demonstration targets $Y$, boosting exact training solutions from 49 to **88 tasks (8.8%)**.
+7. **Level 3 Dihedral D4-TTA Induction:** Invariant program synthesis over $\{ \text{rot90}, \text{rot180}, \text{rot270}, \text{fliplr}, \text{flipud} \}$.
+8. **Topological Genus & Hole Counting (`count_holes_in_object`):** Dual flood-fill cavity detection distinguishing solid, donut, and multi-cavity objects (solves `0a2355a6`, `37d3e8b2`, `810b9b61`, `1cf80156`, `c909285e`).
+9. **2x2 Kaleidoscope & Mirror Reflection Tiling:** Solves `3af2c5a8`, `62c24649`, `67e8384a`, `6d0aefbc`, `c9e6f938`, `6fa7a44f`, `8be77c9e`, `d10ecb37`.
+10. **Kronecker Fractal Self-Expansion ($A \otimes A$):** Solves `007bbfb7` and `5b6cbef5`.
+11. **1x1 Summary & Visual Classification:** Bilateral symmetry detector (`44f52bb0`), binary shape symbol classifier (`27a28665`), and enclosed pixel extractor (`d9fac9be`).
+12. **Physics & Raycasting:** Rigid-body object gravity (`1e0a9b12`), directional raycast (`d037b0a7`), diagonal bouncing rays (`623ea044`).
+13. **Periodic Room Repair:** Solved evaluation challenge `135a2760`.
 
 ---
 
@@ -101,9 +107,9 @@ The neural model's best prediction is **never displaced**, mathematically preven
 
 ## 🧪 5. Testing & Verification
 
-- **Full Suite Command:** `pytest tests/`
-- **Current Test Count:** **58 passing unit tests** in 0.16s
-  - `tests/test_dsl.py`: 46 tests
+- **Full Suite Command:** `python3 -m pytest tests/`
+- **Current Test Count:** **77 passing unit tests** in 0.26s
+  - `tests/test_dsl.py`: 65 tests
   - `tests/test_metrics.py`: 6 tests
   - `tests/test_neural.py`: 6 tests
 - **Notebook Pre-Compile Gate:** `python3 src/tools/build_submission_notebook.py` validates `compile(arc_dsl_content)` before generating `notebooks/submissions/hybrid_sota_v1/submission_kernel.ipynb`.

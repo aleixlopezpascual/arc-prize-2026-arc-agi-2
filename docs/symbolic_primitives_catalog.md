@@ -200,3 +200,75 @@ This catalog details the complete set of verified symbolic perception and transf
 - **`reflect_horizontal`, `reflect_vertical`, `transpose`:** Dihedral reflections.
 - **`scale_grid` & `tile_grid`:** Integer zoom factor expansion and periodic grid repetition.
 - **`dynamic_remap_colors`:** Computes global bijective or surjective color mappings between input and output demonstration pairs.
+
+---
+
+## 22. Geometric Motif & Template Matching Recolor (`recolor_motif`, `extract_recolor_motif_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Evaluation Task `1818057f`** 100% exactly on both train and test!
+- **Concept:** Scans for local geometric templates (e.g. $3 \times 3$ plus cross `+`, $2 \times 2$ solid square, $3 \times 3$ hollow frame, $3 \times 1$ line, $1 \times 3$ line, or diagonal shapes) of source color $C_1$ in the input grid and recolors all matched template cells to target color $C_2$.
+
+---
+
+## 23. Topological Enclosed Cavity Area-to-Color Mapping (`fill_enclosed_regions_by_area`, `extract_enclosed_area_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **4 training tasks** (`00dbd492`, `84f2aca1`, `a5313dff`, `c0f76784`) 100% on train and test.
+- **Concept:** Performs boundary flood-fill to isolate all interior background cavities bounded by non-background walls. Measures each cavity's pixel area and maps $\text{area} \to \text{fill\_color}$ via deterministic rule induction.
+
+---
+
+## 24. Object Rank-Order Recoloring (`color_objects_by_rank`, `extract_rank_color_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **2 training tasks** (`08ed6ac7`, `ea32f347`) 100% on train and test.
+- **Concept:** Segments connected components, sorts them by geometric metric (`height`, `width`, or `size`/area) in ascending or descending rank order, and applies rank-based recoloring $\text{rank}_i \to C_i$.
+
+---
+
+## 25. Periodic Grid Pattern Extrapolation (`extrapolate_periodic_grid`, `extract_periodic_grid_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Training Task `05269061`** 100% on train and test.
+- **Concept:** Analyzes existing non-background cells along diagonals $(r+c) \pmod P$ or $(r-c) \pmod P$, rows $r \pmod P$, or columns $c \pmod P$, infers the period $P$ and color mapping, and extrapolates the pattern across background cells.
+
+---
+
+## 26. Collinear Arithmetic Point Progression (`extrapolate_point_progression`, `extract_point_progression_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Training Task `0b17323b`** 100% on train and test.
+- **Concept:** Detects regular collinear point series with constant step $(\Delta r, \Delta c)$ and projects the sequence forward by adding the next point in the grid.
+
+---
+
+## 27. Trigger-Release Object Gravity (`trigger_release_gravity`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Evaluation Task `b6f77b65`** demonstration pairs.
+- **Concept:** Treats cell $(0, 0)$ as the active "trigger" color. All occurrences of the trigger color elsewhere are deleted, releasing the remaining monochromatic rigid objects to drop downwards under gravity until collision.
+
+---
+
+## 28. Puzzle Socket Fill & Piece Insertion (`fill_puzzle_socket`, `extract_puzzle_socket_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Evaluation Task `332f06d7`** and **`dd6b8c4b`**.
+- **Concept:** Locates an enclosed rectangular socket/hole of background color and moves a matching detached piece/block of size $(H_h \times W_h)$ into the socket, erasing the origin.
+
+---
+
+## 29. Corridor Sliding & Wall Attraction (`slide_dots_to_wall`, `extract_slide_dots_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Evaluation Task `88e364bc`** and **Training Task `05f2a901`**.
+- **Concept:** Translates mobile dots inside corridors or container rooms along cardinal directions until contacting an obstacle wall or boundary.
+
+---
+
+## 30. Multi-Source Diagonal Ray Projection (`project_diagonal_rays`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Evaluation Task `142ca369`**.
+- **Concept:** Single marker dots project 45° diagonal laser rays (up-left, up-right, down-left, down-right) until encountering obstacle walls or canvas boundaries.
+
+---
+
+## 31. Orthogonal Line Straightening (`straighten_orthogonal_lines`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Evaluation Task `7b80bb43`**.
+- **Concept:** Scans for solid horizontal/vertical lines with temporary single-pixel zigzag detours or gaps, bridging the line along the dominant trajectory and cleaning up detour artifacts.
+
+

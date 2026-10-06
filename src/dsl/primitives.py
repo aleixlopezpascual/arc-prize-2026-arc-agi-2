@@ -1234,6 +1234,685 @@ def extract_object_by_hole_count(
     return to_grid(grid)
 
 
+# =============================================================================
+# Version 9 Primitives: Motif Matching, Enclosed Area, Ranking & Periodic Lines
+# =============================================================================
+
+def recolor_motif(
+    grid: Grid | np.ndarray,
+    motif: Sequence[Sequence[int]] | np.ndarray,
+    src_color: int,
+    dst_color: int,
+) -> Grid:
+    """Detects occurrences of a binary motif/mask in src_color and recolors them to dst_color."""
+    arr = to_array(grid).copy()
+    m_arr = np.asarray(motif, dtype=int)
+    mh, mw = m_arr.shape
+    h, w = arr.shape
+    if mh > h or mw > w:
+        return arr.tolist()
+
+    mask = (m_arr != 0)
+    res = arr.copy()
+    for r in range(h - mh + 1):
+        for c in range(w - mw + 1):
+            sub = arr[r : r + mh, c : c + mw]
+            if np.all(sub[mask] == src_color):
+                for dr in range(mh):
+                    for dc in range(mw):
+                        if mask[dr, dc]:
+                            res[r + dr, c + dc] = dst_color
+    return res.tolist()
+
+
+def extract_recolor_motif_rule(
+    train_pairs: list[dict[str, Any]],
+) -> tuple[np.ndarray, int, int] | None:
+    """Induces motif mask, source color, and destination color if task recolors a template."""
+    candidate_motifs = [
+        # Plus cross 3x3
+        np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]], dtype=int),
+        # Solid 2x2
+        np.array([[1, 1], [1, 1]], dtype=int),
+        # Hollow 3x3 frame
+        np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]], dtype=int),
+        # Horizontal 3x1 line
+        np.array([[1, 1, 1]], dtype=int),
+        # Vertical 1x3 line
+        np.array([[1], [1], [1]], dtype=int),
+        # Diagonal 3x3
+        np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=int),
+        np.array([[0, 0, 1], [0, 1, 0], [1, 0, 0]], dtype=int),
+    ]
+
+    for motif in candidate_motifs:
+        # Check if there is a consistent (src_color, dst_color)
+        candidate_pair = None
+        consistent = True
+        for p in train_pairs:
+            inp = np.asarray(p["input"], dtype=int)
+            out = np.asarray(p["output"], dtype=int)
+            if inp.shape != out.shape:
+                consistent = False
+                break
+            diff = (inp != out)
+            if not np.any(diff):
+                continue
+            srcs = set(inp[diff])
+            dsts = set(out[diff])
+            if len(srcs) == 1 and len(dsts) == 1:
+                s_c = int(srcs.pop())
+                d_c = int(dsts.pop())
+                if candidate_pair is None:
+                    candidate_pair = (s_c, d_c)
+                elif candidate_pair != (s_c, d_c):
+                    consistent = False
+                    break
+            else:
+                consistent = False
+                break
+
+        if consistent and candidate_pair is not None:
+            s_c, d_c = candidate_pair
+            # Verify across all train pairs
+            all_match = True
+            for p in train_pairs:
+                pred = recolor_motif(p["input"], motif=motif, src_color=s_c, dst_color=d_c)
+                if pred != p["output"]:
+                    all_match = False
+                    break
+            if all_match:
+                return (motif, s_c, d_c)
+
+    return None
+
+
+def fill_enclosed_regions_by_area(
+    grid: Grid | np.ndarray,
+    area_to_color: dict[int, int],
+    background: int = 0,
+) -> Grid:
+    """Identifies enclosed background cavities and recolors each cavity based on its pixel area."""
+    arr = to_array(grid).copy()
+    h, w = arr.shape
+    visited = np.zeros((h, w), dtype=bool)
+    from collections import deque
+    queue = deque()
+
+    for r in range(h):
+        for c in range(w):
+            if (r == 0 or r == h - 1 or c == 0 or c == w - 1) and arr[r, c] == background and not visited[r, c]:
+                visited[r, c] = True
+                queue.append((r, c))
+
+    while queue:
+        cr, cc = queue.popleft()
+        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            nr, nc = cr + dr, cc + dc
+            if 0 <= nr < h and 0 <= nc < w and not visited[nr, nc] and arr[nr, nc] == background:
+                visited[nr, nc] = True
+                queue.append((nr, nc))
+
+    enclosed_visited = np.zeros((h, w), dtype=bool)
+    res = arr.copy()
+    for r in range(h):
+        for c in range(w):
+            if arr[r, c] == background and not visited[r, c] and not enclosed_visited[r, c]:
+                cavity = []
+                c_q = deque([(r, c)])
+                enclosed_visited[r, c] = True
+                while c_q:
+                    er, ec = c_q.popleft()
+                    cavity.append((er, ec))
+                    for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                        nr, nc = er + dr, ec + dc
+                        if (
+                            0 <= nr < h
+                            and 0 <= nc < w
+                            and arr[nr, nc] == background
+                            and not visited[nr, nc]
+                            and not enclosed_visited[nr, nc]
+                        ):
+                            enclosed_visited[nr, nc] = True
+                            c_q.append((nr, nc))
+                area = len(cavity)
+                if area in area_to_color:
+                    new_c = area_to_color[area]
+                    for cr, cc in cavity:
+                        res[cr, cc] = new_c
+
+    return res.tolist()
+
+
+def extract_enclosed_area_rule(
+    train_pairs: list[dict[str, Any]],
+    background: int = 0,
+) -> dict[int, int] | None:
+    """Learns if enclosed background cavity areas map deterministically to fill colors."""
+    from collections import deque
+    area_map: dict[int, int] = {}
+
+    for pair in train_pairs:
+        inp = np.asarray(pair["input"], dtype=int)
+        out = np.asarray(pair["output"], dtype=int)
+        if inp.shape != out.shape:
+            return None
+        h, w = inp.shape
+        visited = np.zeros((h, w), dtype=bool)
+        queue = deque()
+        for r in range(h):
+            for c in range(w):
+                if (r == 0 or r == h - 1 or c == 0 or c == w - 1) and inp[r, c] == background and not visited[r, c]:
+                    visited[r, c] = True
+                    queue.append((r, c))
+
+        while queue:
+            cr, cc = queue.popleft()
+            for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                nr, nc = cr + dr, cc + dc
+                if 0 <= nr < h and 0 <= nc < w and not visited[nr, nc] and inp[nr, nc] == background:
+                    visited[nr, nc] = True
+                    queue.append((nr, nc))
+
+        enclosed_visited = np.zeros((h, w), dtype=bool)
+        for r in range(h):
+            for c in range(w):
+                if inp[r, c] == background and not visited[r, c] and not enclosed_visited[r, c]:
+                    cavity = []
+                    c_q = deque([(r, c)])
+                    enclosed_visited[r, c] = True
+                    while c_q:
+                        er, ec = c_q.popleft()
+                        cavity.append((er, ec))
+                        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                            nr, nc = er + dr, ec + dc
+                            if (
+                                0 <= nr < h
+                                and 0 <= nc < w
+                                and inp[nr, nc] == background
+                                and not visited[nr, nc]
+                                and not enclosed_visited[nr, nc]
+                            ):
+                                enclosed_visited[nr, nc] = True
+                                c_q.append((nr, nc))
+                    area = len(cavity)
+                    out_colors = {int(out[cr, cc]) for cr, cc in cavity}
+                    if len(out_colors) != 1:
+                        return None
+                    color = out_colors.pop()
+                    if area in area_map and area_map[area] != color:
+                        return None
+                    area_map[area] = color
+
+    if not area_map:
+        return None
+
+    # Verify rule on all train pairs
+    for p in train_pairs:
+        if fill_enclosed_regions_by_area(p["input"], area_to_color=area_map, background=background) != p["output"]:
+            return None
+
+    return area_map
+
+
+def color_objects_by_rank(
+    grid: Grid | np.ndarray,
+    rank_to_color: dict[int, int],
+    metric: str = "size",
+    reverse: bool = True,
+    background: int = 0,
+) -> Grid:
+    """Ranks connected components by size, height, or width, and recolors by rank."""
+    arr = to_array(grid).copy()
+    objs = find_connected_components(grid, background=background, connectivity=8)
+    if not objs:
+        return arr.tolist()
+
+    def get_val(obj: Object) -> int:
+        if metric == "height":
+            return obj.height
+        elif metric == "width":
+            return obj.width
+        return obj.size
+
+    objs_sorted = sorted(objs, key=get_val, reverse=reverse)
+    res = arr.copy()
+    for rank, obj in enumerate(objs_sorted):
+        if rank in rank_to_color:
+            new_c = rank_to_color[rank]
+            for r, c in obj.coords:
+                res[r, c] = new_c
+
+    return res.tolist()
+
+
+def extract_rank_color_rule(
+    train_pairs: list[dict[str, Any]],
+    background: int = 0,
+) -> tuple[str, bool, dict[int, int]] | None:
+    """Learns if objects are colored by their rank order of height, width, or size."""
+    for metric in ["height", "width", "size"]:
+        for reverse in [True, False]:
+            rank_map: dict[int, int] = {}
+            valid = True
+            for pair in train_pairs:
+                inp = pair["input"]
+                out = np.asarray(pair["output"], dtype=int)
+                inp_arr = np.asarray(inp, dtype=int)
+                if inp_arr.shape != out.shape:
+                    valid = False
+                    break
+                objs = find_connected_components(inp, background=background, connectivity=8)
+                if len(objs) < 2:
+                    valid = False
+                    break
+
+                def get_val(obj: Object, m=metric) -> int:
+                    if m == "height":
+                        return obj.height
+                    elif m == "width":
+                        return obj.width
+                    return obj.size
+
+                objs_sorted = sorted(objs, key=get_val, reverse=reverse)
+                for rank, obj in enumerate(objs_sorted):
+                    out_colors = {int(out[r, c]) for r, c in obj.coords}
+                    if len(out_colors) != 1:
+                        valid = False
+                        break
+                    color = out_colors.pop()
+                    if rank in rank_map and rank_map[rank] != color:
+                        valid = False
+                        break
+                    rank_map[rank] = color
+                if not valid:
+                    break
+
+            if valid and len(rank_map) >= 2:
+                # Test against all train pairs
+                matches_all = True
+                for p in train_pairs:
+                    pred = color_objects_by_rank(
+                        p["input"],
+                        rank_to_color=rank_map,
+                        metric=metric,
+                        reverse=reverse,
+                        background=background,
+                    )
+                    if pred != p["output"]:
+                        matches_all = False
+                        break
+                if matches_all:
+                    return (metric, reverse, rank_map)
+
+    return None
+
+
+def extrapolate_periodic_grid(
+    grid: Grid | np.ndarray,
+    mode: str = "diag_sum",
+    period: int = 3,
+    mod_map: dict[int, int] | None = None,
+    background: int = 0,
+) -> Grid:
+    """Fills background cells according to periodic modulo pattern along diagonals, rows, or cols."""
+    arr = to_array(grid).copy()
+    h, w = arr.shape
+    if mod_map is None:
+        mod_map = {}
+        for r in range(h):
+            for c in range(w):
+                v = int(arr[r, c])
+                if v != background:
+                    if mode == "diag_sum":
+                        k = (r + c) % period
+                    elif mode == "diag_diff":
+                        k = (r - c) % period
+                    elif mode == "row":
+                        k = r % period
+                    else:
+                        k = c % period
+                    if k in mod_map and mod_map[k] != v:
+                        return arr.tolist()
+                    mod_map[k] = v
+
+    res = arr.copy()
+    for r in range(h):
+        for c in range(w):
+            if res[r, c] == background:
+                if mode == "diag_sum":
+                    k = (r + c) % period
+                elif mode == "diag_diff":
+                    k = (r - c) % period
+                elif mode == "row":
+                    k = r % period
+                else:
+                    k = c % period
+                if k in mod_map:
+                    res[r, c] = mod_map[k]
+
+    return res.tolist()
+
+
+def extract_periodic_grid_rule(
+    train_pairs: list[dict[str, Any]],
+    background: int = 0,
+) -> tuple[str, int] | None:
+    """Infers if background cells are filled by periodic extrapolation."""
+    for mode in ["diag_sum", "diag_diff", "row", "col"]:
+        for period in range(2, 8):
+            valid = True
+            for p in train_pairs:
+                inp = p["input"]
+                out = p["output"]
+                arr_in = np.asarray(inp, dtype=int)
+                arr_out = np.asarray(out, dtype=int)
+                if arr_in.shape != arr_out.shape:
+                    valid = False
+                    break
+                pred = extrapolate_periodic_grid(inp, mode=mode, period=period, background=background)
+                if pred != out:
+                    valid = False
+                    break
+            if valid:
+                return (mode, period)
+    return None
+
+
+def extrapolate_point_progression(
+    grid: Grid | np.ndarray,
+    point_color: int = 1,
+    new_color: int | None = None,
+    background: int = 0,
+) -> Grid:
+    """Extrapolates a collinear arithmetic progression of points."""
+    arr = to_array(grid).copy()
+    h, w = arr.shape
+    coords = list(zip(*np.where(arr == point_color)))
+    if len(coords) < 2:
+        return arr.tolist()
+
+    coords.sort()
+    dr = coords[1][0] - coords[0][0]
+    dc = coords[1][1] - coords[0][1]
+    is_collinear = True
+    for i in range(2, len(coords)):
+        if (coords[i][0] - coords[i - 1][0] != dr) or (coords[i][1] - coords[i - 1][1] != dc):
+            is_collinear = False
+            break
+
+    if not is_collinear:
+        return arr.tolist()
+
+    next_r = coords[-1][0] + dr
+    next_c = coords[-1][1] + dc
+    fill_c = new_color if new_color is not None else point_color
+    if 0 <= next_r < h and 0 <= next_c < w:
+        arr[next_r, next_c] = fill_c
+
+    return arr.tolist()
+
+
+def extract_point_progression_rule(
+    train_pairs: list[dict[str, Any]],
+    background: int = 0,
+) -> tuple[int, int] | None:
+    """Learns if output adds the next collinear point in a progression."""
+    candidate_colors = None
+    for p in train_pairs:
+        inp = np.asarray(p["input"], dtype=int)
+        out = np.asarray(p["output"], dtype=int)
+        if inp.shape != out.shape:
+            return None
+        diff = (inp != out)
+        if diff.sum() != 1:
+            return None
+        r, c = np.where(diff)
+        dst_c = int(out[r[0], c[0]])
+        # Find which color had >= 2 points in input
+        colors = [c_val for c_val in np.unique(inp) if c_val != background and (inp == c_val).sum() >= 2]
+        matching_pt_color = None
+        for pt_c in colors:
+            pred = extrapolate_point_progression(p["input"], point_color=int(pt_c), new_color=dst_c, background=background)
+            if pred == p["output"]:
+                matching_pt_color = int(pt_c)
+                break
+        if matching_pt_color is None:
+            return None
+        if candidate_colors is None:
+            candidate_colors = (matching_pt_color, dst_c)
+        elif candidate_colors != (matching_pt_color, dst_c):
+            return None
+
+    return candidate_colors
+
+
+# =============================================================================
+# Version 10 Primitives: Deep Evaluation Perception Engine
+# =============================================================================
+
+def trigger_release_gravity(
+    grid: Grid | np.ndarray,
+    background: int = 0,
+) -> Grid:
+    """Designates grid[0][0] as trigger color, erases trigger color elsewhere, and drops objects."""
+    arr = to_array(grid).copy()
+    trigger = int(arr[0, 0])
+    h, w = arr.shape
+    for r in range(h):
+        for c in range(w):
+            if (r, c) != (0, 0) and arr[r, c] == trigger:
+                arr[r, c] = background
+
+    objs = find_connected_components(arr, background=background, connectivity=4)
+    filtered_objs = [o for o in objs if (0, 0) not in o.coords]
+    filtered_objs.sort(key=lambda o: max(r for r, c in o.coords), reverse=True)
+
+    canvas = np.zeros_like(arr)
+    canvas[0, 0] = trigger
+    for o in filtered_objs:
+        for r, c in o.coords:
+            canvas[r, c] = o.color
+
+    changed = True
+    while changed:
+        changed = False
+        for o in filtered_objs:
+            can_move = True
+            for r, c in o.coords:
+                nr = r + 1
+                if nr >= h or (canvas[nr, c] != background and (nr, c) not in o.coords):
+                    can_move = False
+                    break
+            if can_move:
+                for r, c in o.coords:
+                    canvas[r, c] = background
+                new_coords = set()
+                for r, c in o.coords:
+                    canvas[r + 1, c] = o.color
+                    new_coords.add((r + 1, c))
+                o.coords = new_coords
+                changed = True
+
+    return canvas.tolist()
+
+
+def fill_puzzle_socket(
+    grid: Grid | np.ndarray,
+    piece_color: int = 2,
+    hole_color: int = 0,
+    fill_color: int = 1,
+) -> Grid:
+    """Finds an enclosed rectangular hole of hole_color and moves matching piece_color block into it."""
+    arr = to_array(grid).copy()
+    h, w = arr.shape
+    hole_objs = find_connected_components(arr == hole_color, background=False)
+    valid_holes = []
+    for o in hole_objs:
+        rr = [r for r, c in o.coords]
+        cc = [c for r, c in o.coords]
+        min_r, max_r = min(rr), max(rr)
+        min_c, max_c = min(cc), max(cc)
+        oh = max_r - min_r + 1
+        ow = max_c - min_c + 1
+        if oh * ow == o.size and oh >= 1 and ow >= 1:
+            valid_holes.append((min_r, min_c, oh, ow))
+
+    res = arr.copy()
+    for h_r, h_c, h_h, h_w in valid_holes:
+        for r in range(h - h_h + 1):
+            for c in range(w - h_w + 1):
+                if r == h_r and c == h_c:
+                    continue
+                sub = arr[r : r + h_h, c : c + h_w]
+                if np.all(sub == piece_color):
+                    res[r : r + h_h, c : c + h_w] = hole_color
+                    res[h_r : h_r + h_h, h_c : h_c + h_w] = fill_color
+                    return res.tolist()
+
+    return res.tolist()
+
+
+def extract_puzzle_socket_rule(
+    train_pairs: list[dict[str, Any]],
+) -> tuple[int, int, int] | None:
+    """Learns piece_color, hole_color, and fill_color for socket puzzle tasks."""
+    colors = set()
+    for p in train_pairs:
+        colors.update(np.unique(p["input"]).tolist())
+        colors.update(np.unique(p["output"]).tolist())
+    colors = sorted(list(colors))
+
+    for piece_c in colors:
+        for hole_c in [0]:
+            for fill_c in colors:
+                valid = True
+                for p in train_pairs:
+                    pred = fill_puzzle_socket(p["input"], piece_color=piece_c, hole_color=hole_c, fill_color=fill_c)
+                    if pred != p["output"]:
+                        valid = False
+                        break
+                if valid:
+                    return (piece_c, hole_c, fill_c)
+    return None
+
+
+def slide_dots_to_wall(
+    grid: Grid | np.ndarray,
+    dot_color: int = 4,
+    direction: str = "right",
+    background: int = 0,
+) -> Grid:
+    """Slides mobile dots horizontally or vertically until contacting an obstacle or boundary."""
+    arr = to_array(grid).copy()
+    h, w = arr.shape
+    res = arr.copy()
+    dr, dc = (0, 1) if direction == "right" else ((0, -1) if direction == "left" else ((1, 0) if direction == "down" else (-1, 0)))
+
+    coords = list(zip(*np.where(arr == dot_color)))
+    for r, c in coords:
+        cr, cc = r, c
+        while 0 <= cr + dr < h and 0 <= cc + dc < w and res[cr + dr, cc + dc] == background:
+            cr += dr
+            cc += dc
+        if (cr, cc) != (r, c):
+            res[r, c] = background
+            res[cr, cc] = dot_color
+
+    return res.tolist()
+
+
+def extract_slide_dots_rule(
+    train_pairs: list[dict[str, Any]],
+    background: int = 0,
+) -> tuple[int, str] | None:
+    """Learns dot_color and direction for sliding dots to wall."""
+    colors = set()
+    for p in train_pairs:
+        colors.update(np.unique(p["input"]).tolist())
+    colors = sorted(list(colors))
+
+    for dot_c in colors:
+        if dot_c == background:
+            continue
+        for d in ["right", "left", "down", "up"]:
+            valid = True
+            for p in train_pairs:
+                pred = slide_dots_to_wall(p["input"], dot_color=dot_c, direction=d, background=background)
+                if pred != p["output"]:
+                    valid = False
+                    break
+            if valid:
+                return (dot_c, d)
+    return None
+
+
+def project_diagonal_rays(
+    grid: Grid | np.ndarray,
+    ray_color: int = 1,
+    background: int = 0,
+) -> Grid:
+    """Projects diagonal rays from source dots of ray_color."""
+    arr = to_array(grid).copy()
+    h, w = arr.shape
+    res = arr.copy()
+    coords = list(zip(*np.where(arr == ray_color)))
+    for r, c in coords:
+        for dr, dc in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
+            cr, cc = r + dr, c + dc
+            while 0 <= cr < h and 0 <= cc < w:
+                if res[cr, cc] == background:
+                    res[cr, cc] = ray_color
+                elif res[cr, cc] != ray_color:
+                    break
+                cr += dr
+                cc += dc
+    return res.tolist()
+
+
+def straighten_orthogonal_lines(
+    grid: Grid | np.ndarray,
+    line_color: int = 6,
+    background: int = 0,
+) -> Grid:
+    """Straightens lines by bridging single-gap or kink deviations."""
+    arr = to_array(grid).copy()
+    h, w = arr.shape
+    res = arr.copy()
+
+    for c in range(w):
+        col = arr[:, c]
+        count = int((col == line_color).sum())
+        if count >= 3:
+            rows = np.where(col == line_color)[0]
+            r_min, r_max = int(rows.min()), int(rows.max())
+            if r_max - r_min + 1 - count <= 4:
+                for r in range(r_min, r_max + 1):
+                    res[r, c] = line_color
+                for r in range(r_min, r_max + 1):
+                    for adj_c in [c - 1, c + 1]:
+                        if 0 <= adj_c < w and arr[r, adj_c] == line_color and (arr[:, adj_c] == line_color).sum() <= 3:
+                            res[r, adj_c] = background
+
+    for r in range(h):
+        row = arr[r, :]
+        count = int((row == line_color).sum())
+        if count >= 3:
+            cols = np.where(row == line_color)[0]
+            c_min, c_max = int(cols.min()), int(cols.max())
+            if c_max - c_min + 1 - count <= 4:
+                for c in range(c_min, c_max + 1):
+                    res[r, c] = line_color
+                for c in range(c_min, c_max + 1):
+                    for adj_r in [r - 1, r + 1]:
+                        if 0 <= adj_r < h and arr[adj_r, c] == line_color and (arr[adj_r, :] == line_color).sum() <= 3:
+                            res[adj_r, c] = background
+
+    return res.tolist()
+
+
+
+
 
 
 

@@ -379,6 +379,156 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
+    # 23. Recolor Motif / Template Matching
+    motif_rule = P.extract_recolor_motif_rule(train_pairs)
+    if motif_rule is not None:
+        m_mask, s_c, d_c = motif_rule
+        progs.append(
+            Program(
+                name="recolor_motif",
+                steps=[(
+                    "recolor_motif",
+                    lambda g, m=m_mask, s=s_c, d=d_c: P.recolor_motif(g, motif=m, src_color=s, dst_color=d),
+                )],
+            )
+        )
+
+    # 24. Fill Enclosed Regions by Area
+    for bg in sorted(bg_candidates):
+        enc_area_rule = P.extract_enclosed_area_rule(train_pairs, background=bg)
+        if enc_area_rule is not None:
+            p_name = f"fill_enclosed_area_bg{bg}"
+            progs.append(
+                Program(
+                    name=p_name,
+                    steps=[(
+                        p_name,
+                        lambda g, ar=enc_area_rule, b=bg: P.fill_enclosed_regions_by_area(g, area_to_color=ar, background=b),
+                    )],
+                )
+            )
+
+    # 25. Color Objects by Rank
+    for bg in sorted(bg_candidates):
+        rank_rule = P.extract_rank_color_rule(train_pairs, background=bg)
+        if rank_rule is not None:
+            metric, rev, r_map = rank_rule
+            p_name = f"color_objects_by_rank_{metric}_bg{bg}"
+            progs.append(
+                Program(
+                    name=p_name,
+                    steps=[(
+                        p_name,
+                        lambda g, rm=r_map, m=metric, r=rev, b=bg: P.color_objects_by_rank(g, rank_to_color=rm, metric=m, reverse=r, background=b),
+                    )],
+                )
+            )
+
+    # 26. Extrapolate Periodic Grid
+    for bg in sorted(bg_candidates):
+        per_rule = P.extract_periodic_grid_rule(train_pairs, background=bg)
+        if per_rule is not None:
+            mode, period = per_rule
+            p_name = f"extrapolate_periodic_{mode}_p{period}_bg{bg}"
+            progs.append(
+                Program(
+                    name=p_name,
+                    steps=[(
+                        p_name,
+                        lambda g, md=mode, p=period, b=bg: P.extrapolate_periodic_grid(g, mode=md, period=p, background=b),
+                    )],
+                )
+            )
+
+    # 27. Collinear Point Progression Extrapolation
+    for bg in sorted(bg_candidates):
+        prog_rule = P.extract_point_progression_rule(train_pairs, background=bg)
+        if prog_rule is not None:
+            pt_c, dst_c = prog_rule
+            p_name = f"extrapolate_point_progression_c{pt_c}_to_{dst_c}_bg{bg}"
+            progs.append(
+                Program(
+                    name=p_name,
+                    steps=[(
+                        p_name,
+                        lambda g, pc=pt_c, dc=dst_c, b=bg: P.extrapolate_point_progression(g, point_color=pc, new_color=dc, background=b),
+                    )],
+                )
+            )
+
+    # 28. Trigger Release Gravity
+    for bg in sorted(bg_candidates):
+        progs.append(
+            Program(
+                name=f"trigger_release_gravity_bg{bg}",
+                steps=[(
+                    f"trigger_release_gravity_bg{bg}",
+                    lambda g, b=bg: P.trigger_release_gravity(g, background=b),
+                )],
+            )
+        )
+
+    # 29. Fill Puzzle Socket
+    socket_rule = P.extract_puzzle_socket_rule(train_pairs)
+    if socket_rule is not None:
+        p_c, h_c, f_c = socket_rule
+        progs.append(
+            Program(
+                name="fill_puzzle_socket",
+                steps=[(
+                    "fill_puzzle_socket",
+                    lambda g, p=p_c, h=h_c, f=f_c: P.fill_puzzle_socket(g, piece_color=p, hole_color=h, fill_color=f),
+                )],
+            )
+        )
+
+    # 30. Slide Dots to Wall
+    for bg in sorted(bg_candidates):
+        slide_rule = P.extract_slide_dots_rule(train_pairs, background=bg)
+        if slide_rule is not None:
+            dot_c, d_dir = slide_rule
+            p_name = f"slide_dots_{d_dir}_c{dot_c}_bg{bg}"
+            progs.append(
+                Program(
+                    name=p_name,
+                    steps=[(
+                        p_name,
+                        lambda g, dc=dot_c, dd=d_dir, b=bg: P.slide_dots_to_wall(g, dot_color=dc, direction=dd, background=b),
+                    )],
+                )
+            )
+
+    # 31. Multi-source Diagonal Ray Projection
+    colors_in_inputs = set()
+    for p in train_pairs:
+        colors_in_inputs.update(np.unique(p["input"]).tolist())
+    for bg in sorted(bg_candidates):
+        for rc in sorted(list(colors_in_inputs)):
+            if rc != bg:
+                progs.append(
+                    Program(
+                        name=f"project_diagonal_rays_c{rc}_bg{bg}",
+                        steps=[(
+                            f"project_diagonal_rays_c{rc}_bg{bg}",
+                            lambda g, r_c=rc, b=bg: P.project_diagonal_rays(g, ray_color=r_c, background=b),
+                        )],
+                    )
+                )
+
+    # 32. Straighten Orthogonal Lines
+    for bg in sorted(bg_candidates):
+        for lc in sorted(list(colors_in_inputs)):
+            if lc != bg:
+                progs.append(
+                    Program(
+                        name=f"straighten_orthogonal_lines_c{lc}_bg{bg}",
+                        steps=[(
+                            f"straighten_orthogonal_lines_c{lc}_bg{bg}",
+                            lambda g, l_c=lc, b=bg: P.straighten_orthogonal_lines(g, line_color=l_c, background=b),
+                        )],
+                    )
+                )
+
     return progs
 
 

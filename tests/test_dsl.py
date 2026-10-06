@@ -749,6 +749,344 @@ class TestDSLSearchAndSolver:
         assert score == 1.0
 
 
+class TestVersion9Primitives:
+    def test_recolor_motif(self):
+        from src.dsl import recolor_motif
+
+        grid = [
+            [2, 2, 2, 2, 2],
+            [2, 0, 4, 0, 2],
+            [2, 4, 4, 4, 2],
+            [2, 0, 4, 0, 2],
+            [2, 2, 2, 2, 2],
+        ]
+        cross_mask = [
+            [0, 1, 0],
+            [1, 1, 1],
+            [0, 1, 0],
+        ]
+        out = recolor_motif(grid, motif=cross_mask, src_color=4, dst_color=8)
+        assert out[2][2] == 8
+        assert out[1][2] == 8
+        assert out[3][2] == 8
+        assert out[2][1] == 8
+        assert out[2][3] == 8
+        assert out[0][0] == 2
+
+    def test_fill_enclosed_regions_by_area(self):
+        from src.dsl import fill_enclosed_regions_by_area
+
+        grid = [
+            [2, 2, 2, 0, 2, 2, 2, 2],
+            [2, 0, 2, 0, 2, 0, 0, 2],
+            [2, 2, 2, 0, 2, 0, 0, 2],
+            [0, 0, 0, 0, 2, 2, 2, 2],
+        ]
+        area_to_color = {1: 3, 4: 8}
+        out = fill_enclosed_regions_by_area(grid, area_to_color=area_to_color, background=0)
+        assert out[1][1] == 3
+        assert out[1][5] == 8
+        assert out[2][5] == 8
+        assert out[0][3] == 0
+
+    def test_color_objects_by_rank(self):
+        from src.dsl import color_objects_by_rank
+
+        grid = [
+            [0, 5, 0, 5, 0],
+            [0, 5, 0, 5, 0],
+            [0, 0, 0, 5, 0],
+        ]
+        rank_to_color = {0: 1, 1: 2}
+        out = color_objects_by_rank(grid, rank_to_color=rank_to_color, metric="height", reverse=True, background=0)
+        assert out[0][3] == 1
+        assert out[1][3] == 1
+        assert out[2][3] == 1
+        assert out[0][1] == 2
+        assert out[1][1] == 2
+
+    def test_extrapolate_periodic_grid(self):
+        from src.dsl import extrapolate_periodic_grid
+
+        grid = [
+            [0, 0, 0],
+            [0, 0, 1],
+            [0, 1, 2],
+        ]
+        # (r+c) % 3: (1,2)->0 (val 1? wait, 1+2=3=0), (2,1)->0 (val 1), (2,2)->1 (val 2)
+        # So mod 0 is 1, mod 1 is 2. Mod 2 could be filled if known, or let's provide mod_map
+        mod_map = {0: 1, 1: 2, 2: 4}
+        out = extrapolate_periodic_grid(grid, mode="diag_sum", period=3, mod_map=mod_map, background=0)
+        assert out[0][0] == 1  # (0+0)%3 = 0 -> 1
+        assert out[0][1] == 2  # (0+1)%3 = 1 -> 2
+        assert out[0][2] == 4  # (0+2)%3 = 2 -> 4
+
+    def test_extrapolate_point_progression(self):
+        from src.dsl import extrapolate_point_progression
+
+        grid = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 0],
+        ]
+        out = extrapolate_point_progression(grid, point_color=1, new_color=2, background=0)
+        assert out[3][3] == 2
+
+    def test_search_recolor_motif(self):
+        from src.dsl import search_dsl_programs
+
+        cross = [
+            [2, 4, 2, 2],
+            [4, 4, 4, 2],
+            [2, 4, 2, 2],
+            [2, 2, 2, 4],  # isolated 4 that stays 4
+        ]
+        cross_out = [
+            [2, 8, 2, 2],
+            [8, 8, 8, 2],
+            [2, 8, 2, 2],
+            [2, 2, 2, 4],  # remains 4
+        ]
+        train_pairs = [
+            {"input": cross, "output": cross_out},
+        ]
+        progs = search_dsl_programs(train_pairs, max_level=1)
+        assert len(progs) > 0
+        assert any("recolor_motif" in p[0].name for p in progs)
+
+    def test_search_enclosed_area(self):
+        from src.dsl import search_dsl_programs
+
+        p1_in = [
+            [1, 1, 1],
+            [1, 0, 1],
+            [1, 1, 1],
+        ]
+        p1_out = [
+            [1, 1, 1],
+            [1, 3, 1],
+            [1, 1, 1],
+        ]
+        train_pairs = [{"input": p1_in, "output": p1_out}]
+        progs = search_dsl_programs(train_pairs, max_level=1)
+        assert len(progs) > 0
+        assert any("fill_enclosed_area" in p[0].name for p in progs)
+
+    def test_search_rank_color(self):
+        from src.dsl import search_dsl_programs
+
+        p_in = [
+            [0, 5, 0, 5, 0],
+            [0, 5, 0, 5, 0],
+            [0, 0, 0, 5, 0],
+        ]
+        p_out = [
+            [0, 2, 0, 1, 0],
+            [0, 2, 0, 1, 0],
+            [0, 0, 0, 1, 0],
+        ]
+        train_pairs = [{"input": p_in, "output": p_out}]
+        progs = search_dsl_programs(train_pairs, max_level=1)
+        assert len(progs) > 0
+        assert any("color_objects_by_rank" in p[0].name for p in progs)
+
+    def test_search_periodic_grid(self):
+        from src.dsl import search_dsl_programs
+
+        p_in = [
+            [0, 0, 1],
+            [0, 1, 2],
+            [1, 2, 4],
+        ]
+        p_out = [
+            [2, 4, 1],
+            [4, 1, 2],
+            [1, 2, 4],
+        ]
+        train_pairs = [{"input": p_in, "output": p_out}]
+        progs = search_dsl_programs(train_pairs, max_level=1)
+        assert len(progs) > 0
+        assert any("extrapolate_periodic" in p[0].name for p in progs)
+
+    def test_search_point_progression(self):
+        from src.dsl import search_dsl_programs
+
+        p_in = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 0, 0],
+        ]
+        p_out = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 2, 0],
+        ]
+        train_pairs = [{"input": p_in, "output": p_out}]
+        progs = search_dsl_programs(train_pairs, max_level=1)
+        assert len(progs) > 0
+        assert any("extrapolate_point_progression" in p[0].name for p in progs)
+
+
+class TestVersion10Primitives:
+    def test_trigger_release_gravity(self):
+        from src.dsl import trigger_release_gravity
+
+        grid = [
+            [4, 0, 0, 0],
+            [0, 2, 2, 0],
+            [0, 4, 4, 0],
+            [0, 0, 0, 0],
+        ]
+        out = trigger_release_gravity(grid, background=0)
+        assert out[0][0] == 4
+        assert out[1][1] == 0
+        assert out[1][2] == 0
+        assert out[3][1] == 2
+        assert out[3][2] == 2
+
+    def test_fill_puzzle_socket(self):
+        from src.dsl import fill_puzzle_socket
+
+        grid = [
+            [3, 3, 3, 3, 3],
+            [3, 2, 2, 3, 3],
+            [3, 2, 2, 3, 3],
+            [3, 3, 3, 0, 0],
+            [3, 3, 3, 0, 0],
+        ]
+        out = fill_puzzle_socket(grid, piece_color=2, hole_color=0, fill_color=1)
+        assert out[1][1] == 0
+        assert out[1][2] == 0
+        assert out[2][1] == 0
+        assert out[2][2] == 0
+        assert out[3][3] == 1
+        assert out[3][4] == 1
+        assert out[4][3] == 1
+        assert out[4][4] == 1
+
+    def test_slide_dots_to_wall(self):
+        from src.dsl import slide_dots_to_wall
+
+        grid = [
+            [0, 7, 0, 4, 0, 7, 0],
+        ]
+        out = slide_dots_to_wall(grid, dot_color=4, direction="right", background=0)
+        assert out[0][3] == 0
+        assert out[0][4] == 4
+        assert out[0][5] == 7
+
+    def test_project_diagonal_rays(self):
+        from src.dsl import project_diagonal_rays
+
+        grid = [
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+        ]
+        out = project_diagonal_rays(grid, ray_color=1, background=0)
+        assert out[1][1] == 1
+        assert out[0][0] == 1
+        assert out[1][3] == 1
+        assert out[0][4] == 1
+
+    def test_straighten_orthogonal_lines(self):
+        from src.dsl import straighten_orthogonal_lines
+
+        grid = [
+            [0, 6, 0, 0],
+            [0, 6, 0, 0],
+            [0, 0, 6, 0],
+            [0, 6, 0, 0],
+            [0, 6, 0, 0],
+        ]
+        out = straighten_orthogonal_lines(grid, line_color=6, background=0)
+        assert out[2][1] == 6
+        assert out[2][2] == 0
+
+    def test_search_puzzle_socket(self):
+        from src.dsl import search_dsl_programs
+
+        p_in = [
+            [3, 3, 3, 3, 3],
+            [3, 2, 2, 3, 3],
+            [3, 2, 2, 3, 3],
+            [3, 3, 3, 0, 0],
+            [3, 3, 3, 0, 0],
+        ]
+        p_out = [
+            [3, 3, 3, 3, 3],
+            [3, 0, 0, 3, 3],
+            [3, 0, 0, 3, 3],
+            [3, 3, 3, 1, 1],
+            [3, 3, 3, 1, 1],
+        ]
+        train_pairs = [{"input": p_in, "output": p_out}]
+        progs = search_dsl_programs(train_pairs, max_level=1)
+        assert len(progs) > 0
+        assert any("fill_puzzle_socket" in p[0].name for p in progs)
+
+    def test_search_slide_dots(self):
+        from src.dsl import search_dsl_programs
+
+        p_in = [
+            [0, 7, 0, 4, 0, 7, 0],
+        ]
+        p_out = [
+            [0, 7, 0, 0, 4, 7, 0],
+        ]
+        train_pairs = [{"input": p_in, "output": p_out}]
+        progs = search_dsl_programs(train_pairs, max_level=1)
+        assert len(progs) > 0
+        assert any("slide_dots" in p[0].name for p in progs)
+
+    def test_search_project_diagonal_rays(self):
+        from src.dsl import search_dsl_programs
+
+        p_in = [
+            [0, 0, 0],
+            [0, 1, 0],
+            [0, 0, 0],
+        ]
+        p_out = [
+            [1, 0, 1],
+            [0, 1, 0],
+            [1, 0, 1],
+        ]
+        train_pairs = [{"input": p_in, "output": p_out}]
+        progs = search_dsl_programs(train_pairs, max_level=1)
+        assert len(progs) > 0
+        assert any("project_diagonal_rays" in p[0].name for p in progs)
+
+    def test_search_straighten_orthogonal_lines(self):
+        from src.dsl import search_dsl_programs
+
+        p_in = [
+            [0, 6, 0, 0],
+            [0, 6, 0, 0],
+            [0, 0, 6, 0],
+            [0, 6, 0, 0],
+            [0, 6, 0, 0],
+        ]
+        p_out = [
+            [0, 6, 0, 0],
+            [0, 6, 0, 0],
+            [0, 6, 0, 0],
+            [0, 6, 0, 0],
+            [0, 6, 0, 0],
+        ]
+        train_pairs = [{"input": p_in, "output": p_out}]
+        progs = search_dsl_programs(train_pairs, max_level=1)
+        assert len(progs) > 0
+        assert any("straighten_orthogonal_lines" in p[0].name for p in progs)
+
+
+
+
+
+
 
 
 
