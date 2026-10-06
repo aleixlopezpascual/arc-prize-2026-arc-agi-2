@@ -15,9 +15,9 @@
 - **Score Progression:**
   - `Baseline (v3)`: `29.31%` (Rank 1,043 / 2,377)
   - `Hybrid v5`: `30.69%` (Rank 563 / 2,400)
-  - `Hybrid v7`: **`30.97%` (Rank 467 / 2,460)**
-- **Next Staged Submission:** **Version 8** (Validation score: `3.5`, max beam score: `0.98766`, solves 86 training tasks). Output verified and cached at `submissions/submission_hybrid_sota_v8.json`.
-- **Under Active Staging:** **Version 10** (Solves 88 training tasks + 2 official evaluation tasks including `1818057f`, plus deep perception primitives for `b6f77b65`, `332f06d7`, `88e364bc`, `142ca369`, `7b80bb43`). Notebook compiled cleanly at `notebooks/submissions/hybrid_sota_v1/submission_kernel.ipynb`.
+  - `Hybrid v7`: `30.97%` (Rank 467 / 2,460)
+  - `Hybrid v8`: **`30.97%` (Submission ID 56875914, Rank 467)**
+- **Next Staged Submission:** **Version 12** (**Record Validation Score: `4.5`**, up from 2.5 baseline). Output verified and cached at `submissions/submission_hybrid_sota_v12.json`. Scheduler (PID `84256`) is actively monitoring and will automatically submit at the `00:00 UTC` quota reset!
 
 ---
 

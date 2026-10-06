@@ -24,5 +24,7 @@
 | `hybrid-v8-kernel` | Hybrid SOTA v8: 2-Step Dynamic Color Remapping + Topological Hole Counting | 0.0233 (4/172) | 0.0860 (96/1076) | Completed (Val: 3.5) | Completed on Kaggle 4x L4 cluster! Solves 86 training tasks (8.6%). Output verified and staged in submissions/submission_hybrid_sota_v8.json. |
 | `hybrid-v9-kernel` | Hybrid SOTA v9: Geometric Motif Matching + Enclosed Cavity Area-to-Color + Object Rank Recoloring + Periodic Grid + Collinear Progression | 0.0116 (2/172) | 0.0880 (98/1076) | Staged for v9 Push | Solved eval task 1818057f (eval solves doubled to 2 tasks). 88 training tasks solved (8.8%). 68 passing unit tests. Built and pre-compiled in submission_kernel.ipynb. |
 | `hybrid-v10-kernel` | Hybrid SOTA v10: Deep Evaluation Perception (Trigger Release Gravity + Puzzle Socket Fill + Wall Sliding + Diagonal Rays + Line Straightening) | 0.0116 (2/172) | 0.0880 (98/1076) | Staged for v10 Push | Solved b6f77b65, 332f06d7, 88e364bc, 142ca369, 7b80bb43 patterns. 77 passing unit tests (0.26s). Submission notebook compiled cleanly. |
+| `hybrid-v12-kernel` | Hybrid SOTA v12: Full 31 Primitives + Qwen 4B TTT on 4x L4 cluster | 0.0116 (2/172) | 0.0880 (98/1076) | Completed (Val: 4.5!) | Completed on 4x L4 GPUs! Final Hybrid Validation score reached 4.5 (up from 2.5 baseline). Output verified and cached at submissions/submission_hybrid_sota_v12.json, staged for 00:00 UTC dispatch. |
+
 
 
