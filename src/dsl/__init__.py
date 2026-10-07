@@ -81,6 +81,10 @@ from src.dsl.primitives import (
     extract_slide_dots_rule,
     project_diagonal_rays,
     straighten_orthogonal_lines,
+    inpaint_masked_reflection,
+    extract_masked_reflection_rule,
+    detect_gridline_lattice,
+    remove_gridlines,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
@@ -132,6 +136,10 @@ __all__ = [
     "extract_slide_dots_rule",
     "project_diagonal_rays",
     "straighten_orthogonal_lines",
+    "inpaint_masked_reflection",
+    "extract_masked_reflection_rule",
+    "detect_gridline_lattice",
+    "remove_gridlines",
     "gravity",
     "kronecker_fractal_expansion",
     "least_frequent_color",

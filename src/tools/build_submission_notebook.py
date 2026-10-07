@@ -114,8 +114,44 @@ def grid_equal(g1, g2):
         }
     )
 
-    # Cell 5: arc_decoder.py
-    cells.append(base_nb["cells"][4])
+    # Cell 5: arc_decoder.py with score_ensemble
+    decoder_source = "".join(base_nb["cells"][4]["source"])
+    if "def score_ensemble" not in decoder_source:
+        ensemble_code = """
+def score_ensemble(guesses):
+    ranked_prob = score_full_probmul_3(guesses)
+    ranked_vote = score_kgmon(guesses)
+    seen, result = set(), []
+    for a, b in zip(ranked_prob, ranked_vote):
+        for cand in (a, b):
+            h = hashable(cand)
+            if h not in seen:
+                seen.add(h)
+                result.append(cand)
+    for cand in ranked_prob + ranked_vote:
+        h = hashable(cand)
+        if h not in seen:
+            seen.add(h)
+            result.append(cand)
+    return result
+"""
+        decoder_source = decoder_source.replace(
+            "selection_algorithms = [\n    score_full_probmul_3,\n    score_kgmon,\n]",
+            f"{ensemble_code}\nselection_algorithms = [\n    score_full_probmul_3,\n    score_kgmon,\n    score_ensemble,\n]",
+        )
+        decoder_source = decoder_source.replace(
+            "def run_selection_algo(self, selection_algorithm=score_kgmon):",
+            "def run_selection_algo(self, selection_algorithm=score_ensemble):",
+        )
+    cells.append(
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [decoder_source],
+        }
+    )
 
     # Cell 6: arc_solver.py
     cells.append(base_nb["cells"][5])
@@ -132,7 +168,7 @@ def grid_equal(g1, g2):
         "import json\n",
         "import numpy as np\n",
         "from arc_loader import ArcDataset\n",
-        "from arc_decoder import ArcDecoder\n",
+        "from arc_decoder import ArcDecoder, score_ensemble\n",
         "import arc_dsl\n",
         "\n",
         'rerun_mode = os.getenv("KAGGLE_IS_COMPETITION_RERUN")\n',
@@ -155,8 +191,8 @@ def grid_equal(g1, g2):
         "decoder = ArcDecoder(data.split_multi_replies(), n_guesses=2)\n",
         'decoder.load_decoded_results("/kaggle/inference_outputs")\n',
         "\n",
-        "# Base neural predictions\n",
-        "submission = data.get_submission(decoder.run_selection_algo())\n",
+        "# Base neural predictions with interleaved probability and voting ensemble\n",
+        "submission = data.get_submission(decoder.run_selection_algo(score_ensemble))\n",
         "\n",
         "# Tier 1 Symbolic Induction Filter\n",
         'print("*** Running Tier 1 Symbolic Verification pre-pass...")\n',
@@ -210,7 +246,7 @@ def grid_equal(g1, g2):
         "cells": cells,
         "metadata": base_nb.get("metadata", {}),
         "nbformat": 4,
-        "nbformat_minor": 5,
+        "nbformat_minor": 4,
     }
 
     dst_path = Path(

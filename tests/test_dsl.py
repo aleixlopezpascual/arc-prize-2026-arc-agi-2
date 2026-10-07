@@ -1083,6 +1083,59 @@ class TestVersion10Primitives:
         assert any("straighten_orthogonal_lines" in p[0].name for p in progs)
 
 
+class TestVersion13Primitives:
+    def test_inpaint_masked_reflection(self):
+        from src.dsl import inpaint_masked_reflection
+
+        grid = [
+            [2, 0, 8, 8],
+            [2, 2, 8, 8],
+        ]
+        out = inpaint_masked_reflection(grid, obj_color=2, mask_color=8, axis="vertical")
+        assert out[0] == [2, 0, 0, 2]
+        assert out[1] == [2, 2, 2, 2]
+
+    def test_split_by_gridlines(self):
+        from src.dsl import detect_gridline_lattice, remove_gridlines
+
+        grid = [
+            [1, 1, 5, 2, 2],
+            [1, 1, 5, 2, 2],
+            [5, 5, 5, 5, 5],
+            [3, 3, 5, 4, 4],
+            [3, 3, 5, 4, 4],
+        ]
+        sep_color, row_seps, col_seps = detect_gridline_lattice(grid)
+        assert sep_color == 5
+        assert row_seps == [2]
+        assert col_seps == [2]
+        panels = remove_gridlines(grid, sep_color=5, row_seps=[2], col_seps=[2])
+        assert len(panels) == 2
+        assert len(panels[0]) == 2
+        assert panels[0][0] == [[1, 1], [1, 1]]
+        assert panels[0][1] == [[2, 2], [2, 2]]
+        assert panels[1][0] == [[3, 3], [3, 3]]
+        assert panels[1][1] == [[4, 4], [4, 4]]
+
+    def test_search_inpaint_masked_reflection(self):
+        from src.dsl import search_dsl_programs
+
+        p_in = [
+            [2, 0, 8, 8],
+            [2, 2, 8, 8],
+        ]
+        p_out = [
+            [2, 0, 0, 2],
+            [2, 2, 2, 2],
+        ]
+        train_pairs = [{"input": p_in, "output": p_out}]
+        progs = search_dsl_programs(train_pairs, max_level=1)
+        assert len(progs) > 0
+        assert any("inpaint_masked_reflection" in p[0].name for p in progs)
+
+
+
+
 
 
 

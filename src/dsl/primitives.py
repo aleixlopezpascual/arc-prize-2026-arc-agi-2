@@ -1911,6 +1911,145 @@ def straighten_orthogonal_lines(
     return res.tolist()
 
 
+# =============================================================================
+# Version 13 Primitives: Masked Reflection Inpainting & Gridline Lattice
+# =============================================================================
+
+def inpaint_masked_reflection(
+    grid: Grid | np.ndarray,
+    obj_color: int = 2,
+    mask_color: int = 8,
+    axis: str = "vertical",
+) -> Grid:
+    """Mirrors unmasked pixels across reflection axis to inpaint masked regions."""
+    arr = to_array(grid).copy()
+    h, w = arr.shape
+    res = arr.copy()
+
+    if axis == "vertical":
+        for r in range(h):
+            for c in range(w):
+                if arr[r, c] == mask_color:
+                    opp_c = w - 1 - c
+                    if arr[r, opp_c] == obj_color:
+                        res[r, c] = obj_color
+                    elif arr[r, opp_c] != mask_color:
+                        res[r, c] = arr[r, opp_c]
+    else:
+        for r in range(h):
+            for c in range(w):
+                if arr[r, c] == mask_color:
+                    opp_r = h - 1 - r
+                    if arr[opp_r, c] == obj_color:
+                        res[r, c] = obj_color
+                    elif arr[opp_r, c] != mask_color:
+                        res[r, c] = arr[opp_r, c]
+
+    return res.tolist()
+
+
+def extract_masked_reflection_rule(
+    train_pairs: list[dict[str, Any]],
+) -> tuple[int, int, str] | None:
+    """Learns obj_color, mask_color, and axis for masked reflection inpainting."""
+    for p in train_pairs:
+        inp = np.asarray(p["input"])
+        out = np.asarray(p["output"])
+        if inp.shape != out.shape:
+            return None
+
+    # Collect colors
+    colors = set()
+    for p in train_pairs:
+        colors.update(np.unique(p["input"]).tolist())
+    colors = sorted(list(colors))
+
+    for obj_c in colors:
+        for mask_c in colors:
+            if obj_c == mask_c:
+                continue
+            for ax in ["vertical", "horizontal"]:
+                valid = True
+                for p in train_pairs:
+                    pred = inpaint_masked_reflection(p["input"], obj_color=obj_c, mask_color=mask_c, axis=ax)
+                    if pred != p["output"]:
+                        valid = False
+                        break
+                if valid:
+                    return (obj_c, mask_c, ax)
+    return None
+
+
+def detect_gridline_lattice(
+    grid: Grid | np.ndarray,
+) -> tuple[int | None, list[int], list[int]]:
+    """Detects uniform horizontal and vertical separator gridlines forming a lattice."""
+    arr = to_array(grid)
+    h, w = arr.shape
+    uniform_rows: dict[int, list[int]] = {}
+    for r in range(1, h - 1):
+        u = np.unique(arr[r, :])
+        if len(u) == 1:
+            color = int(u[0])
+            uniform_rows.setdefault(color, []).append(r)
+
+    uniform_cols: dict[int, list[int]] = {}
+    for c in range(1, w - 1):
+        u = np.unique(arr[:, c])
+        if len(u) == 1:
+            color = int(u[0])
+            uniform_cols.setdefault(color, []).append(c)
+
+    common_colors = set(uniform_rows.keys()) | set(uniform_cols.keys())
+    for color in common_colors:
+        r_seps = uniform_rows.get(color, [])
+        c_seps = uniform_cols.get(color, [])
+        if r_seps or c_seps:
+            return (color, r_seps, c_seps)
+
+    return (None, [], [])
+
+
+def remove_gridlines(
+    grid: Grid | np.ndarray,
+    sep_color: int,
+    row_seps: list[int],
+    col_seps: list[int],
+) -> list[list[Grid]]:
+    """Splits grid by separator lattice into matrix of subgrid panels."""
+    arr = to_array(grid)
+    h, w = arr.shape
+
+    r_slices = []
+    prev_r = 0
+    for r in sorted(row_seps):
+        if r > prev_r:
+            r_slices.append((prev_r, r))
+        prev_r = r + 1
+    if prev_r < h:
+        r_slices.append((prev_r, h))
+
+    c_slices = []
+    prev_c = 0
+    for c in sorted(col_seps):
+        if c > prev_c:
+            c_slices.append((prev_c, c))
+        prev_c = c + 1
+    if prev_c < w:
+        c_slices.append((prev_c, w))
+
+    panels: list[list[Grid]] = []
+    for r1, r2 in r_slices:
+        row_panels = []
+        for c1, c2 in c_slices:
+            sub = arr[r1:r2, c1:c2].tolist()
+            row_panels.append(sub)
+        panels.append(row_panels)
+
+    return panels
+
+
+
 
 
 

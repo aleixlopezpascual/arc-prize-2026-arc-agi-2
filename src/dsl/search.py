@@ -529,6 +529,20 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
                     )
                 )
 
+    # 33. Masked Reflection Inpainting
+    refl_rule = P.extract_masked_reflection_rule(train_pairs)
+    if refl_rule is not None:
+        obj_c, mask_c, ax = refl_rule
+        progs.append(
+            Program(
+                name=f"inpaint_masked_reflection_{ax}",
+                steps=[(
+                    f"inpaint_masked_reflection_{ax}",
+                    lambda g, o=obj_c, m=mask_c, a=ax: P.inpaint_masked_reflection(g, obj_color=o, mask_color=m, axis=a),
+                )],
+            )
+        )
+
     return progs
 
 
@@ -550,6 +564,12 @@ def generate_two_step_candidates(
         ("reflect_h", P.reflect_horizontal),
         ("reflect_v", P.reflect_vertical),
         ("transpose", P.transpose),
+        ("tile_mirror_h", P.tile_mirror_horizontal),
+        ("tile_mirror_v", P.tile_mirror_vertical),
+        ("kaleidoscope_2x2", P.tile_kaleidoscope_2x2),
+        ("tile_2x2", lambda g: P.tile_grid(g, repeat_y=2, repeat_x=2)),
+        ("gravity_down", lambda g: P.gravity(g, direction="down")),
+        ("crop_content_bg0", lambda g: P.crop_to_content(g, background=0)),
     ]
 
     cmap = find_dynamic_color_mapping(train_pairs)

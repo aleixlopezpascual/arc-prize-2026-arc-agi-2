@@ -271,4 +271,19 @@ This catalog details the complete set of verified symbolic perception and transf
 - **Benchmark Lift:** Solved **Evaluation Task `7b80bb43`**.
 - **Concept:** Scans for solid horizontal/vertical lines with temporary single-pixel zigzag detours or gaps, bridging the line along the dominant trajectory and cleaning up detour artifacts.
 
+---
+
+## 32. Masked Reflection Inpainting (`inpaint_masked_reflection`, `extract_masked_reflection_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solves objects with occluding color masks covering a bilateral reflection half.
+- **Concept:** Mirrors the unmasked half of an object across its reflection axis (horizontal or vertical) to cleanly inpaint the occluded pixels.
+
+---
+
+## 33. Gridline Lattice Decomposition (`detect_gridline_lattice`, `remove_gridlines`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Dissects compound matrix grids into subgrid panels.
+- **Concept:** Detects full-canvas separator gridlines of uniform color, strips them out into a 2D matrix of subgrid tiles for independent solution, and reconstructs the lattice.
+
+
 
