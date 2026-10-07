@@ -17,7 +17,8 @@
   - `Hybrid v5`: `30.69%` (Rank 563 / 2,400)
   - `Hybrid v7`: `30.97%` (Rank 467 / 2,460)
   - `Hybrid v8`: **`30.97%` (Submission ID 56875914, Rank 467)**
-- **Next Staged Submission:** **Version 12** (**Record Validation Score: `4.5`**, up from 2.5 baseline). Output verified and cached at `submissions/submission_hybrid_sota_v12.json`. Scheduler (PID `84256`) is actively monitoring and will automatically submit at the `00:00 UTC` quota reset!
+- **Current Active Submission:** **Version 12** (Submission ID `56893501`, Validation Score: `4.5`). Status: `SubmissionStatus.PENDING`.
+- **Next Staged Submission:** **Version 13** (**Record Validation Score: `5.0`**, doubled from baseline!). Output verified and cached at `submissions/submission_hybrid_sota_v13.json`. Scheduler (PID `86064`) is actively monitoring and will automatically submit at the `00:00 UTC` quota reset!
 
 ---
 
@@ -108,8 +109,8 @@ The neural model's best prediction is **never displaced**, mathematically preven
 ## 🧪 5. Testing & Verification
 
 - **Full Suite Command:** `python3 -m pytest tests/`
-- **Current Test Count:** **77 passing unit tests** in 0.26s
-  - `tests/test_dsl.py`: 65 tests
+- **Current Test Count:** **80 passing unit tests** in 0.25s
+  - `tests/test_dsl.py`: 68 tests
   - `tests/test_metrics.py`: 6 tests
   - `tests/test_neural.py`: 6 tests
 - **Notebook Pre-Compile Gate:** `python3 src/tools/build_submission_notebook.py` validates `compile(arc_dsl_content)` before generating `notebooks/submissions/hybrid_sota_v1/submission_kernel.ipynb`.
