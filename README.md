@@ -3,8 +3,9 @@
 [![Private GitHub](https://img.shields.io/badge/GitHub-Private%20Repo-blue?logo=github)](https://github.com/aleixlopezpascual/arc-prize-2026-arc-agi-2)
 [![Leaderboard](https://img.shields.io/badge/Public%20LB-30.97%25-brightgreen?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
 [![Rank](https://img.shields.io/badge/Rank-467%20%2F%202460-gold?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
+[![Record Val](https://img.shields.io/badge/Record%20Validation-5.0%20(Doubled)-purple?logo=kaggle)](https://www.kaggle.com/code/aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt)
 [![Kaggle Kernel](https://img.shields.io/badge/Kaggle-4x%20L4%20GPUs-orange?logo=kaggle)](https://www.kaggle.com/code/aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt)
-[![Tests](https://img.shields.io/badge/Unit%20Tests-58%20Passing-success)](tests/)
+[![Tests](https://img.shields.io/badge/Unit%20Tests-80%20Passing-success)](tests/)
 
 An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2) competition on Kaggle, pioneering a **Two-Tier Hybrid Architecture** combining deterministic symbolic program induction with state-of-the-art Test-Time Training (TTT) neural models.
 
@@ -12,12 +13,13 @@ An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle
 
 ## 🏆 Current Benchmark & Leaderboard Status
 
-- **Official Public Leaderboard Score:** **`30.97%`** (Submission ID `56836175`, `SubmissionStatus.COMPLETE`)
-- **Official Competition Rank:** **Rank 467** out of 2,460 teams (+576 positions climbed from baseline!)
-- **Next Staged Submission:** **Version 8** (Submission artifact verified at `submissions/submission_hybrid_sota_v8.json`, scheduler PID 90660 active)
-- **Hybrid Kernel Validation Score:** **`3.5`** (up from `2.5` on the pure baseline)
-- **Tier 1 Symbolic Hit Rate:** **134 tasks (13.4% coverage)** across ARC demonstrations in $< 0.01$s per task
-- **Training Set Solved Count:** **86 tasks solved (96 test outputs, 8.6% accuracy)** with D4-TTA induction
+- **Official Public Leaderboard Score:** **`30.97%`** (Submission ID `56836175` & `56875914`, `SubmissionStatus.COMPLETE`)
+- **Official Competition Rank:** **Rank 467** out of 2,460 teams (+576 positions climbed from baseline, securely inside the **Top 500**)
+- **Active Submission in Scoring:** **Version 12** (Submission ID `56893501`, Validation Score `4.5`)
+- **Next Staged Submission:** **Version 13** (**All-Time Record Validation Score: `5.0`**, doubled from `2.5` baseline! Cached at `submissions/submission_hybrid_sota_v13.json`, scheduler PID 86064 active for 00:00 UTC dispatch)
+- **Symbolic Perception Catalog:** **33 Core Knowledge primitive families** (including Masked Reflection Inpainting, Gridline Lattice Decomposition, Trigger Release Gravity, and Topological Enclosed Cavities)
+- **Neural Decoding Engine:** **`score_ensemble` Interleaved Dual-Ranking** (combining maximum likelihood beam probability with consensus voting across dihedral test-time augmentations)
+- **Unit Test Suite:** **80/80 tests passing** in 0.25s (`tests/test_dsl.py`, `tests/test_metrics.py`, `tests/test_neural.py`)
 
 ---
 
@@ -149,7 +151,7 @@ An exhaustive deep dive across all 100 public kernels on Kaggle revealed:
 │   ├── competition-brief.md   # Problem statement, metric math & gotchas
 │   ├── experiments.md         # Detailed chronological experiment ledger
 │   ├── hybrid_architecture.md # In-depth technical architecture spec
-│   ├── symbolic_primitives_catalog.md # Full catalog of 15+ symbolic primitives
+│   ├── symbolic_primitives_catalog.md # Full catalog of 33 symbolic primitives
 │   ├── kaggle_operations_guide.md     # Operations & deployment handbook
 │   ├── nvarc_analysis.md      # Dissection of 1st-place NVARC TTT loop
 │   └── intel/                 # Harvested competition intel & forum threads
@@ -163,7 +165,7 @@ An exhaustive deep dive across all 100 public kernels on Kaggle revealed:
 │   ├── validator.py           # Submission JSON schema validator
 │   ├── evaluate.py            # Local evaluation harness
 │   ├── dsl/                   # Tier 1 Symbolic Induction Engine
-│   │   ├── primitives.py      # Object segmentation, periodic room repairs, dot lines
+│   │   ├── primitives.py      # Object segmentation, periodic room repairs, dot lines, 33 primitives
 │   │   ├── cellular_automata.py # 3x3 local neighborhood transition rules
 │   │   ├── overlay.py         # Split & logical overlay operators
 │   │   ├── search.py          # Combinatorial candidate search & pruning
@@ -174,9 +176,11 @@ An exhaustive deep dive across all 100 public kernels on Kaggle revealed:
 │   │   ├── tokenizer.py       # Dense bare-digit grid serializer & ChatML formatter
 │   │   └── augmentation.py    # D4 dihedral & color permutations with exact inverters
 │   └── tools/
-│       └── build_submission_notebook.py # Standalone submission notebook builder with compile gate
+│       ├── auto_submit.py     # Background watcher & auto-submit daemon
+│       ├── build_submission_notebook.py # Standalone submission notebook builder with compile gate
+│       └── schedule_daily_submit.py     # 00:00 UTC daily quota auto-dispatcher
 └── tests/
-    ├── test_dsl.py            # Comprehensive tests for symbolic primitives & search (32 tests)
+    ├── test_dsl.py            # Comprehensive tests for symbolic primitives & search (68 tests)
     ├── test_metrics.py        # Edge-case tests for evaluation metric & validator (6 tests)
     └── test_neural.py         # Tests for dense tokenizer, D4 & color inversions (6 tests)
 ```
@@ -189,7 +193,7 @@ An exhaustive deep dive across all 100 public kernels on Kaggle revealed:
 ```bash
 python3 -m pytest tests/
 ```
-*(44 unit tests passing in ~0.15s)*
+*(80 unit tests passing in ~0.25s)*
 
 ### 2. Run Local Evaluation Benchmark
 ```bash
