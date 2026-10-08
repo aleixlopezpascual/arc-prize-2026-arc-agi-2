@@ -975,3 +975,13 @@
 [11:22:11] Elapsed: 36.6m | Kernel Status: KernelWorkerStatus.RUNNING
 [11:22:57] Elapsed: 37.3m | Kernel Status: KernelWorkerStatus.RUNNING
 [11:23:42] Elapsed: 38.1m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:24:28] Elapsed: 38.8m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:25:14] Elapsed: 39.6m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:25:59] Elapsed: 40.4m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:26:45] Elapsed: 41.1m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:27:31] Elapsed: 41.9m | Kernel Status: KernelWorkerStatus.COMPLETE
+[+] Kernel completed at 2026-10-08 11:27:31
+
+--- Started watcher for aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt v15 at 2026-10-08 15:33:11 ---
+[15:33:12] Elapsed: 0.0m | Kernel Status: KernelWorkerStatus.COMPLETE
+[+] Kernel completed at 2026-10-08 15:33:12
