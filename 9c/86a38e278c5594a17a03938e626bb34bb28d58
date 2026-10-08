@@ -1,0 +1,42 @@
+src/dsl/__init__.py
+  s_158cf9a6769f3b::t_75f3f1593fd0ad 88-93,149-154
+docs/experiments.md
+  s_158cf9a6769f3b::t_7fe4493f4fe2c5 28-29
+docs/symbolic_primitives_catalog.md
+  s_158cf9a6769f3b::t_2372baa33375dd 288-325
+src/dsl/search.py
+  s_158cf9a6769f3b::t_957e2306e21c4a 535-561
+  s_158cf9a6769f3b::t_438209daac7a82 681-691,710-714,757-758
+  s_158cf9a6769f3b::t_e07e2e94af4672 562-572
+tests/test_dsl.py
+  s_158cf9a6769f3b::t_88adab21884b38 1136-1202
+src/tools/auto_submit.py
+  s_158cf9a6769f3b::t_5e00aa4420afe9 172
+  s_158cf9a6769f3b::t_4ef67d50b1623e 116-121
+src/tools/schedule_daily_submit.py
+  s_158cf9a6769f3b::t_19531d52068085 116-117,120,128
+  s_158cf9a6769f3b::t_fca18b4ce271be 41,61-66
+src/dsl/primitives.py
+  s_158cf9a6769f3b::t_11ca486c5407fe 2061-2254
+  s_158cf9a6769f3b::t_231e4a8a36b76c 27-35
+README.md
+  s_158cf9a6769f3b::t_76646f8d626983 6,8,18-20,22
+HANDOVER.md
+  s_158cf9a6769f3b::t_02231831f3d82a 3,12,19-22,38-39,55-56,67-73,86-89,96-97,99,101-106,113-114,117,128,130-131,133,135
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "9c86a38e278c5594a17a03938e626bb34bb28d58",
+  "prompts": {},
+  "sessions": {
+    "s_158cf9a6769f3b": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "edc3be70-3599-4e39-b2f3-bf74899a195b",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
