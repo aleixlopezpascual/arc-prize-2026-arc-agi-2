@@ -113,7 +113,12 @@ def watch_and_submit(
                     )
 
                 # 4. Fire competition submission
-                msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Optimal Union + 31 Symbolic Primitives + Deep Eval)"
+                if version == 14:
+                    msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Symmetry Restoration + Ranked Pillars + Legend Cavity - Record Val 5.81)"
+                elif version == 13:
+                    msg = f"ARC-AGI-2 Hybrid SOTA v{version} (score_ensemble + 33 Primitives - Record Val 5.0)"
+                else:
+                    msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Optimal Union + 36 Symbolic Primitives + Deep Eval)"
                 print(f"[*] Firing competition submission: '{msg}'...")
                 sub_res = subprocess.run(
                     [
@@ -164,7 +169,7 @@ def watch_and_submit(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--kernel", default="aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt")
-    parser.add_argument("--version", type=int, default=7)
+    parser.add_argument("--version", type=int, default=14)
     parser.add_argument("--poll-interval", type=int, default=45)
     parser.add_argument("--max-wait", type=float, default=8.0)
     args = parser.parse_args()

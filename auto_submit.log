@@ -922,3 +922,46 @@
 [13:09:17] Elapsed: 25.1m | Kernel Status: KernelWorkerStatus.RUNNING
 [13:10:02] Elapsed: 25.9m | Kernel Status: KernelWorkerStatus.COMPLETE
 [+] Kernel completed at 2026-10-07 13:10:02
+
+--- Started watcher for aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt v14 at 2026-10-08 10:45:38 ---
+[10:45:38] Elapsed: 0.0m | Kernel Status: KernelWorkerStatus.QUEUED
+[10:46:24] Elapsed: 0.8m | Kernel Status: KernelWorkerStatus.QUEUED
+[10:47:09] Elapsed: 1.5m | Kernel Status: KernelWorkerStatus.QUEUED
+[10:47:55] Elapsed: 2.3m | Kernel Status: KernelWorkerStatus.QUEUED
+[10:48:40] Elapsed: 3.0m | Kernel Status: KernelWorkerStatus.QUEUED
+[10:49:26] Elapsed: 3.8m | Kernel Status: KernelWorkerStatus.QUEUED
+[10:50:12] Elapsed: 4.6m | Kernel Status: KernelWorkerStatus.QUEUED
+[10:50:57] Elapsed: 5.3m | Kernel Status: KernelWorkerStatus.QUEUED
+[10:51:43] Elapsed: 6.1m | Kernel Status: KernelWorkerStatus.QUEUED
+[10:52:28] Elapsed: 6.8m | Kernel Status: KernelWorkerStatus.QUEUED
+[10:53:14] Elapsed: 7.6m | Kernel Status: KernelWorkerStatus.QUEUED
+[10:54:00] Elapsed: 8.4m | Kernel Status: KernelWorkerStatus.QUEUED
+[10:54:46] Elapsed: 9.1m | Kernel Status: KernelWorkerStatus.QUEUED
+[10:55:31] Elapsed: 9.9m | Kernel Status: KernelWorkerStatus.QUEUED
+[10:56:17] Elapsed: 10.7m | Kernel Status: KernelWorkerStatus.QUEUED
+[10:57:03] Elapsed: 11.4m | Kernel Status: KernelWorkerStatus.RUNNING
+[10:57:48] Elapsed: 12.2m | Kernel Status: KernelWorkerStatus.RUNNING
+[10:58:34] Elapsed: 12.9m | Kernel Status: KernelWorkerStatus.RUNNING
+[10:59:20] Elapsed: 13.7m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:00:05] Elapsed: 14.5m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:00:51] Elapsed: 15.2m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:01:37] Elapsed: 16.0m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:02:23] Elapsed: 16.8m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:03:09] Elapsed: 17.5m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:03:54] Elapsed: 18.3m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:04:40] Elapsed: 19.0m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:05:26] Elapsed: 19.8m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:06:11] Elapsed: 20.6m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:06:57] Elapsed: 21.3m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:07:43] Elapsed: 22.1m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:08:28] Elapsed: 22.8m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:09:14] Elapsed: 23.6m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:09:59] Elapsed: 24.4m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:10:45] Elapsed: 25.1m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:11:31] Elapsed: 25.9m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:12:17] Elapsed: 26.7m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:13:03] Elapsed: 27.4m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:13:48] Elapsed: 28.2m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:14:34] Elapsed: 28.9m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:15:20] Elapsed: 29.7m | Kernel Status: KernelWorkerStatus.RUNNING
+[11:16:05] Elapsed: 30.5m | Kernel Status: KernelWorkerStatus.RUNNING

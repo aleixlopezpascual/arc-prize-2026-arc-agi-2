@@ -85,6 +85,12 @@ from src.dsl.primitives import (
     extract_masked_reflection_rule,
     detect_gridline_lattice,
     remove_gridlines,
+    restore_bilateral_symmetry,
+    extract_restore_bilateral_symmetry_rule,
+    fill_ranked_pillars_by_indicator,
+    extract_ranked_pillars_rule,
+    fill_cavities_from_legend,
+    extract_legend_cavity_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
@@ -140,6 +146,12 @@ __all__ = [
     "extract_masked_reflection_rule",
     "detect_gridline_lattice",
     "remove_gridlines",
+    "restore_bilateral_symmetry",
+    "extract_restore_bilateral_symmetry_rule",
+    "fill_ranked_pillars_by_indicator",
+    "extract_ranked_pillars_rule",
+    "fill_cavities_from_legend",
+    "extract_legend_cavity_rule",
     "gravity",
     "kronecker_fractal_expansion",
     "least_frequent_color",

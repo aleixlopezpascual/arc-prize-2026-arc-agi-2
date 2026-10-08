@@ -24,6 +24,15 @@ def to_array(grid: Grid | np.ndarray) -> np.ndarray:
     return np.array(grid, dtype=np.int32)
 
 
+def grid_equal(g1: Grid | np.ndarray | None, g2: Grid | np.ndarray | None) -> bool:
+    """Checks if two grids have identical dimensions and values."""
+    if g1 is None or g2 is None:
+        return False
+    a1 = np.asarray(g1, dtype=int)
+    a2 = np.asarray(g2, dtype=int)
+    return a1.shape == a2.shape and bool(np.array_equal(a1, a2))
+
+
 @dataclass
 class Object:
     """Structured representation of a connected component or object in an ARC grid."""
@@ -2047,6 +2056,200 @@ def remove_gridlines(
         panels.append(row_panels)
 
     return panels
+
+
+def restore_bilateral_symmetry(
+    grid: Grid | np.ndarray,
+    background: int | None = None,
+    axis: str = "vertical",
+) -> Grid:
+    """Restores bilateral reflection symmetry by removing asymmetric noise pixels."""
+    arr = to_array(grid).copy()
+    if background is None:
+        background = int(arr[0, 0])
+    pred = np.full_like(arr, background)
+    for c in np.unique(arr):
+        if c == background:
+            continue
+        mask = (arr == c)
+        rows, cols = np.where(mask)
+        if len(rows) == 0:
+            continue
+        min_r, max_r = int(rows.min()), int(rows.max())
+        min_c, max_c = int(cols.min()), int(cols.max())
+
+        best_sym_sub = None
+        best_score = -999999
+        best_bbox = None
+
+        for c0 in range(min_c, max_c + 1):
+            for c1 in range(c0 + 1, max_c + 2):
+                sub_mask = mask[min_r : max_r + 1, c0:c1]
+                sym_sub = sub_mask & np.fliplr(sub_mask)
+                kept = int(np.sum(sym_sub))
+                outside = int(np.sum(mask[min_r : max_r + 1, :c0]) + np.sum(mask[min_r : max_r + 1, c1:]))
+                inside_asym = int(np.sum(sub_mask)) - kept
+                score = kept * 2 - outside - inside_asym
+                if score > best_score:
+                    best_score = score
+                    best_sym_sub = sym_sub
+                    best_bbox = (min_r, max_r + 1, c0, c1)
+
+        if best_bbox is not None and best_sym_sub is not None:
+            r0, r1, c0, c1 = best_bbox
+            pred[r0:r1, c0:c1][best_sym_sub] = c
+    return pred.tolist()
+
+
+def extract_restore_bilateral_symmetry_rule(
+    train_pairs: list[dict[str, Any]],
+    background: int | None = None,
+) -> bool:
+    """Checks if restoring vertical bilateral symmetry solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = restore_bilateral_symmetry(inp, background=background)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+def fill_ranked_pillars_by_indicator(
+    grid: Grid | np.ndarray,
+) -> Grid:
+    """Fills the K-th tallest vertical pillar of color C whose height K is specified by indicator bars."""
+    arr = to_array(grid).copy()
+    H, W = arr.shape
+    indicators: dict[int, int] = {}
+    for c in range(W):
+        if arr[0, c] != 0:
+            color = int(arr[0, c])
+            h = 0
+            while h < H and arr[h, c] == color:
+                h += 1
+            indicators[color] = h
+
+    for color, rank in indicators.items():
+        pillars: list[tuple[int, int, int, int]] = []
+        for col in range(W):
+            if arr[H - 1, col] == color:
+                r_bot = H - 1
+                r_top = r_bot
+                for r in range(H - 1, -1, -1):
+                    if arr[r, col] == color:
+                        r_top = r
+                    elif arr[r, col] == 0:
+                        break
+                if r_top > 0 and r_bot - r_top >= 1:
+                    pillars.append((r_bot - r_top + 1, r_top, r_bot, col))
+        pillars.sort(key=lambda x: x[0], reverse=True)
+        if len(pillars) >= rank:
+            chosen_h, r_top, r_bot, col = pillars[rank - 1]
+            arr[r_top : r_bot + 1, col] = color
+    return arr.tolist()
+
+
+def extract_ranked_pillars_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if filling ranked pillars by indicator bars solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = fill_ranked_pillars_by_indicator(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+def extract_border_legend(
+    arr: np.ndarray,
+) -> tuple[dict[int, int], np.ndarray]:
+    """Extracts the longest contiguous border color-mapping legend (2xK or Kx2) and its boolean mask."""
+    H, W = arr.shape
+    candidates: list[tuple[int, dict[int, int], np.ndarray]] = []
+
+    # 1. Height 2 (horizontal legend on top or bottom border)
+    for r0 in [0, H - 2]:
+        if r0 < 0 or r0 + 2 > H:
+            continue
+        c0 = 0
+        while c0 < W:
+            if arr[r0, c0] != 0 and arr[r0 + 1, c0] != 0:
+                c1 = c0
+                while c1 < W and arr[r0, c1] != 0 and arr[r0 + 1, c1] != 0:
+                    c1 += 1
+                if c1 - c0 >= 2:
+                    sub = arr[r0 : r0 + 2, c0:c1]
+                    keys, vals = (sub[0, :], sub[1, :]) if r0 == 0 else (sub[1, :], sub[0, :])
+                    if len(set(keys)) == len(keys):
+                        mask = np.zeros_like(arr, dtype=bool)
+                        mask[r0 : r0 + 2, c0:c1] = True
+                        mapping = dict(zip([int(k) for k in keys], [int(v) for v in vals]))
+                        candidates.append((c1 - c0, mapping, mask))
+                c0 = c1
+            else:
+                c0 += 1
+
+    # 2. Width 2 (vertical legend on left or right border)
+    for c0 in [0, W - 2]:
+        if c0 < 0 or c0 + 2 > W:
+            continue
+        r0 = 0
+        while r0 < H:
+            if arr[r0, c0] != 0 and arr[r0, c0 + 1] != 0:
+                r1 = r0
+                while r1 < H and arr[r1, c0] != 0 and arr[r1, c0 + 1] != 0:
+                    r1 += 1
+                if r1 - r0 >= 2:
+                    sub = arr[r0:r1, c0 : c0 + 2]
+                    keys, vals = (sub[:, 0], sub[:, 1]) if c0 == 0 else (sub[:, 1], sub[:, 0])
+                    if len(set(keys)) == len(keys):
+                        mask = np.zeros_like(arr, dtype=bool)
+                        mask[r0:r1, c0 : c0 + 2] = True
+                        mapping = dict(zip([int(k) for k in keys], [int(v) for v in vals]))
+                        candidates.append((r1 - r0, mapping, mask))
+                r0 = r1
+            else:
+                r0 += 1
+
+    if not candidates:
+        return {}, np.zeros_like(arr, dtype=bool)
+    candidates.sort(key=lambda x: x[0], reverse=True)
+    return candidates[0][1], candidates[0][2]
+
+
+def fill_cavities_from_legend(
+    grid: Grid | np.ndarray,
+) -> Grid:
+    """Fills enclosed background cavities of key-color frames with their paired legend values."""
+    arr = to_array(grid).copy()
+    key_to_val, leg_mask = extract_border_legend(arr)
+    for key_c, val_c in key_to_val.items():
+        frame_mask = (arr == key_c) & (~leg_mask)
+        if not np.any(frame_mask):
+            continue
+        canvas = np.zeros_like(arr)
+        canvas[frame_mask] = 1
+        filled = np.asarray(fill_enclosed_regions(canvas.tolist(), fill_color=2, background=0))
+        enclosed_cells = (filled == 2) & (arr == 0) & (~leg_mask)
+        arr[enclosed_cells] = val_c
+    return arr.tolist()
+
+
+def extract_legend_cavity_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if filling cavities via border legend solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = fill_cavities_from_legend(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
 
 
 

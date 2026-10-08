@@ -285,5 +285,43 @@ This catalog details the complete set of verified symbolic perception and transf
 - **Benchmark Lift:** Dissects compound matrix grids into subgrid panels.
 - **Concept:** Detects full-canvas separator gridlines of uniform color, strips them out into a 2D matrix of subgrid tiles for independent solution, and reconstructs the lattice.
 
+---
+
+## 34. Bilateral Reflection Symmetry Restoration (`restore_bilateral_symmetry`, `extract_restore_bilateral_symmetry_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Evaluation Task `8e5c0c38`** (2 test outputs) 100% exactly on both train and test!
+- **Concept:** Physical or artistic ARC glyphs possess intrinsic vertical bilateral reflection symmetry. Visual noise, occlusions, or asymmetric protrusions disrupt this balance.
+- **Algorithm:**
+  1. For each non-background foreground color $c$, locates its bounding box.
+  2. Evaluates candidate horizontal sub-bounding windows $[c_0 : c_1]$.
+  3. Computes symmetric intersection via horizontal reflection: $\text{sym\_sub} = \text{sub\_mask} \land \text{fliplr}(\text{sub\_mask})$.
+  4. Optimizes an objective that maximizes preserved symmetric cells while penalizing noise outside the box and asymmetric cells inside the box: $\text{score} = 2 \cdot \text{kept} - \text{outside} - \text{asym}$.
+  5. Prunes all non-symmetric outlier cells to background.
+
+---
+
+## 35. Indicator-Ranked Vertical Pillar Filling (`fill_ranked_pillars_by_indicator`, `extract_ranked_pillars_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Evaluation Task `97d7923e`** 100% exactly on both train and test!
+- **Concept:** Top row contains indicator bars of length $K$ and color $C$ encoding the $K$-th tallest vertical pillar of color $C$ (1-indexed). The lower grid contains vertical pillars/columns with top and bottom markers of color $C$.
+- **Algorithm:**
+  1. Scans row 0 to discover indicator bar color $C$ and vertical length $K$.
+  2. Scans the lower grid to identify all vertical pillars of color $C$ bounded by matching top/bottom markers.
+  3. Sorts all detected pillars descending by height (tallest first).
+  4. Selects the $K$-th pillar and fills its entire interior span with color $C$.
+
+---
+
+## 36. Legend / Palette-Guided Cavity Filling (`fill_cavities_from_legend`, `extract_legend_cavity_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Evaluation Task `dbff022c`** 100% exactly on both train and test!
+- **Concept:** Outer canvas border hosts a compact $2 \times K$ or $K \times 2$ pairing legend/palette mapping frame colors $C_{\text{key}} \to C_{\text{val}}$.
+- **Algorithm:**
+  1. Identifies maximal contiguous non-zero rectangle of height 2 or width 2 along grid borders.
+  2. Extracts key-value mappings where the outer boundary edge represents keys and the inner layer represents values.
+  3. Locates hollow frames of key colors outside the legend.
+  4. Uses boundary flood-fill to identify enclosed cavities inside key frames and fills them with corresponding value color $C_{\text{val}}$.
+
+
 
 

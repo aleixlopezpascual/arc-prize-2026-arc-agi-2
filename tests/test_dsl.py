@@ -1133,6 +1133,73 @@ class TestVersion13Primitives:
         assert len(progs) > 0
         assert any("inpaint_masked_reflection" in p[0].name for p in progs)
 
+    def test_restore_bilateral_symmetry(self):
+        from src.dsl import restore_bilateral_symmetry, extract_restore_bilateral_symmetry_rule
+
+        # Asymmetric noise pixel at (0, 3)
+        grid_in = [
+            [1, 0, 1, 1],
+            [1, 1, 1, 0],
+            [0, 1, 0, 0],
+        ]
+        # Restored bilateral vertical symmetry
+        grid_expected = [
+            [1, 0, 1, 0],
+            [1, 1, 1, 0],
+            [0, 1, 0, 0],
+        ]
+        res = restore_bilateral_symmetry(grid_in, background=0)
+        assert res == grid_expected
+        assert extract_restore_bilateral_symmetry_rule([{"input": grid_in, "output": grid_expected}], background=0)
+
+    def test_fill_ranked_pillars_by_indicator(self):
+        from src.dsl import fill_ranked_pillars_by_indicator, extract_ranked_pillars_rule
+
+        # Indicator at (0, 0) height 1 of color 2 -> fill 1st tallest pillar of color 2
+        # Pillar at col 2: rows 2..4 (height 3)
+        # Pillar at col 4: rows 1..4 (height 4, tallest)
+        grid_in = [
+            [2, 0, 0, 0, 0],
+            [0, 0, 0, 0, 2],
+            [0, 0, 2, 0, 5],
+            [0, 0, 5, 0, 5],
+            [0, 0, 2, 0, 2],
+        ]
+        grid_out = [
+            [2, 0, 0, 0, 0],
+            [0, 0, 0, 0, 2],
+            [0, 0, 2, 0, 2],
+            [0, 0, 5, 0, 2],
+            [0, 0, 2, 0, 2],
+        ]
+        res = fill_ranked_pillars_by_indicator(grid_in)
+        assert res == grid_out
+        assert extract_ranked_pillars_rule([{"input": grid_in, "output": grid_out}])
+
+    def test_fill_cavities_from_legend(self):
+        from src.dsl import fill_cavities_from_legend, extract_legend_cavity_rule
+
+        # Legend at top border (0:2, 0:2): keys = [2, 3], vals = [4, 5]
+        # Frame of color 2 with enclosed hole should be filled with color 4
+        grid_in = [
+            [2, 3, 0, 0, 0],
+            [4, 5, 0, 0, 0],
+            [0, 0, 2, 2, 2],
+            [0, 0, 2, 0, 2],
+            [0, 0, 2, 2, 2],
+        ]
+        grid_out = [
+            [2, 3, 0, 0, 0],
+            [4, 5, 0, 0, 0],
+            [0, 0, 2, 2, 2],
+            [0, 0, 2, 4, 2],
+            [0, 0, 2, 2, 2],
+        ]
+        res = fill_cavities_from_legend(grid_in)
+        assert res == grid_out
+        assert extract_legend_cavity_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

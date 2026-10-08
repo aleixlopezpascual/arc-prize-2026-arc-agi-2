@@ -230,17 +230,6 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 10. Cellular Automata 3x3 Local Rules
-    rules_3x3 = extract_3x3_local_rules(train_pairs)
-    if rules_3x3 is not None:
-        ca_name = "cellular_automata_3x3"
-        progs.append(
-            Program(
-                name=ca_name,
-                steps=[(ca_name, lambda g, r=rules_3x3: apply_3x3_local_rules(g, r, fallback_to_input=True) or g)],
-            )
-        )
-
     # 11. Odd-one-out 3x3 Block Selection
     progs.append(
         Program(
@@ -543,6 +532,44 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
+    # 34. Restore Bilateral Reflection Symmetry
+    if P.extract_restore_bilateral_symmetry_rule(train_pairs):
+        progs.append(
+            Program(
+                name="restore_bilateral_symmetry",
+                steps=[("restore_bilateral_symmetry", lambda g: P.restore_bilateral_symmetry(g))],
+            )
+        )
+
+    # 35. Indicator-Ranked Pillar Filling
+    if P.extract_ranked_pillars_rule(train_pairs):
+        progs.append(
+            Program(
+                name="fill_ranked_pillars_by_indicator",
+                steps=[("fill_ranked_pillars_by_indicator", lambda g: P.fill_ranked_pillars_by_indicator(g))],
+            )
+        )
+
+    # 36. Legend / Palette-Guided Cavity Filling
+    if P.extract_legend_cavity_rule(train_pairs):
+        progs.append(
+            Program(
+                name="fill_cavities_from_legend",
+                steps=[("fill_cavities_from_legend", lambda g: P.fill_cavities_from_legend(g))],
+            )
+        )
+
+    # 37. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    rules_3x3 = extract_3x3_local_rules(train_pairs)
+    if rules_3x3 is not None:
+        ca_name = "cellular_automata_3x3"
+        progs.append(
+            Program(
+                name=ca_name,
+                steps=[(ca_name, lambda g, r=rules_3x3: apply_3x3_local_rules(g, r, fallback_to_input=True) or g)],
+            )
+        )
+
     return progs
 
 
@@ -651,6 +678,17 @@ def search_dsl_programs(
     """
     perfect_programs: list[tuple[Program, float]] = []
 
+    def priority_key(item: tuple[Program, float]) -> tuple[int, int]:
+        p = item[0]
+        name = p.name
+        if name.startswith("cellular_automata"):
+            tier = 2
+        elif any(name.startswith(x) for x in ["tile_", "scale_"]):
+            tier = 1
+        else:
+            tier = 0
+        return (tier, len(p.steps))
+
     # Level 1 Search
     level1_candidates = generate_single_step_candidates(train_pairs)
     promising_for_step2: list[Program] = []
@@ -659,8 +697,6 @@ def search_dsl_programs(
         score = evaluate_program(prog, train_pairs, short_circuit=True)
         if score == 1.0:
             perfect_programs.append((prog, 1.0))
-            if len(perfect_programs) >= max_perfect_programs:
-                return perfect_programs
         else:
             # Check if dimension matches
             try:
@@ -670,6 +706,11 @@ def search_dsl_programs(
                     promising_for_step2.append(prog)
             except Exception:
                 pass
+
+    if perfect_programs:
+        perfect_programs.sort(key=priority_key)
+        if len(perfect_programs) >= max_perfect_programs:
+            return perfect_programs[:max_perfect_programs]
 
     if max_level >= 2 and len(perfect_programs) < max_perfect_programs:
         # Level 2 Search
@@ -713,4 +754,5 @@ def search_dsl_programs(
             except Exception:
                 pass
 
-    return perfect_programs
+    perfect_programs.sort(key=priority_key)
+    return perfect_programs[:max_perfect_programs]

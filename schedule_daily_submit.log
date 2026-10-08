@@ -1851,3 +1851,20 @@ ref  fileName         date                        description                   
 [23:07:49 UTC] Remaining submissions: 0
 [23:08:50 UTC] Remaining submissions: 0
 [23:09:51 UTC] Remaining submissions: 0
+
+[*] Autonomous Scheduler started for [aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt] v13 at 2026-10-08 08:28:32 UTC
+[08:28:33 UTC] Remaining submissions: 1
+[+] Submitting v13 at 2026-10-08 08:28:33 UTC
+[+] Submission result:
+0 submissions remaining today.
+[*] Updated Submissions Queue:
+ref  fileName         date                        description                                                                     status                     publicScore  privateScore  
+--------  ---------------  --------------------------  ------------------------------------------------------------------------------  -------------------------  -----------  ------------  
+56944583  submission.json  2026-10-08 08:28:34.270000  ARC-AGI-2 Hybrid SOTA v13 (score_ensemble + 33 Primitives - Record Val 5.0)     SubmissionStatus.PENDING                              
+56893501  submission.json  2026-10-07 00:00:05.013000  ARC-AGI-2 Hybrid SOTA v12 (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)  SubmissionStatus.COMPLETE  29.31                      
+56875914  submission.json  2026-10-06 08:46:52.137000  ARC-AGI-2 Hybrid SOTA v8 (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)   SubmissionStatus.COMPLETE  30.97                      
+56836175  submission.json  2026-10-05 00:00:43.260000  ARC-AGI-2 Hybrid SOTA v7 (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)   SubmissionStatus.COMPLETE  30.97                      
+56828374  submission.json  2026-10-04 16:02:45.973000  ARC-AGI-2 Hybrid SOTA v6 (Optimal Union + Raycasting + Rigid Gravity)           SubmissionStatus.COMPLETE  28.47                      
+56806096  submission.json  2026-10-03 20:22:39.650000  ARC-AGI-2 Hybrid SOTA v5 (Optimal Union + 129 Symbolic Hits)                    SubmissionStatus.COMPLETE  30.69                      
+56772292  submission.json  2026-10-02 11:01:18.737000  ARC-AGI-2 Hybrid SOTA (Tier 1 Symbolic + Tier 2 Qwen 4B TTT)                    SubmissionStatus.COMPLETE  28.89                      
+56755141  submission.json  2026-10-01 16:36:06.177000  ARC-AGI-2 SOTA Baseline LB 33.89                                                SubmissionStatus.COMPLETE  29.31

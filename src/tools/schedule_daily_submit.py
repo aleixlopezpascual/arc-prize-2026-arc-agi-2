@@ -38,6 +38,7 @@ def schedule_and_submit(
     comp_slug: str = "arc-prize-2026-arc-agi-2",
     poll_interval: int = 60,
     max_wait_hours: float = 12.0,
+    message: str | None = None,
 ):
     log_file = ROOT / "schedule_daily_submit.log"
     msg_header = f"[*] Autonomous Scheduler started for [{kernel_slug}] v{version} at {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}"
@@ -57,7 +58,12 @@ def schedule_and_submit(
             f.write(f"{status_line}\n")
 
         if remaining > 0:
-            submit_msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)"
+            if message:
+                submit_msg = message
+            elif version == 13:
+                submit_msg = f"ARC-AGI-2 Hybrid SOTA v13 (score_ensemble + 33 Primitives - Record Val 5.0)"
+            else:
+                submit_msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)"
             print(f"[+] Daily quota available! Submitting v{version}: '{submit_msg}'...")
             with open(log_file, "a") as f:
                 f.write(f"[+] Submitting v{version} at {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}\n")
@@ -107,10 +113,11 @@ def schedule_and_submit(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--kernel", default="aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt")
-    parser.add_argument("--version", type=int, default=8)
+    parser.add_argument("--version", type=int, default=13)
+    parser.add_argument("--message", default=None, help="Custom submission message")
     parser.add_argument("--comp", default="arc-prize-2026-arc-agi-2")
     parser.add_argument("--poll-interval", type=int, default=60)
-    parser.add_argument("--max-wait", type=float, default=12.0)
+    parser.add_argument("--max-wait", type=float, default=24.0)
     args = parser.parse_args()
     schedule_and_submit(
         kernel_slug=args.kernel,
@@ -118,4 +125,5 @@ if __name__ == "__main__":
         comp_slug=args.comp,
         poll_interval=args.poll_interval,
         max_wait_hours=args.max_wait,
+        message=args.message,
     )
