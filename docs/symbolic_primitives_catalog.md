@@ -322,6 +322,20 @@ This catalog details the complete set of verified symbolic perception and transf
   3. Locates hollow frames of key colors outside the legend.
   4. Uses boundary flood-fill to identify enclosed cavities inside key frames and fills them with corresponding value color $C_{\text{val}}$.
 
+---
+
+## 37. Parallel Line Segment Length Standardization (`standardize_parallel_lines`, `extract_standardize_parallel_lines_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Evaluation Task `e376de54`** 100% exactly on both train and test!
+- **Concept:** A family of parallel line segments (horizontal, vertical, or diagonal) must conform to a standardized length $L^*$, determined either by a reference color line (color 9) or by the modal line length across the canvas.
+- **Algorithm:**
+  1. Identifies the dominant orientation $(dr, dc) \in \{(0, 1), (1, 0), (1, -1), (1, 1)\}$.
+  2. Extracts all connected line segments of that orientation.
+  3. Computes the target standardized length $L^*$.
+  4. Detects whether segments share a perpendicular anchor baseline (at start or end).
+  5. Extends underlength segments to $L^*$ and truncates overlength segments to $L^*$ along the trajectory.
+
+
 
 
 

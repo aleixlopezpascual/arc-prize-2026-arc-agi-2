@@ -559,7 +559,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 37. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 37. Standardize Parallel Lines Length
+    if P.extract_standardize_parallel_lines_rule(train_pairs):
+        progs.append(
+            Program(
+                name="standardize_parallel_lines",
+                steps=[("standardize_parallel_lines", lambda g: P.standardize_parallel_lines(g))],
+            )
+        )
+
+    # 38. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

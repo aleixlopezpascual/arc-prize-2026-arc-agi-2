@@ -2251,6 +2251,123 @@ def extract_legend_cavity_rule(
     return True
 
 
+def standardize_parallel_lines(
+    grid: Grid | np.ndarray,
+) -> Grid:
+    """Standardizes lengths of parallel line segments to a reference or modal length."""
+    arr = to_array(grid).copy()
+    H, W = arr.shape
+    bg = int(arr[0, 0])
+
+    orientations = {
+        "horiz": (0, 1),
+        "vert": (1, 0),
+        "diag_down_left": (1, -1),
+        "diag_down_right": (1, 1),
+    }
+
+    orient_scores = {k: 0 for k in orientations}
+    for r in range(H):
+        for c in range(W):
+            val = arr[r, c]
+            if val == bg:
+                continue
+            for k, (dr, dc) in orientations.items():
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < H and 0 <= nc < W and arr[nr, nc] == val:
+                    orient_scores[k] += 1
+
+    best_orient = max(orient_scores, key=orient_scores.get)
+    if orient_scores[best_orient] == 0:
+        return arr.tolist()
+
+    dr, dc = orientations[best_orient]
+
+    visited = np.zeros_like(arr, dtype=bool)
+    segments: list[tuple[int, list[tuple[int, int]]]] = []
+
+    for r in range(H):
+        for c in range(W):
+            if arr[r, c] != bg and not visited[r, c]:
+                color = int(arr[r, c])
+                sr, sc = r, c
+                while 0 <= sr - dr < H and 0 <= sc - dc < W and arr[sr - dr, sc - dc] == color:
+                    sr -= dr
+                    sc -= dc
+                coords: list[tuple[int, int]] = []
+                curr_r, curr_c = sr, sc
+                while 0 <= curr_r < H and 0 <= curr_c < W and arr[curr_r, curr_c] == color:
+                    visited[curr_r, curr_c] = True
+                    coords.append((curr_r, curr_c))
+                    curr_r += dr
+                    curr_c += dc
+                if coords:
+                    segments.append((color, coords))
+
+    if not segments:
+        return arr.tolist()
+
+    ref_lines = [s for s in segments if s[0] == 9]
+    if ref_lines:
+        target_L = len(ref_lines[0][1])
+    else:
+        lengths = [len(s[1]) for s in segments]
+        target_L = Counter(lengths).most_common(1)[0][0]
+
+    start_keys = []
+    end_keys = []
+    for col, coords in segments:
+        sr, sc = coords[0]
+        er, ec = coords[-1]
+        if best_orient == "horiz":
+            start_keys.append(sc)
+            end_keys.append(ec)
+        elif best_orient == "vert":
+            start_keys.append(sr)
+            end_keys.append(er)
+        elif best_orient == "diag_down_left":
+            start_keys.append(sr - sc)
+            end_keys.append(er - ec)
+        elif best_orient == "diag_down_right":
+            start_keys.append(sr + sc)
+            end_keys.append(er + ec)
+
+    align_end = len(set(end_keys)) == 1 and len(set(start_keys)) > 1
+
+    out_arr = np.full_like(arr, bg)
+    for color, coords in segments:
+        if align_end:
+            er, ec = coords[-1]
+            for step in range(target_L):
+                r = er - step * dr
+                c = ec - step * dc
+                if 0 <= r < H and 0 <= c < W:
+                    out_arr[r, c] = color
+        else:
+            sr, sc = coords[0]
+            for step in range(target_L):
+                r = sr + step * dr
+                c = sc + step * dc
+                if 0 <= r < H and 0 <= c < W:
+                    out_arr[r, c] = color
+
+    return out_arr.tolist()
+
+
+def extract_standardize_parallel_lines_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if standardizing parallel line segment lengths solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = standardize_parallel_lines(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

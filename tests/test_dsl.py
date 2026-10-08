@@ -1199,6 +1199,31 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_legend_cavity_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_standardize_parallel_lines(self):
+        from src.dsl import standardize_parallel_lines, extract_standardize_parallel_lines_rule
+
+        # Horizontal lines with reference line of color 9 (length 3)
+        # Line of color 2 has length 1 -> extended to length 3
+        # Line of color 3 has length 4 -> truncated to length 3
+        grid_in = [
+            [0, 0, 0, 0, 0],
+            [0, 2, 0, 0, 0],
+            [0, 9, 9, 9, 0],
+            [0, 3, 3, 3, 3],
+            [0, 0, 0, 0, 0],
+        ]
+        grid_out = [
+            [0, 0, 0, 0, 0],
+            [0, 2, 2, 2, 0],
+            [0, 9, 9, 9, 0],
+            [0, 3, 3, 3, 0],
+            [0, 0, 0, 0, 0],
+        ]
+        res = standardize_parallel_lines(grid_in)
+        assert res == grid_out
+        assert extract_standardize_parallel_lines_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

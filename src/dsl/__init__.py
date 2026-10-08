@@ -91,6 +91,8 @@ from src.dsl.primitives import (
     extract_ranked_pillars_rule,
     fill_cavities_from_legend,
     extract_legend_cavity_rule,
+    standardize_parallel_lines,
+    extract_standardize_parallel_lines_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
@@ -152,6 +154,8 @@ __all__ = [
     "extract_ranked_pillars_rule",
     "fill_cavities_from_legend",
     "extract_legend_cavity_rule",
+    "standardize_parallel_lines",
+    "extract_standardize_parallel_lines_rule",
     "gravity",
     "kronecker_fractal_expansion",
     "least_frequent_color",

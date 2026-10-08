@@ -3,9 +3,9 @@
 [![Private GitHub](https://img.shields.io/badge/GitHub-Private%20Repo-blue?logo=github)](https://github.com/aleixlopezpascual/arc-prize-2026-arc-agi-2)
 [![Leaderboard](https://img.shields.io/badge/Public%20LB-30.97%25-brightgreen?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
 [![Rank](https://img.shields.io/badge/Rank-467%20%2F%202460-gold?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
-[![Record Val](https://img.shields.io/badge/Record%20Validation-5.81%25%20(8%20Tasks)-purple?logo=kaggle)](https://www.kaggle.com/code/aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt)
+[![Record Val](https://img.shields.io/badge/Record%20Validation-6.40%25%20(9%20Tasks)-purple?logo=kaggle)](https://www.kaggle.com/code/aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt)
 [![Kaggle Kernel](https://img.shields.io/badge/Kaggle-4x%20L4%20GPUs-orange?logo=kaggle)](https://www.kaggle.com/code/aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt)
-[![Tests](https://img.shields.io/badge/Unit%20Tests-83%20Passing-success)](tests/)
+[![Tests](https://img.shields.io/badge/Unit%20Tests-84%20Passing-success)](tests/)
 
 An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2) competition on Kaggle, pioneering a **Two-Tier Hybrid Architecture** combining deterministic symbolic program induction with state-of-the-art Test-Time Training (TTT) neural models.
 
@@ -16,10 +16,11 @@ An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle
 - **Official Public Leaderboard Score:** **`30.97%`** (Submission ID `56836175` & `56875914`, `SubmissionStatus.COMPLETE`)
 - **Official Competition Rank:** **Rank 467** out of 2,460 teams (+576 positions climbed from baseline, securely inside the **Top 500**)
 - **Active Submission in Scoring:** **Version 13** (Submission ID `56944583`, Validation Score `5.0`, `SubmissionStatus.PENDING`)
-- **Next Staged Submission:** **Version 14** (**All-Time Record Validation Score: `5.81%`** across 8 fully solved evaluation tasks and 10/172 test outputs! Cached at `submissions/submission_hybrid_sota_v14.json`)
-- **Symbolic Perception Catalog:** **36 Core Knowledge primitive families** (including Bilateral Reflection Symmetry Restoration, Indicator-Ranked Pillars, and Legend/Palette-Guided Cavity Filling)
+- **Current Running Kernel:** **Version 14** (`5.81%` Validation Score, running on Kaggle 4x L4 GPUs)
+- **Next Staged Submission:** **Version 15** (**All-Time Record Validation Score: `6.40%`** across 9 fully solved evaluation tasks and 11/172 test outputs! Cached at `submissions/submission_hybrid_sota_v15.json`)
+- **Symbolic Perception Catalog:** **37 Core Knowledge primitive families** (including Parallel Line Segment Length Standardization, Bilateral Reflection Symmetry Restoration, Indicator-Ranked Pillars, and Legend Cavity Filling)
 - **Neural Decoding Engine:** **`score_ensemble` Interleaved Dual-Ranking** (combining maximum likelihood beam probability with consensus voting across dihedral test-time augmentations)
-- **Unit Test Suite:** **83/83 tests passing** in 0.22s (`tests/test_dsl.py`, `tests/test_metrics.py`, `tests/test_neural.py`)
+- **Unit Test Suite:** **84/84 tests passing** in 0.39s (`tests/test_dsl.py`, `tests/test_metrics.py`, `tests/test_neural.py`)
 
 ---
 
