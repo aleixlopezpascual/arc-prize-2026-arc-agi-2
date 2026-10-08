@@ -1,0 +1,19 @@
+src/tools/push_when_ready.py
+  s_158cf9a6769f3b::t_fb62e77a841468 1-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "90a476a4f9b774ecabf3de6d51159db8d3bfcd96",
+  "prompts": {},
+  "sessions": {
+    "s_158cf9a6769f3b": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "edc3be70-3599-4e39-b2f3-bf74899a195b",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
