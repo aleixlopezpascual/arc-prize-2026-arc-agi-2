@@ -568,7 +568,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 38. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 38. Liquid Gravity Flow into Receptacle Cavities
+    if P.extract_liquid_gravity_rule(train_pairs):
+        progs.append(
+            Program(
+                name="simulate_liquid_gravity",
+                steps=[("simulate_liquid_gravity", lambda g: P.simulate_liquid_gravity(g))],
+            )
+        )
+
+    # 39. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

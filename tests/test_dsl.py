@@ -1223,6 +1223,29 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_standardize_parallel_lines_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_simulate_liquid_gravity(self):
+        from src.dsl import simulate_liquid_gravity, extract_liquid_gravity_rule
+
+        # Elevated blue liquid (color 1) at top rolls down and fills container slot at bottom
+        grid_in = [
+            [1, 1, 0, 0, 0],
+            [9, 9, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 3, 0, 3],
+            [0, 0, 3, 3, 3],
+        ]
+        grid_out = [
+            [0, 0, 0, 0, 0],
+            [9, 9, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 3, 1, 3],
+            [0, 0, 3, 3, 3],
+        ]
+        res = simulate_liquid_gravity(grid_in, liquid_color=1)
+        assert res == grid_out
+        assert extract_liquid_gravity_rule([{"input": grid_in, "output": grid_out}], liquid_color=1)
+
+
 
 
 

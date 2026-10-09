@@ -2367,6 +2367,86 @@ def extract_standardize_parallel_lines_rule(
     return True
 
 
+def simulate_liquid_gravity(
+    grid: Grid | np.ndarray,
+    liquid_color: int = 1,
+) -> Grid:
+    """Simulates fluid pouring under gravity from elevated shelves into supported container cavities."""
+    arr = to_array(grid).copy()
+    H, W = arr.shape
+
+    if liquid_color not in arr:
+        return arr.tolist()
+
+    coords_liquid = list(zip(*np.where(arr == liquid_color)))
+    if not coords_liquid:
+        return arr.tolist()
+
+    max_r = max(r for r, c in coords_liquid)
+    if max_r <= 3:
+        drained_coords = coords_liquid
+    else:
+        rows_with_1 = sorted(set(r for r, c in coords_liquid))
+        lower_widths = [len([c for r_, c in coords_liquid if r_ == r]) for r in rows_with_1 if r >= 4]
+        max_lower_w = max(lower_widths) if lower_widths else 0
+
+        adj_wall_row = H
+        for r in rows_with_1:
+            cols = [c for r_, c in coords_liquid if r_ == r]
+            c_min, c_max = min(cols), max(cols)
+            if (c_min > 0 and arr[r, c_min - 1] not in (0, liquid_color)) or (
+                c_max < W - 1 and arr[r, c_max + 1] not in (0, liquid_color)
+            ):
+                adj_wall_row = r
+                break
+
+        cutoff = min(adj_wall_row, 4 if max_lower_w >= 4 else 2)
+        drained_coords = [(r, c) for r, c in coords_liquid if r < cutoff]
+
+    V = len(drained_coords)
+    for r, c in drained_coords:
+        arr[r, c] = 0
+
+    # Iterative gravity placement into lowest supported cavities
+    for step in range(V):
+        candidates = []
+        for r in range(H - 1, -1, -1):
+            for c in range(W):
+                if arr[r, c] == 0:
+                    is_supported = (r == H - 1 or arr[r + 1, c] != 0)
+                    if is_supported:
+                        has_left = np.any(arr[r, :c] != 0)
+                        has_right = np.any(arr[r, c + 1 :] != 0)
+                        if has_left and has_right:
+                            lw = int(np.max(np.where(arr[r, :c] != 0)[0]))
+                            rw = int(c + 1 + np.min(np.where(arr[r, c + 1 :] != 0)[0]))
+                            width = rw - lw - 1
+                            candidates.append((r, width, c))
+        if not candidates:
+            break
+        # Sort lowest row first (max r), narrowest first (min width), then col
+        candidates.sort(key=lambda x: (-x[0], x[1], x[2]))
+        chosen_r, _, chosen_c = candidates[0]
+        arr[chosen_r, chosen_c] = liquid_color
+
+    return arr.tolist()
+
+
+def extract_liquid_gravity_rule(
+    train_pairs: list[dict[str, Any]],
+    liquid_color: int = 1,
+) -> bool:
+    """Checks if liquid gravity simulation solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = simulate_liquid_gravity(inp, liquid_color=liquid_color)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

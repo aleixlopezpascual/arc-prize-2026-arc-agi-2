@@ -335,6 +335,20 @@ This catalog details the complete set of verified symbolic perception and transf
   4. Detects whether segments share a perpendicular anchor baseline (at start or end).
   5. Extends underlength segments to $L^*$ and truncates overlength segments to $L^*$ along the trajectory.
 
+---
+
+## 38. Liquid Gravity Flow into Receptacle Cavities (`simulate_liquid_gravity`, `extract_liquid_gravity_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Evaluation Task `28a6681f`** 100% exactly on both train and test!
+- **Concept:** Simulates fluid pouring under gravity. Liquid (blue, color 1) starts on elevated shelves or ramps, drains downward, and fills the lowest available open, supported cavities from bottom to top.
+- **Algorithm:**
+  1. Identifies liquid volume $V$ draining from upper elevated shelves/ramps.
+  2. Drains top $V$ units of liquid, clearing them to background.
+  3. Iteratively fills receptacle cavities from the bottom row up ($r = H-1$ to 0).
+  4. At each step, places a unit of liquid into the lowest supported empty cell ($r == H-1$ or cell below is non-zero) that is bounded by walls of non-zero colors.
+  5. Ties at the same row are broken by prioritizing narrower containers (deeper wells first).
+
+
 
 
 
