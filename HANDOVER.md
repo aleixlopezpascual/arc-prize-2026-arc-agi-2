@@ -18,9 +18,10 @@
   - `Hybrid v7`: `30.97%` (Rank 467 / 2,460)
   - `Hybrid v8`: `30.97%` (Submission ID 56875914, Rank 467)
   - `Hybrid v12`: `29.31%` (Submission ID 56893501, Validation Score: `4.5`)
-- **Active Submission in Scoring:** **Version 13** (Submission ID `56944583`, Validation Score: `5.0`). Status: `SubmissionStatus.PENDING`.
-- **Current Running Kernel:** **Version 14** (Validation Score: `5.81%`, actively running on Kaggle 4x L4 GPU cluster).
-- **Next Staged Submission:** **Version 15** (**All-Time Record Validation Score: `6.40%`**, 11/172 test outputs across 9 fully solved evaluation tasks!). Output verified and cached at `submissions/submission_hybrid_sota_v15.json`.
+- **Active Submissions in Scoring:**
+  - **Version 15** (Submission ID `56979030`, All-Time Record Validation Score: `6.40%`). Status: `SubmissionStatus.PENDING`.
+  - **Version 13** (Submission ID `56944583`, Validation Score: `5.0`). Status: `SubmissionStatus.PENDING`.
+- **Recent Completed Kernel:** **Version 14** (Validation Score: `7.5` on 4x L4 cluster, cached at `submissions/submission_hybrid_sota_v14.json`).
 
 ---
 
