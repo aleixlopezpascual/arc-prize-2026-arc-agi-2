@@ -113,12 +113,16 @@ def watch_and_submit(
                     )
 
                 # 4. Fire competition submission
-                if version == 14:
+                if version == 16:
+                    msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Liquid Gravity Flow + Parallel Line Standardization - Record Val 6.98)"
+                elif version == 15:
+                    msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Parallel Line Standardization + 37 Primitives - Record Val 6.40)"
+                elif version == 14:
                     msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Symmetry Restoration + Ranked Pillars + Legend Cavity - Record Val 5.81)"
                 elif version == 13:
                     msg = f"ARC-AGI-2 Hybrid SOTA v{version} (score_ensemble + 33 Primitives - Record Val 5.0)"
                 else:
-                    msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Optimal Union + 36 Symbolic Primitives + Deep Eval)"
+                    msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Optimal Union + 38 Symbolic Primitives + Deep Eval)"
                 print(f"[*] Firing competition submission: '{msg}'...")
                 sub_res = subprocess.run(
                     [
