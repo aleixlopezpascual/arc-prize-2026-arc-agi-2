@@ -94,8 +94,23 @@ def grid_equal(g1, g2):
         }
     )
 
-    # Cell 1: Buffer deadline
-    cells.append(base_nb["cells"][1])
+    # Cell 1: Buffer deadline and deterministic seeding
+    env_cell = """# Keep the original global 10-minute submission/write buffer and enforce deterministic seeding.
+import os
+import time
+os.environ["PYTHONHASHSEED"] = "42"
+os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+global_end_time = time.time() + 12 * 3600 - 600
+"""
+    cells.append(
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [env_cell],
+        }
+    )
 
     # Cell 2: pip uninstall tensorflow
     cells.append(base_nb["cells"][2])
@@ -153,8 +168,25 @@ def score_ensemble(guesses):
         }
     )
 
-    # Cell 6: arc_solver.py
-    cells.append(base_nb["cells"][5])
+    # Cell 6: arc_solver.py (with deterministic CRC32 seeding)
+    solver_source = "".join(base_nb["cells"][5]["source"])
+    if "import zlib" not in solver_source:
+        solver_source = solver_source.replace(
+            "import bz2\nimport pickle\n", "import bz2\nimport pickle\nimport zlib\n"
+        )
+    solver_source = solver_source.replace(
+        "aug_dataset = aug_dataset.augment(seed=hash(bk) % 1024**2)",
+        "aug_dataset = aug_dataset.augment(seed=zlib.crc32(bk.encode('utf-8')) % 1024**2)",
+    )
+    cells.append(
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [solver_source],
+        }
+    )
 
     # Cell 7: starter.py
     cells.append(base_nb["cells"][6])
