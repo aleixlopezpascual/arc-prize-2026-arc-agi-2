@@ -168,7 +168,7 @@ def score_ensemble(guesses):
         }
     )
 
-    # Cell 6: arc_solver.py (with deterministic CRC32 seeding)
+    # Cell 6: arc_solver.py (with deterministic CRC32 seeding and dynamic task timeouts)
     solver_source = "".join(base_nb["cells"][5]["source"])
     if "import zlib" not in solver_source:
         solver_source = solver_source.replace(
@@ -177,6 +177,50 @@ def score_ensemble(guesses):
     solver_source = solver_source.replace(
         "aug_dataset = aug_dataset.augment(seed=hash(bk) % 1024**2)",
         "aug_dataset = aug_dataset.augment(seed=zlib.crc32(bk.encode('utf-8')) % 1024**2)",
+    )
+
+    # Dynamic task timeout in turbo_dfs
+    solver_source = solver_source.replace(
+        "def turbo_dfs(model, logits, max_new_tokens, max_score, scores, pos, cache, start_time, end_time) -> dict:",
+        "def turbo_dfs(model, logits, max_new_tokens, max_score, scores, pos, cache, start_time, end_time, task_timeout: float = 540.0) -> dict:",
+    )
+    solver_source = solver_source.replace(
+        "            start_time=start_time,\n            end_time=end_time,\n        )",
+        "            start_time=start_time,\n            end_time=end_time,\n            task_timeout=task_timeout,\n        )",
+    )
+    solver_source = solver_source.replace(
+        "    while time.time() - start_time < 540 and time.time() < end_time:",
+        "    while time.time() - start_time < task_timeout and time.time() < end_time:",
+    )
+
+    # Dynamic task timeout in inference_turbo_dfs
+    solver_source = solver_source.replace(
+        "def inference_turbo_dfs(model, prefix_tokens, max_new_tokens, max_score, end_time):",
+        "def inference_turbo_dfs(model, prefix_tokens, max_new_tokens, max_score, end_time, task_timeout: float = 540.0):",
+    )
+    solver_source = solver_source.replace(
+        "        start_time=time.time(),\n        end_time=end_time,\n    )",
+        "        start_time=time.time(),\n        end_time=end_time,\n        task_timeout=task_timeout,\n    )",
+    )
+
+    # Worker unpacking dynamic timeout
+    solver_source = solver_source.replace(
+        "        key = queue.get()\n        if key is None:\n            break",
+        """        item = queue.get()
+        if item is None:
+            break
+        if isinstance(item, (list, tuple)):
+            key, task_timeout = item
+        else:
+            key, task_timeout = item, 540.0""",
+    )
+    solver_source = solver_source.replace(
+        "dfs_result = inference_turbo_dfs(model, tokens, max_new_tokens, max_score, end_time)",
+        "dfs_result = inference_turbo_dfs(model, tokens, max_new_tokens, max_score, end_time, task_timeout=task_timeout)",
+    )
+    solver_source = solver_source.replace(
+        "if spend_time > 1200 or time.time() > end_time:",
+        "if spend_time > max(1200.0, task_timeout * 2) or time.time() > end_time:",
     )
     cells.append(
         {
@@ -188,8 +232,105 @@ def score_ensemble(guesses):
         }
     )
 
-    # Cell 7: starter.py
-    cells.append(base_nb["cells"][6])
+    # Cell 7: starter.py (with Deficit-First Routing)
+    starter_source = """%%writefile starter.py
+import os
+import time
+import json
+import torch
+import argparse
+import torch.multiprocessing as mp
+
+
+def local_worker(rank, queue, end_time):
+    
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(rank)
+
+    torch.set_default_device("cpu")
+
+    # Fix Unsloth patching issue
+    if rank > 0:
+        while not os.path.exists(f"/kaggle/worker{rank-1}"):
+            time.sleep(5)
+    
+    from arc_solver import worker
+
+    with open(f"/kaggle/worker{rank}", "w") as f:
+        f.write("Ok")
+    
+    print(f"[Rank {rank}] start!")
+    
+    worker(rank, queue, end_time)
+    
+    print(f"[Rank {rank}] done!")
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--end-time", type=float, default=0.0)
+    args = parser.parse_args()
+
+    rerun_mode = os.getenv("KAGGLE_IS_COMPETITION_RERUN")
+
+    if rerun_mode:
+        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"
+        if not os.path.exists(test_path):
+            test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"
+    else:
+        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
+        if not os.path.exists(test_path):
+            test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
+
+    with open(test_path, "r") as f:
+        data = json.load(f)
+
+    # Deficit-First Routing: detect tasks already solved 100% by Tier 1 Symbolic Induction
+    import arc_dsl
+    
+    easy_tasks = []
+    hard_tasks = []
+
+    for key in sorted(data.keys()):
+        if not rerun_mode:
+            if key not in ["0934a4d8", "36a08778", "981571dc", "aa4ec2a5"]:
+                continue
+        task_train = data[key]["train"]
+        progs = arc_dsl.search_dsl_programs(task_train, max_level=1, max_perfect_programs=2)
+        if progs:
+            easy_tasks.append(key)
+        else:
+            hard_tasks.append(key)
+
+    print(f"*** Deficit-First Routing: {len(easy_tasks)} Tier-1 Solved | {len(hard_tasks)} Hard (Expanded-TTT)")
+
+    # Hard tasks get expanded 720s timeout (+33%), easy tasks get fast 90s timeout
+    hard_timeout = 720.0
+    easy_timeout = 90.0
+
+    queue = mp.Manager().Queue()
+
+    # Queue hard tasks FIRST to maximize GPU compute on unsolved tasks
+    for key in hard_tasks:
+        queue.put((key, hard_timeout))
+        
+    for key in easy_tasks:
+        queue.put((key, easy_timeout))
+
+    for _ in range(4):
+        queue.put(None)
+    
+    mp.spawn(local_worker, args=(queue, args.end_time), nprocs=4)
+"""
+    cells.append(
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [starter_source],
+        }
+    )
 
     # Cell 8: run starter.py
     cells.append(base_nb["cells"][7])

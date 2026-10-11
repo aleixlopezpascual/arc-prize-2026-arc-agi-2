@@ -113,7 +113,9 @@ def watch_and_submit(
                     )
 
                 # 4. Fire competition submission
-                if version == 16:
+                if version == 17:
+                    msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Deficit-First GPU Scheduling + CRC32 Determinism - Record Val 10.0)"
+                elif version == 16:
                     msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Liquid Gravity Flow + Parallel Line Standardization - Record Val 6.98)"
                 elif version == 15:
                     msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Parallel Line Standardization + 37 Primitives - Record Val 6.40)"
