@@ -20,8 +20,9 @@
   - `Hybrid v12`: `29.31%` (Submission ID 56893501, Validation Score: `4.5`)
   - `Hybrid v13`: `30.14%` (Submission ID 56944583, Validation Score: `5.0`, `SubmissionStatus.COMPLETE`)
   - `Hybrid v15`: `28.06%` (Submission ID 56979030, Validation Score: `6.40%`, `SubmissionStatus.COMPLETE`)
-- **Active Submission in Scoring:**
-  - **Version 16** (Submission ID `57036813`, All-Time Record Validation Score: `6.98%` across 10 fully solved evaluation tasks, Cluster Val: `10.0`!). Status: `SubmissionStatus.PENDING`.
+  - `Hybrid v16`: `29.31%` (Submission ID 57036813, Cluster Validation Score: `10.0`!, `SubmissionStatus.COMPLETE`)
+- **Next Staged Submission:**
+  - **Version 17** (Deficit-First GPU Task Scheduling + CRC32 Determinism + Dynamic Timeouts). Pre-compiled and ready for push.
 - **Recent Completed Kernel:** **Version 14** (Validation Score: `7.5` on 4x L4 cluster, cached at `submissions/submission_hybrid_sota_v14.json`).
 
 ---
