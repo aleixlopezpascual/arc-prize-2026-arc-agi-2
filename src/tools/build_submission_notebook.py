@@ -129,9 +129,24 @@ global_end_time = time.time() + 12 * 3600 - 600
         }
     )
 
-    # Cell 5: arc_decoder.py with score_ensemble
+    # Cell 5: arc_decoder.py with score_ensemble and physical invariant filter
     decoder_source = "".join(base_nb["cells"][4]["source"])
     if "def score_ensemble" not in decoder_source:
+        filter_code = """
+def is_physically_plausible(solution):
+    if solution is None:
+        return False
+    arr = np.asarray(solution)
+    if arr.ndim != 2 or arr.shape[0] < 1 or arr.shape[0] > 30 or arr.shape[1] < 1 or arr.shape[1] > 30:
+        return False
+    if np.any((arr < 0) | (arr > 9)):
+        return False
+    return True
+
+def filter_valid_guesses(guesses):
+    valid = {k: g for k, g in guesses.items() if is_physically_plausible(g.get("solution"))}
+    return valid if valid else guesses
+"""
         ensemble_code = """
 def score_ensemble(guesses):
     ranked_prob = score_full_probmul_3(guesses)
@@ -150,6 +165,10 @@ def score_ensemble(guesses):
             result.append(cand)
     return result
 """
+        decoder_source = decoder_source.replace(
+            "def score_sum(guesses, getter):\n    guess_list = list(guesses.values())",
+            f"{filter_code}\ndef score_sum(guesses, getter):\n    guesses = filter_valid_guesses(guesses)\n    guess_list = list(guesses.values())",
+        )
         decoder_source = decoder_source.replace(
             "selection_algorithms = [\n    score_full_probmul_3,\n    score_kgmon,\n]",
             f"{ensemble_code}\nselection_algorithms = [\n    score_full_probmul_3,\n    score_kgmon,\n    score_ensemble,\n]",

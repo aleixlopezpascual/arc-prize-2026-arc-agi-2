@@ -348,6 +348,21 @@ This catalog details the complete set of verified symbolic perception and transf
   4. At each step, places a unit of liquid into the lowest supported empty cell ($r == H-1$ or cell below is non-zero) that is bounded by walls of non-zero colors.
   5. Ties at the same row are broken by prioritizing narrower containers (deeper wells first).
 
+---
+
+## 39. Sokoban $K \times K$ Channel Sliding Navigation (`slide_sokoban_block_in_channel`, `extract_sokoban_channel_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Evaluation Task `332f06d7`** 100% exactly on both train and test!
+- **Concept:** Simulates $K \times K$ physical block sliding navigation in maze corridor channels. A target $K \times K$ socket hole of color $C_{\text{hole}}$ must be filled with corridor color $C_{\text{corridor}}$. The movable block at the furthest reachable corridor dead-end slides along 4-connected open channel paths into the socket, emptying its origin to $C_{\text{hole}}$.
+- **Algorithm:**
+  1. Detects square socket hole of color $C_{\text{hole}}$ with dimensions $K \times K$ ($K \in \{1, 2, 3, 4\}$).
+  2. Fills the $K \times K$ socket with corridor color $C_{\text{corridor}}$.
+  3. Identifies all valid $K \times K$ block placements along open non-wall corridors.
+  4. Executes 4-connected BFS from the socket top-left position to find all reachable $K \times K$ placements.
+  5. Finds the unique furthest reachable $K \times K$ dead-end position (maximum graph distance in BFS tree).
+  6. Empties that furthest $K \times K$ block to $C_{\text{hole}}$, simulating physical block sliding into the socket.
+
+
 
 
 

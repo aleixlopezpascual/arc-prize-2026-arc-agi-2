@@ -95,11 +95,15 @@ from src.dsl.primitives import (
     extract_standardize_parallel_lines_rule,
     simulate_liquid_gravity,
     extract_liquid_gravity_rule,
+    slide_sokoban_block_in_channel,
+    extract_sokoban_channel_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "slide_sokoban_block_in_channel",
+    "extract_sokoban_channel_rule",
     "Object",
     "apply_3x3_local_rules",
     "extract_3x3_local_rules",

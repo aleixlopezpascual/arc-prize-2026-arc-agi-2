@@ -577,7 +577,25 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 39. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 39. Sokoban KxK Channel Sliding Navigation
+    sokoban_params = P.extract_sokoban_channel_rule(train_pairs)
+    if sokoban_params is not None:
+        corr_c, hole_c = sokoban_params
+        progs.append(
+            Program(
+                name="slide_sokoban_block_in_channel",
+                steps=[
+                    (
+                        "slide_sokoban_block_in_channel",
+                        lambda g, c=corr_c, h=hole_c: P.slide_sokoban_block_in_channel(
+                            g, corridor_color=c, hole_color=h
+                        ),
+                    )
+                ],
+            )
+        )
+
+    # 40. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

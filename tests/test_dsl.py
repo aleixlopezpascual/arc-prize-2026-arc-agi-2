@@ -1245,6 +1245,29 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_liquid_gravity_rule([{"input": grid_in, "output": grid_out}], liquid_color=1)
 
+    def test_slide_sokoban_block_in_channel(self):
+        from src.dsl import slide_sokoban_block_in_channel, extract_sokoban_channel_rule
+
+        # Wall: 3, Corridor: 1, Hole: 0, Block: 2
+        # Hole of size 1x1 at (1, 1). Block at (3, 3) (reachable via corridor of 1s)
+        grid_in = [
+            [3, 3, 3, 3, 3],
+            [3, 0, 1, 1, 3],
+            [3, 3, 3, 1, 3],
+            [3, 3, 3, 2, 3],
+            [3, 3, 3, 3, 3],
+        ]
+        grid_out = [
+            [3, 3, 3, 3, 3],
+            [3, 1, 1, 1, 3],
+            [3, 3, 3, 1, 3],
+            [3, 3, 3, 0, 3],
+            [3, 3, 3, 3, 3],
+        ]
+        res = slide_sokoban_block_in_channel(grid_in, corridor_color=1, hole_color=0)
+        assert res == grid_out
+        assert extract_sokoban_channel_rule([{"input": grid_in, "output": grid_out}]) == (1, 0)
+
 
 
 

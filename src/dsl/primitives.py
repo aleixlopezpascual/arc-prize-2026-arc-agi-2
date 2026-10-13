@@ -2446,16 +2446,95 @@ def extract_liquid_gravity_rule(
     return True
 
 
+def slide_sokoban_block_in_channel(
+    grid: Grid | np.ndarray,
+    corridor_color: int = 1,
+    hole_color: int = 0,
+    wall_color: int | None = None,
+) -> Grid:
+    """
+    Primitive 39: Sokoban KxK channel sliding block navigation.
+    Identifies a KxK hole of hole_color, fills it with corridor_color, and finds
+    the furthest reachable KxK block along the open corridor via 4-connected BFS,
+    emptying that KxK block to hole_color.
+    """
+    arr = to_array(grid).copy()
+    H, W = arr.shape
+    if wall_color is None:
+        wall_color = int(arr[0, 0])
+
+    zeros = list(zip(*np.where(arr == hole_color)))
+    if not zeros:
+        return to_grid(arr)
+
+    min_zr, max_zr = min(r for r, c in zeros), max(r for r, c in zeros)
+    min_zc, max_zc = min(c for r, c in zeros), max(c for r, c in zeros)
+    K = max_zr - min_zr + 1
+    if max_zc - min_zc + 1 != K or len(zeros) != K * K:
+        return to_grid(arr)
+    hole_top_left = (min_zr, min_zc)
+
+    arr[min_zr : min_zr + K, min_zc : min_zc + K] = corridor_color
+
+    valid_positions = set()
+    for r in range(H - K + 1):
+        for c in range(W - K + 1):
+            sub = arr[r : r + K, c : c + K]
+            if np.all(sub != wall_color):
+                valid_positions.add((r, c))
+    valid_positions.add(hole_top_left)
+
+    queue = deque([hole_top_left])
+    visited = {hole_top_left: 0}
+
+    while queue:
+        curr_r, curr_c = queue.popleft()
+        d = visited[(curr_r, curr_c)]
+        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            nr, nc = curr_r + dr, curr_c + dc
+            if (nr, nc) in valid_positions and (nr, nc) not in visited:
+                visited[(nr, nc)] = d + 1
+                queue.append((nr, nc))
+
+    if not visited:
+        return to_grid(arr)
+
+    max_dist = max(visited.values())
+    furthest_candidates = [pos for pos, dist in visited.items() if dist == max_dist]
+    furthest_candidates.sort(key=lambda p: (p[0], p[1]))
+    fr, fc = furthest_candidates[0]
+
+    arr[fr : fr + K, fc : fc + K] = hole_color
+    return to_grid(arr)
 
 
+def extract_sokoban_channel_rule(
+    train_pairs: list[dict[str, Any]],
+) -> tuple[int, int] | None:
+    """Auto-detects (corridor_color, hole_color) if Sokoban sliding solves 100% of training pairs."""
+    changed_in: set[int] = set()
+    changed_out: set[int] = set()
+    for pair in train_pairs:
+        inp = np.asarray(pair["input"])
+        out = np.asarray(pair["output"])
+        if inp.shape != out.shape:
+            return None
+        diff = inp != out
+        if not np.any(diff):
+            return None
+        changed_in.update(int(x) for x in inp[diff])
+        changed_out.update(int(x) for x in out[diff])
 
-
-
-
-
-
-
-
-
-
-
+    for hole_c in changed_in:
+        for corr_c in changed_out:
+            all_ok = True
+            for pair in train_pairs:
+                pred = slide_sokoban_block_in_channel(
+                    pair["input"], corridor_color=corr_c, hole_color=hole_c
+                )
+                if not grid_equal(pred, pair["output"]):
+                    all_ok = False
+                    break
+            if all_ok:
+                return (corr_c, hole_c)
+    return None
