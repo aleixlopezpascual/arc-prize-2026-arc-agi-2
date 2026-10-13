@@ -37,3 +37,11 @@
 
 ## Experiment Tracking
 Log every experiment, validation score, and architectural hypothesis in `docs/experiments.md`.
+
+---
+
+## Kaggle Cloud Execution & Submission Protocol
+1. **Hardware Environment:** 4x NVIDIA L4 GPUs (96 GB VRAM) on BYOD Python 3.11 image (`gcr.io/kaggle-private-byod/python@sha256:320043e14c68293f1c946585b9257123385205a58af4b94b17d31868cae4e868`).
+2. **Deficit-First Scheduling:** In test runs, Tier-1 solved tasks receive a 90s budget for attempt_2, reserving 720s for unsolved hard tasks.
+3. **Daily Limit Discipline:** Exactly 1 submission per day (resets 00:00 UTC). Always verify remaining quota via `kaggle competitions submission-limits -c arc-prize-2026-arc-agi-2` before submitting.
+4. **Git Remote Push:** Always prefix with `GIT_SSH_COMMAND="ssh"`: `GIT_SSH_COMMAND="ssh" git push origin master`.
