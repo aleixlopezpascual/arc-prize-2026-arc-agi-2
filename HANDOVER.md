@@ -21,8 +21,9 @@
   - `Hybrid v13`: `30.14%` (Submission ID 56944583, Validation Score: `5.0`, `SubmissionStatus.COMPLETE`)
   - `Hybrid v15`: `28.06%` (Submission ID 56979030, Validation Score: `6.40%`, `SubmissionStatus.COMPLETE`)
   - `Hybrid v16`: `29.31%` (Submission ID 57036813, Cluster Validation Score: `10.0`!, `SubmissionStatus.COMPLETE`)
-- **Active Submission in Scoring:**
-  - **Version 17** (Submission ID `57115410`, Deficit-First GPU Scheduling + CRC32 Determinism, Cluster Val: `10.0`!). Status: `SubmissionStatus.PENDING`.
+  - `Hybrid v17`: `26.94%` (Submission ID 57115410, Cluster Validation Score: `10.0`!, `SubmissionStatus.COMPLETE`)
+- **Next Staged Submission:**
+  - **Version 18** (Sokoban Channel Sliding + Neural Invariant Pruning, 39 Primitives, Record Val: `7.56%` across 11 fully solved tasks!). Pre-compiled and cached in `submissions/submission_hybrid_sota_v18.json`.
 - **Recent Completed Kernel:** **Version 17** (Validation Score: `10.0` on 4x L4 cluster, cached at `submissions/submission_hybrid_sota_v17.json`).
 
 ---
