@@ -17,6 +17,7 @@ An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle
 - **Official Competition Rank:** **Rank 467** out of 2,460 teams (+576 positions climbed from baseline, securely inside the **Top 500**)
 - **Next Staged Submission:** **Version 18** (**All-Time Record Validation Score: `7.56%`** across 11 fully solved evaluation tasks and 13/172 test outputs! Cached at `submissions/submission_hybrid_sota_v18.json`)
 - **Recent Completed Submissions:**
+  - `Hybrid v18`: `25.00%` (Submission ID `57175238`, Cluster Val: `10.5`!)
   - `Hybrid v17`: `26.94%` (Submission ID `57115410`, Cluster Val: `10.0`)
   - `Hybrid v16`: `29.31%` (Submission ID `57036813`, Cluster Val: `10.0`)
   - `Hybrid v15`: `28.06%` (Submission ID `56979030`, Val: `6.40%`)

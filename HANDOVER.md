@@ -22,8 +22,7 @@
   - `Hybrid v15`: `28.06%` (Submission ID 56979030, Validation Score: `6.40%`, `SubmissionStatus.COMPLETE`)
   - `Hybrid v16`: `29.31%` (Submission ID 57036813, Cluster Validation Score: `10.0`!, `SubmissionStatus.COMPLETE`)
   - `Hybrid v17`: `26.94%` (Submission ID 57115410, Cluster Validation Score: `10.0`!, `SubmissionStatus.COMPLETE`)
-- **Active Submission in Scoring:**
-  - **Version 18** (Submission ID `57175238`, Sokoban Channel Sliding + Neural Invariant Pruning, **All-Time Record Cluster Validation Score: `10.5`** across 11 solved tasks!). Status: `SubmissionStatus.PENDING`.
+  - `Hybrid v18`: `25.00%` (Submission ID 57175238, Cluster Validation Score: `10.5`!, `SubmissionStatus.COMPLETE`)
 - **Recent Completed Kernel:** **Version 18** (Validation Score: `10.5` on 4x L4 cluster, cached at `submissions/submission_hybrid_sota_v18.json`).
 
 ---
