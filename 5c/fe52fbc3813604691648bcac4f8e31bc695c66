@@ -1,0 +1,19 @@
+docs/PUBLIC_NOTEBOOKS_BENCHMARK_EVALUATION.md
+  s_99913fc8d1101b::t_11f8a4ce6c5f9d 1-56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "5cfe52fbc3813604691648bcac4f8e31bc695c66",
+  "prompts": {},
+  "sessions": {
+    "s_99913fc8d1101b": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "a2ad310d-9bf0-457d-9e8a-24d0f6e6635c",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
