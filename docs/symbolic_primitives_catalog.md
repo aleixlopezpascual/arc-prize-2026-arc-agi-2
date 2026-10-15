@@ -362,6 +362,20 @@ This catalog details the complete set of verified symbolic perception and transf
   5. Finds the unique furthest reachable $K \times K$ dead-end position (maximum graph distance in BFS tree).
   6. Empties that furthest $K \times K$ block to $C_{\text{hole}}$, simulating physical block sliding into the socket.
 
+---
+
+## 40. Multi-Room Partition Overlay (`compose_partitioned_rooms`, `extract_partitioned_rooms_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Evaluation Task `7491f3cf`** 100% exactly on both train and test!
+- **Concept:** Solves partitioned spatial composition where a canvas is structured into four $5 \times 5$ rooms separated by lattice borders. Room 1 defines a cutting partition line with an indicator marker. The partition containing the marker is synthesized from Room 2; the remaining partition is synthesized from Room 3. The resulting composite room is pasted into Room 4.
+- **Algorithm:**
+  1. Identifies the lattice grid structure (4 rooms of $5 \times 5$ at cols 1..5, 7..11, 13..17, 19..23).
+  2. Extracts the partition line (5 pixels) and directional seed marker (1 pixel) in Room 1.
+  3. Evaluates geometric partition line geometry (anti-diagonal, main diagonal, horizontal bisector, vertical bisector, or top-right L-corner).
+  4. Assigns pixels inside the marker's partition to Room 2, and pixels outside to Room 3.
+  5. Pastes the synthesized composite pattern into empty Room 4.
+
+
 
 
 

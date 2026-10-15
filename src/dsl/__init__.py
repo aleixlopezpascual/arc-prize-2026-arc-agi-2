@@ -97,11 +97,15 @@ from src.dsl.primitives import (
     extract_liquid_gravity_rule,
     slide_sokoban_block_in_channel,
     extract_sokoban_channel_rule,
+    compose_partitioned_rooms,
+    extract_partitioned_rooms_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "compose_partitioned_rooms",
+    "extract_partitioned_rooms_rule",
     "slide_sokoban_block_in_channel",
     "extract_sokoban_channel_rule",
     "Object",

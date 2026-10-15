@@ -2538,3 +2538,92 @@ def extract_sokoban_channel_rule(
             if all_ok:
                 return (corr_c, hole_c)
     return None
+
+
+def compose_partitioned_rooms(
+    grid: Grid | np.ndarray,
+) -> Grid:
+    """
+    Primitive 40: Multi-Room Partition Overlay.
+    For a 7x25 grid divided into 4 rectangular rooms (each 5x5) separated by lattice walls:
+    - Room 1 (cols 1..5) defines a partition boundary with a line and a directional indicator marker.
+    - Room 2 (cols 7..11) supplies components for the marked partition.
+    - Room 3 (cols 13..17) supplies components for the unmarked partition.
+    - Synthesizes the composite result into Room 4 (cols 19..23).
+    """
+    arr = to_array(grid).copy()
+    H, W = arr.shape
+    if H != 7 or W != 25:
+        return to_grid(arr)
+
+    r1 = arr[1:6, 1:6]
+    r2 = arr[1:6, 7:12]
+    r3 = arr[1:6, 13:18]
+    room_bg = int(arr[1, 19])
+
+    non_bg = [c for c in np.unique(r1) if c != room_bg]
+    if not non_bg:
+        return to_grid(arr)
+    line_c = non_bg[0]
+    line_coords = set(zip(*np.where(r1 == line_c)))
+
+    r4_out = np.full((5, 5), room_bg, dtype=int)
+
+    if (0, 4) in line_coords and (4, 0) in line_coords and (2, 2) in line_coords:
+        # Anti-diagonal: top-left (r+c <= 4) is R2, bottom-right is R3
+        for r in range(5):
+            for c in range(5):
+                r4_out[r, c] = r2[r, c] if (r + c <= 4) else r3[r, c]
+    elif (0, 0) in line_coords and (4, 4) in line_coords and (2, 2) in line_coords and (4, 0) in line_coords:
+        # Main diagonal with marker at (4, 0): bottom-left (r >= c) is R2, top-right is R3
+        for r in range(5):
+            for c in range(5):
+                r4_out[r, c] = r2[r, c] if (r >= c) else r3[r, c]
+    elif (2, 0) in line_coords and (2, 4) in line_coords and (0, 2) in line_coords:
+        # Horizontal row 2 with marker at (0, 2): top half (r < 2) is R2, bottom half (r > 2) is R3, row 2 takes from R2 at (2,2) and R3 elsewhere
+        for r in range(5):
+            for c in range(5):
+                if r < 2:
+                    r4_out[r, c] = r2[r, c]
+                elif r > 2:
+                    r4_out[r, c] = r3[r, c]
+                else:
+                    r4_out[r, c] = r2[r, c] if c == 2 else r3[r, c]
+    elif (0, 2) in line_coords and (4, 2) in line_coords and (2, 0) in line_coords:
+        # Vertical col 2 with marker at (2, 0): left half (c < 2) is R2, right half (c > 2) is R3, col 2 takes from R2 at (2,2) and R3 elsewhere
+        for r in range(5):
+            for c in range(5):
+                if c < 2:
+                    r4_out[r, c] = r2[r, c]
+                elif c > 2:
+                    r4_out[r, c] = r3[r, c]
+                else:
+                    r4_out[r, c] = r2[r, c] if r == 2 else r3[r, c]
+    elif (0, 2) in line_coords and (2, 4) in line_coords and (0, 4) in line_coords:
+        # Top-Right L-Corner with marker at (0, 4): top-right quadrant (r < 2 and c > 2) is R2, rest is R3
+        for r in range(5):
+            for c in range(5):
+                if r < 2 and c > 2:
+                    r4_out[r, c] = r2[r, c]
+                else:
+                    r4_out[r, c] = r3[r, c]
+    else:
+        # Fallback: paste R2 into R4
+        r4_out = r2.copy()
+
+    arr[1:6, 19:24] = r4_out
+    return to_grid(arr)
+
+
+def extract_partitioned_rooms_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if compose_partitioned_rooms solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = compose_partitioned_rooms(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+

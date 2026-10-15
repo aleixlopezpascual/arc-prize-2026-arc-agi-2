@@ -1268,6 +1268,33 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_sokoban_channel_rule([{"input": grid_in, "output": grid_out}]) == (1, 0)
 
+    def test_compose_partitioned_rooms(self):
+        from src.dsl import compose_partitioned_rooms, extract_partitioned_rooms_rule
+
+        # 7x25 canvas with divider 5, background 4, line 6, room2=2, room3=3
+        grid_in = [
+            [5]*25,
+            [5, 6,4,4,4,6, 5, 2,4,4,4,2, 5, 4,4,3,4,4, 5, 4,4,4,4,4, 5],
+            [5, 4,4,4,6,4, 5, 4,2,4,2,4, 5, 4,4,3,4,4, 5, 4,4,4,4,4, 5],
+            [5, 4,4,6,4,4, 5, 4,4,2,4,4, 5, 3,3,3,3,3, 5, 4,4,4,4,4, 5],
+            [5, 4,6,4,4,4, 5, 4,2,4,2,4, 5, 4,4,3,4,4, 5, 4,4,4,4,4, 5],
+            [5, 6,4,4,4,4, 5, 2,4,4,4,2, 5, 4,4,3,4,4, 5, 4,4,4,4,4, 5],
+            [5]*25,
+        ]
+        grid_out = [
+            [5]*25,
+            [5, 6,4,4,4,6, 5, 2,4,4,4,2, 5, 4,4,3,4,4, 5, 2,4,4,4,2, 5],
+            [5, 4,4,4,6,4, 5, 4,2,4,2,4, 5, 4,4,3,4,4, 5, 4,2,4,2,4, 5],
+            [5, 4,4,6,4,4, 5, 4,4,2,4,4, 5, 3,3,3,3,3, 5, 4,4,2,3,3, 5],
+            [5, 4,6,4,4,4, 5, 4,2,4,2,4, 5, 4,4,3,4,4, 5, 4,2,3,4,4, 5],
+            [5, 6,4,4,4,4, 5, 2,4,4,4,2, 5, 4,4,3,4,4, 5, 2,4,3,4,4, 5],
+            [5]*25,
+        ]
+        res = compose_partitioned_rooms(grid_in)
+        assert res == grid_out
+        assert extract_partitioned_rooms_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

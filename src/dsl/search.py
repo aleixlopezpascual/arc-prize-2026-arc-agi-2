@@ -595,7 +595,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 40. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 40. Multi-Room Partition Overlay
+    if P.extract_partitioned_rooms_rule(train_pairs):
+        progs.append(
+            Program(
+                name="compose_partitioned_rooms",
+                steps=[("compose_partitioned_rooms", lambda g: P.compose_partitioned_rooms(g))],
+            )
+        )
+
+    # 41. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"
