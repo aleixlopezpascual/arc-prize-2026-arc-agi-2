@@ -9,6 +9,9 @@
 
 An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2) competition on Kaggle, pioneering a **Two-Tier Hybrid Architecture** combining deterministic symbolic program induction with state-of-the-art Test-Time Training (TTT) neural models.
 
+> 📖 **Comprehensive Educational Guide & Walkthrough:**  
+> Read the complete architectural, mathematical, and competition breakdown in [**`docs/ARC_AGI_2_COMPREHENSIVE_GUIDE.md`**](docs/ARC_AGI_2_COMPREHENSIVE_GUIDE.md).
+
 ---
 
 ## 🏆 Current Benchmark & Leaderboard Status
