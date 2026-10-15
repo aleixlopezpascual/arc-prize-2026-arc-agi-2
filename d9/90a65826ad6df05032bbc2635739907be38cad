@@ -1,0 +1,21 @@
+docs/ARC_AGI_2_COMPREHENSIVE_GUIDE.md
+  s_99913fc8d1101b::t_33668356914051 1-361
+README.md
+  s_99913fc8d1101b::t_a492e2161a3226 12-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "d990a65826ad6df05032bbc2635739907be38cad",
+  "prompts": {},
+  "sessions": {
+    "s_99913fc8d1101b": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "a2ad310d-9bf0-457d-9e8a-24d0f6e6635c",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
