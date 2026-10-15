@@ -3,9 +3,9 @@
 [![Private GitHub](https://img.shields.io/badge/GitHub-Private%20Repo-blue?logo=github)](https://github.com/aleixlopezpascual/arc-prize-2026-arc-agi-2)
 [![Leaderboard](https://img.shields.io/badge/Public%20LB-30.97%25-brightgreen?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
 [![Rank](https://img.shields.io/badge/Rank-467%20%2F%202460-gold?logo=kaggle)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
-[![Record Val](https://img.shields.io/badge/Record%20Validation-7.56%25%20(11%20Tasks)-purple?logo=kaggle)](https://www.kaggle.com/code/aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt)
-[![Kaggle Kernel](https://img.shields.io/badge/Kaggle-4x%20L4%20GPUs-orange?logo=kaggle)](https://www.kaggle.com/code/aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt)
-[![Tests](https://img.shields.io/badge/Unit%20Tests-86%20Passing-success)](tests/)
+[![Record Val](https://img.shields.io/badge/Record%20Validation-8.14%25%20(12%20Tasks)-purple?logo=kaggle)](https://www.kaggle.com/code/aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt)
+[![Cluster Val](https://img.shields.io/badge/Cluster%20Validation-11.0%20(All--Time%20High)-blueviolet?logo=kaggle)](https://www.kaggle.com/code/aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt)
+[![Tests](https://img.shields.io/badge/Unit%20Tests-87%20Passing-success)](tests/)
 
 An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2) competition on Kaggle, pioneering a **Two-Tier Hybrid Architecture** combining deterministic symbolic program induction with state-of-the-art Test-Time Training (TTT) neural models.
 
@@ -18,16 +18,17 @@ An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle
 
 - **Official Public Leaderboard Score:** **`30.97%`** (Submission ID `56836175` & `56875914`, `SubmissionStatus.COMPLETE`)
 - **Official Competition Rank:** **Rank 467** out of 2,460 teams (+576 positions climbed from baseline, securely inside the **Top 500**)
-- **Next Staged Submission:** **Version 18** (**All-Time Record Validation Score: `7.56%`** across 11 fully solved evaluation tasks and 13/172 test outputs! Cached at `submissions/submission_hybrid_sota_v18.json`)
+- **Active Submission in Scoring:**
+  - **Version 19** (Submission ID `57232077`, **All-Time Record Cluster Validation: `11.0`**, Local Val: `8.14%` across 12 solved tasks!). Status: `SubmissionStatus.PENDING`.
 - **Recent Completed Submissions:**
   - `Hybrid v18`: `25.00%` (Submission ID `57175238`, Cluster Val: `10.5`!)
   - `Hybrid v17`: `26.94%` (Submission ID `57115410`, Cluster Val: `10.0`)
   - `Hybrid v16`: `29.31%` (Submission ID `57036813`, Cluster Val: `10.0`)
   - `Hybrid v15`: `28.06%` (Submission ID `56979030`, Val: `6.40%`)
   - `Hybrid v13`: `30.14%` (Submission ID `56944583`, Val: `5.0`)
-- **Symbolic Perception Catalog:** **39 Core Knowledge primitive families** (including Sokoban Channel Sliding, Liquid Gravity Cavity Flow, Parallel Line Standardization, Bilateral Reflection Symmetry Restoration, Indicator-Ranked Pillars, and Legend Cavity Filling)
+- **Symbolic Perception Catalog:** **40 Core Knowledge primitive families** (including Multi-Room Partition Overlay, Sokoban Channel Sliding, Liquid Gravity Cavity Flow, Parallel Line Standardization, Bilateral Reflection Symmetry Restoration, Indicator-Ranked Pillars, and Legend Cavity Filling)
 - **Neural Decoding Engine:** **`score_ensemble` Interleaved Dual-Ranking with Physical Invariant Pruning** (combining maximum likelihood beam probability with consensus voting across dihedral test-time augmentations, with impossible shapes/colors culled)
-- **Unit Test Suite:** **86/86 tests passing** in 0.33s (`tests/test_dsl.py`, `tests/test_metrics.py`, `tests/test_neural.py`)
+- **Unit Test Suite:** **87/87 tests passing** in 0.27s (`tests/test_dsl.py`, `tests/test_metrics.py`, `tests/test_neural.py`)
 
 ---
 

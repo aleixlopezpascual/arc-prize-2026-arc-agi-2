@@ -23,7 +23,9 @@
   - `Hybrid v16`: `29.31%` (Submission ID 57036813, Cluster Validation Score: `10.0`!, `SubmissionStatus.COMPLETE`)
   - `Hybrid v17`: `26.94%` (Submission ID 57115410, Cluster Validation Score: `10.0`!, `SubmissionStatus.COMPLETE`)
   - `Hybrid v18`: `25.00%` (Submission ID 57175238, Cluster Validation Score: `10.5`!, `SubmissionStatus.COMPLETE`)
-- **Recent Completed Kernel:** **Version 18** (Validation Score: `10.5` on 4x L4 cluster, cached at `submissions/submission_hybrid_sota_v18.json`).
+- **Active Submission in Scoring:**
+  - **Version 19** (Submission ID `57232077`, Multi-Room Partition Overlay, **All-Time Record Cluster Validation Score: `11.0`** across 12 solved tasks, Local Val: `8.14%`!). Status: `SubmissionStatus.PENDING`.
+- **Recent Completed Kernel:** **Version 19** (Validation Score: `11.0` on 4x L4 cluster, cached at `submissions/submission_hybrid_sota_v19.json`).
 
 ---
 
