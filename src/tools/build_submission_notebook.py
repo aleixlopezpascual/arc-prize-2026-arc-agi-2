@@ -148,21 +148,65 @@ def filter_valid_guesses(guesses):
     return valid if valid else guesses
 """
         ensemble_code = """
+def candidate_signature(grid):
+    arr = np.asarray(grid)
+    return (arr.shape, frozenset(np.unique(arr).tolist()))
+
 def score_ensemble(guesses):
+    # Dale Zhong Rule C: Cross-Family Pass@2 Selection
+    # Family 1: Maximum Likelihood (Token probability)
+    # Family 2: Dihedral Consensus Voting (Symmetry invariance)
     ranked_prob = score_full_probmul_3(guesses)
     ranked_vote = score_kgmon(guesses)
-    seen, result = set(), []
-    for a, b in zip(ranked_prob, ranked_vote):
-        for cand in (a, b):
+    
+    if not ranked_prob:
+        return ranked_vote
+    if not ranked_vote:
+        return ranked_prob
+        
+    y1 = ranked_prob[0]
+    h1 = hashable(y1)
+    sig1 = candidate_signature(y1)
+    
+    result = [y1]
+    seen = {h1}
+    
+    # Rule C: If top consensus vote differs from y1, pair it immediately as attempt 2
+    hv0 = hashable(ranked_vote[0])
+    if hv0 not in seen:
+        seen.add(hv0)
+        result.append(ranked_vote[0])
+        
+    # Interleave remaining candidates
+    all_cands = []
+    for a, b in zip(ranked_prob[1:], ranked_vote[1:]):
+        for cand in (b, a):
             h = hashable(cand)
             if h not in seen:
                 seen.add(h)
+                all_cands.append(cand)
+                
+    # If attempt 2 is still needed, prioritize candidate with divergent signature (cross-family)
+    if len(result) < 2:
+        for cand in all_cands:
+            if candidate_signature(cand) != sig1:
                 result.append(cand)
+                seen.add(hashable(cand))
+                break
+                
+    # Fill remaining guesses
+    for cand in all_cands:
+        h = hashable(cand)
+        if h not in seen:
+            seen.add(h)
+            result.append(cand)
+            
     for cand in ranked_prob + ranked_vote:
         h = hashable(cand)
         if h not in seen:
             seen.add(h)
             result.append(cand)
+            
     return result
 """
         decoder_source = decoder_source.replace(
