@@ -1,0 +1,21 @@
+src/tools/auto_submit.py
+  s_99913fc8d1101b::t_abb50b86faea52 116-118
+src/tools/build_submission_notebook.py
+  s_99913fc8d1101b::t_842d8cc971882c 151-154,156-158,161-183,187-192,194-203,209
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "c9db1a6e22dd277a12ef9362f2d195ac9dadff88",
+  "prompts": {},
+  "sessions": {
+    "s_99913fc8d1101b": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "a2ad310d-9bf0-457d-9e8a-24d0f6e6635c",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
