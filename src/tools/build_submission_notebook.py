@@ -367,13 +367,26 @@ if __name__ == "__main__":
 
     print(f"*** Deficit-First Routing: {len(easy_tasks)} Tier-1 Solved | {len(hard_tasks)} Hard (Expanded-TTT)")
 
+    # Cheap-First Work Estimator: sort hard tasks so compact, highly solvable grids are processed first!
+    def estimated_work(task):
+        def ntok(g):
+            return len(g) * (len(g[0]) + 1)
+        train_tokens = sum(ntok(p["input"]) + ntok(p["output"]) for p in task["train"])
+        ratios = [ntok(p["output"]) / max(1, ntok(p["input"])) for p in task["train"]]
+        ratios.sort()
+        ratio = ratios[len(ratios) // 2]
+        test_tokens = sum(ntok(t["input"]) * (1 + ratio) for t in task["test"])
+        return train_tokens * 16 + test_tokens * 8 * len(task["test"])
+
+    hard_tasks = sorted(hard_tasks, key=lambda k: estimated_work(data[k]))
+
     # Hard tasks get expanded 720s timeout (+33%), easy tasks get fast 90s timeout
     hard_timeout = 720.0
     easy_timeout = 90.0
 
     queue = mp.Manager().Queue()
 
-    # Queue hard tasks FIRST to maximize GPU compute on unsolved tasks
+    # Queue hard tasks FIRST in Cheap-First order to maximize solved puzzles before deadline
     for key in hard_tasks:
         queue.put((key, hard_timeout))
         
