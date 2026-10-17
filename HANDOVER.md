@@ -24,7 +24,8 @@
   - `Hybrid v17`: `26.94%` (Submission ID 57115410, Cluster Validation Score: `10.0`!, `SubmissionStatus.COMPLETE`)
   - `Hybrid v18`: `25.00%` (Submission ID 57175238, Cluster Validation Score: `10.5`!, `SubmissionStatus.COMPLETE`)
   - `Hybrid v19`: `26.39%` (Submission ID 57232077, Cluster Validation Score: `11.0`!, `SubmissionStatus.COMPLETE`)
-- **Recent Completed Kernel:** **Version 19** (Validation Score: `11.0` on 4x L4 cluster, cached at `submissions/submission_hybrid_sota_v19.json`).
+  - `Hybrid v20`: `25.97%` (Submission ID 57264962, Cluster Validation Score: `12.0`!, `SubmissionStatus.COMPLETE`)
+- **Recent Completed Kernel:** **Version 20** (Validation Score: `12.0` on 4x L4 cluster, cached at `submissions/submission_hybrid_sota_v20.json`).
 
 ---
 
