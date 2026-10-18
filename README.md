@@ -18,10 +18,10 @@ An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle
 
 - **Official Public Leaderboard Score:** **`30.97%`** (Submission ID `56836175` & `56875914`, `SubmissionStatus.COMPLETE`)
 - **Official Competition Rank:** **Rank 467** out of 2,460 teams (+576 positions climbed from baseline, securely inside the **Top 500**)
-- **Active Submission in Scoring:**
-  - **Version 21** (Submission ID `57315906`, **Dale Zhong Cross-Family Pass@2 Selection**, Cluster Val: `11.5`, Local Val: `8.14%`!). Status: `SubmissionStatus.PENDING`.
 - **Recent Completed Submissions:**
-  - `Hybrid v20`: `25.97%` (Submission ID `57264962`, **Cluster Val: `12.0` (All-Time Record)**)
+  - `Hybrid v22`: `22.78%` (Submission ID `57329657`, **Cluster Val: `12.0` (All-Time Record)**)
+  - `Hybrid v21`: `24.44%` (Submission ID `57315906`, Cluster Val: `11.5`)
+  - `Hybrid v20`: `25.97%` (Submission ID `57264962`, Cluster Val: `12.0`)
   - `Hybrid v19`: `26.39%` (Submission ID `57232077`, Cluster Val: `11.0`!)
   - `Hybrid v18`: `25.00%` (Submission ID `57175238`, Cluster Val: `10.5`!)
   - `Hybrid v17`: `26.94%` (Submission ID `57115410`, Cluster Val: `10.0`)
