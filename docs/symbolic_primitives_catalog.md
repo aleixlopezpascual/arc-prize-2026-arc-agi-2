@@ -375,6 +375,21 @@ This catalog details the complete set of verified symbolic perception and transf
   4. Assigns pixels inside the marker's partition to Room 2, and pixels outside to Room 3.
   5. Pastes the synthesized composite pattern into empty Room 4.
 
+---
+
+## 41. Ascending Vertical Pillar Height Sorting (`sort_vertical_pillars_ascending`, `extract_sort_vertical_pillars_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Evaluation Task `31f7f899`** 100% exactly on all train pairs and the test challenge!
+- **Concept:** For a canvas featuring a horizontal divider axis row and multiple vertical pillar objects (each consisting of one or more adjacent columns of a non-background color):
+  Extracts the exact vertical row spans `[min_r, max_r]` of all pillar objects, sorts the row spans in ascending order of height, and assigns them to the pillar objects from left to right, preserving each object's column position and color.
+- **Algorithm:**
+  1. Identifies the horizontal divider row $R_{\text{axis}}$ with dominant divider color.
+  2. Identifies all non-background columns and groups adjacent columns of the same color into multi-column pillar objects.
+  3. Records the exact row span $[R_{\text{min}}, R_{\text{max}}]$ and height $H = R_{\text{max}} - R_{\text{min}} + 1$ for each object.
+  4. Sorts the row spans in ascending order of height: $H_1 \le H_2 \le \dots \le H_m$.
+  5. Re-draws each pillar object from left to right using its assigned sorted row span, centered vertically across the divider axis.
+
+
 
 
 

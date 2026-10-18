@@ -2627,3 +2627,90 @@ def extract_partitioned_rooms_rule(
             return False
     return True
 
+
+def sort_vertical_pillars_ascending(
+    grid: Grid | np.ndarray,
+) -> Grid:
+    """
+    Primitive 41: Ascending Vertical Pillar Height Sorting.
+    For a canvas with a horizontal divider axis row and vertical pillar objects:
+    Extracts the vertical row span [min_r, max_r] of each pillar object,
+    sorts the row spans in ascending order of height, and assigns them to the pillar
+    objects from left to right, preserving column positions and colors.
+    """
+    arr = to_array(grid).copy()
+    H, W = arr.shape
+    from collections import Counter
+
+    bg = Counter(arr.flatten()).most_common(1)[0][0]
+
+    # Find axis row
+    axis_r = None
+    axis_c = None
+    for r in range(H):
+        counts = Counter(arr[r])
+        top_c, count = counts.most_common(1)[0]
+        if top_c != bg and count >= 3:
+            axis_r = r
+            axis_c = top_c
+            break
+
+    if axis_r is None:
+        return to_grid(arr)
+
+    col_data: dict[int, tuple[int, int, int]] = {}
+    for c in range(W):
+        col_pixels = [r for r in range(H) if arr[r, c] != bg and r != axis_r]
+        if col_pixels:
+            col_data[c] = (int(arr[col_pixels[0], c]), min(col_pixels), max(col_pixels))
+        elif arr[axis_r, c] != bg and arr[axis_r, c] != axis_c:
+            col_data[c] = (int(arr[axis_r, c]), axis_r, axis_r)
+
+    if not col_data:
+        return to_grid(arr)
+
+    objects: list[dict[str, Any]] = []
+    visited_cols: set[int] = set()
+    for c in sorted(col_data.keys()):
+        if c in visited_cols:
+            continue
+        color, min_r, max_r = col_data[c]
+        cols = [c]
+        visited_cols.add(c)
+        next_c = c + 1
+        while next_c in col_data and col_data[next_c][0] == color:
+            cols.append(next_c)
+            visited_cols.add(next_c)
+            next_c += 1
+        objects.append(
+            {"cols": cols, "color": color, "min_r": min_r, "max_r": max_r, "len": max_r - min_r + 1}
+        )
+
+    sorted_spans = sorted(
+        [(obj["min_r"], obj["max_r"]) for obj in objects], key=lambda s: s[1] - s[0] + 1
+    )
+
+    out = np.full_like(arr, bg)
+    out[axis_r, :] = arr[axis_r, :]
+
+    for obj, (s_min, s_max) in zip(objects, sorted_spans):
+        for c in obj["cols"]:
+            for r in range(s_min, s_max + 1):
+                out[r, c] = obj["color"]
+
+    return to_grid(out)
+
+
+def extract_sort_vertical_pillars_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if sort_vertical_pillars_ascending solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = sort_vertical_pillars_ascending(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+

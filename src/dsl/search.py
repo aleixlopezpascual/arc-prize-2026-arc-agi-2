@@ -604,7 +604,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 41. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 41. Ascending Vertical Pillar Height Sorting
+    if P.extract_sort_vertical_pillars_rule(train_pairs):
+        progs.append(
+            Program(
+                name="sort_vertical_pillars_ascending",
+                steps=[("sort_vertical_pillars_ascending", lambda g: P.sort_vertical_pillars_ascending(g))],
+            )
+        )
+
+    # 42. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

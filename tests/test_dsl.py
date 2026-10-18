@@ -1294,6 +1294,31 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_partitioned_rooms_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_sort_vertical_pillars_ascending(self):
+        from src.dsl import sort_vertical_pillars_ascending, extract_sort_vertical_pillars_rule
+
+        # Horizontal divider axis at row 2 with color 6, background 8
+        # Col 1: height 5 (color 2), Col 3: height 3 (color 4)
+        grid_in = [
+            [8, 2, 8, 8, 8],
+            [8, 2, 8, 4, 8],
+            [6, 2, 6, 4, 6],
+            [8, 2, 8, 4, 8],
+            [8, 2, 8, 8, 8],
+        ]
+        # In output: heights sorted ascending: col 1 gets height 3, col 3 gets height 5
+        grid_out = [
+            [8, 8, 8, 4, 8],
+            [8, 2, 8, 4, 8],
+            [6, 2, 6, 4, 6],
+            [8, 2, 8, 4, 8],
+            [8, 8, 8, 4, 8],
+        ]
+        res = sort_vertical_pillars_ascending(grid_in)
+        assert res == grid_out
+        assert extract_sort_vertical_pillars_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

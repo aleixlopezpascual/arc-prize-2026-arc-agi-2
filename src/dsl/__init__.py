@@ -99,11 +99,15 @@ from src.dsl.primitives import (
     extract_sokoban_channel_rule,
     compose_partitioned_rooms,
     extract_partitioned_rooms_rule,
+    sort_vertical_pillars_ascending,
+    extract_sort_vertical_pillars_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "sort_vertical_pillars_ascending",
+    "extract_sort_vertical_pillars_rule",
     "compose_partitioned_rooms",
     "extract_partitioned_rooms_rule",
     "slide_sokoban_block_in_channel",
