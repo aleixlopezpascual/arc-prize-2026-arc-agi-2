@@ -244,6 +244,16 @@ def score_ensemble(guesses):
 
     # Dynamic task timeout in turbo_dfs
     solver_source = solver_source.replace(
+        'dir_outputs = "/kaggle/inference_outputs"',
+        'dir_outputs = os.getenv("ARC_OUT_DIR", "/kaggle/inference_outputs")',
+    )
+    solver_source = solver_source.replace(
+        "train_ds = puzzle_ds.augment(n=16, shfl_keys=True, seed=1)",
+        """n_train_aug = int(os.getenv("ARC_N_TRAIN_AUG", "8"))
+        train_seed = int(os.getenv("ARC_SEED", "1"))
+        train_ds = puzzle_ds.augment(n=n_train_aug, shfl_keys=True, seed=train_seed)""",
+    )
+    solver_source = solver_source.replace(
         "def turbo_dfs(model, logits, max_new_tokens, max_score, scores, pos, cache, start_time, end_time) -> dict:",
         "def turbo_dfs(model, logits, max_new_tokens, max_score, scores, pos, cache, start_time, end_time, task_timeout: float = 540.0) -> dict:",
     )
@@ -408,8 +418,50 @@ if __name__ == "__main__":
         }
     )
 
-    # Cell 8: run starter.py
-    cells.append(base_nb["cells"][7])
+    # Cell 8: Multi-Pass TTT Runner (Pass A + Pass B Candidate Generation)
+    multi_pass_runner = """import os
+import sys
+import time
+import subprocess
+
+print("=== [Pass A] Starting Primary Half-Cost TTT Run (Seed 1, ARC_N_TRAIN_AUG=8) ===")
+env_a = dict(
+    os.environ,
+    UNSLOTH_DISABLE_STATISTICS="1",
+    TRITON_PTXAS_PATH="/usr/local/cuda/bin/ptxas",
+    OMP_NUM_THREADS="12",
+    ARC_N_TRAIN_AUG="8",
+    ARC_SEED="1",
+    ARC_OUT_DIR="/kaggle/inference_outputs",
+)
+subprocess.call([sys.executable, "starter.py", "--end-time", f"{global_end_time}"], env=env_a)
+
+time_remaining = global_end_time - time.time()
+print(f"[*] Pass A finished. Remaining wall-clock time: {time_remaining/60:.1f} minutes")
+
+# Pass B: Secondary independent pass with Seed 137 if remaining time > 15 minutes
+if time_remaining > 900:
+    print("=== [Pass B] Starting Secondary Independent TTT Run (Seed 137, ARC_N_TRAIN_AUG=8) ===")
+    env_b = dict(
+        os.environ,
+        UNSLOTH_DISABLE_STATISTICS="1",
+        TRITON_PTXAS_PATH="/usr/local/cuda/bin/ptxas",
+        OMP_NUM_THREADS="12",
+        ARC_N_TRAIN_AUG="8",
+        ARC_SEED="137",
+        ARC_OUT_DIR="/kaggle/inference_outputs_b",
+    )
+    subprocess.call([sys.executable, "starter.py", "--end-time", f"{global_end_time}"], env=env_b)
+"""
+    cells.append(
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [multi_pass_runner],
+        }
+    )
 
     # Cell 9: Hybrid merge and submission
     merge_lines = [
@@ -438,7 +490,11 @@ if __name__ == "__main__":
         "    data = data.load_replies(sol_path)\n",
         "\n",
         "decoder = ArcDecoder(data.split_multi_replies(), n_guesses=2)\n",
+        'print("[*] Loading Pass A decoded candidates from /kaggle/inference_outputs...")\n',
         'decoder.load_decoded_results("/kaggle/inference_outputs")\n',
+        'if os.path.exists("/kaggle/inference_outputs_b"):\n',
+        '    print("[*] Pooling Pass B candidates from /kaggle/inference_outputs_b into ArcDecoder...")\n',
+        '    decoder.load_decoded_results("/kaggle/inference_outputs_b", run_name=".b")\n',
         "\n",
         "# Base neural predictions with interleaved probability and voting ensemble\n",
         "submission = data.get_submission(decoder.run_selection_algo(score_ensemble))\n",
