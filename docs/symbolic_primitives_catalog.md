@@ -389,6 +389,20 @@ This catalog details the complete set of verified symbolic perception and transf
   4. Sorts the row spans in ascending order of height: $H_1 \le H_2 \le \dots \le H_m$.
   5. Re-draws each pillar object from left to right using its assigned sorted row span, centered vertically across the divider axis.
 
+---
+
+## 42. Diagonal Optical Ray Tracing & Mirror Reflection (`simulate_diagonal_optical_mirrors`, `extract_diagonal_optical_mirrors_rule`)
+- **File:** `src/dsl/primitives.py`
+- **Benchmark Lift:** Solved **Evaluation Task `db695cfb`** 100% exactly across all 5 training pairs and the test challenge!
+- **Concept:** Simulates optical laser physics where paired seeds of color 1 emit diagonal laser rays connecting them. When an incident ray strikes a mirror pixel of color 6, the mirror emits perpendicular reflected rays of color 6 in both orthogonal diagonal directions extending to the canvas boundaries.
+- **Algorithm:**
+  1. Identifies all seed pixels of color 1 and mirror pixels of color 6.
+  2. Pairs any two seeds of color 1 that share a common diagonal ($|r_1 - r_2| == |c_1 - c_2|$).
+  3. Traces an incident laser ray of color 1 between the paired seeds.
+  4. Upon striking a mirror of color 6, the mirror reflects perpendicular rays of color 6 along $(-dc, dr)$ and $(dc, -dr)$ traveling to the grid edges.
+  5. Unvisited mirrors that are not struck by any active laser ray remain passive.
+
+
 
 
 

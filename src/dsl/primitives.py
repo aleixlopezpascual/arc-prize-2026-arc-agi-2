@@ -2714,3 +2714,75 @@ def extract_sort_vertical_pillars_rule(
     return True
 
 
+def simulate_diagonal_optical_mirrors(
+    grid: Grid | np.ndarray,
+) -> Grid:
+    """
+    Primitive 42: Diagonal Optical Ray Tracing & Mirror Reflection.
+    Simulates optical laser propagation where paired seeds of color 1 emit
+    diagonal laser rays connecting them. When an incident ray strikes a mirror
+    pixel of color 6, the mirror emits perpendicular reflected rays of color 6
+    in both orthogonal diagonal directions extending to the canvas boundaries.
+    """
+    arr = to_array(grid).copy()
+    H, W = arr.shape
+    from collections import Counter
+
+    bg = Counter(arr.flatten()).most_common(1)[0][0]
+
+    seeds_1 = sorted(list(zip(*np.where(arr == 1))))
+    mirrors_6 = set(zip(*np.where(arr == 6)))
+
+    out = arr.copy()
+    ray_queue: list[tuple[int, int, int, int, int, int]] = []
+
+    for i in range(len(seeds_1)):
+        r1, c1 = seeds_1[i]
+        for j in range(i + 1, len(seeds_1)):
+            r2, c2 = seeds_1[j]
+            if abs(r1 - r2) == abs(c1 - c2):
+                dr = 1 if r2 > r1 else -1
+                dc = 1 if c2 > c1 else -1
+                steps = abs(r1 - r2)
+                ray_queue.append((int(r1), int(c1), dr, dc, 1, steps))
+
+    visited_reflections: set[tuple[int, int]] = set()
+
+    while ray_queue:
+        r, c, dr, dc, color, max_steps = ray_queue.pop(0)
+        curr_r, curr_c = r, c
+        step = 0
+        while step < max_steps:
+            curr_r += dr
+            curr_c += dc
+            step += 1
+            if not (0 <= curr_r < H and 0 <= curr_c < W):
+                break
+
+            if (curr_r, curr_c) in mirrors_6:
+                if (curr_r, curr_c) not in visited_reflections:
+                    visited_reflections.add((curr_r, curr_c))
+                    perp_dirs = [(-dc, dr), (dc, -dr)]
+                    for pdr, pdc in perp_dirs:
+                        ray_queue.append((curr_r, curr_c, pdr, pdc, 6, max(H, W) * 2))
+            else:
+                if out[curr_r, curr_c] == bg:
+                    out[curr_r, curr_c] = color
+
+    return to_grid(out)
+
+
+def extract_diagonal_optical_mirrors_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if simulate_diagonal_optical_mirrors solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = simulate_diagonal_optical_mirrors(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+

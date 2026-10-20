@@ -29,9 +29,9 @@ An engineering workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle
   - `Hybrid v16`: `29.31%` (Submission ID `57036813`, Cluster Val: `10.0`)
   - `Hybrid v15`: `28.06%` (Submission ID `56979030`, Val: `6.40%`)
   - `Hybrid v13`: `30.14%` (Submission ID `56944583`, Val: `5.0`)
-- **Symbolic Perception Catalog:** **41 Core Knowledge primitive families** (including Ascending Pillar Height Sorting, Multi-Room Partition Overlay, Sokoban Channel Sliding, Liquid Gravity Cavity Flow, Parallel Line Standardization, Bilateral Reflection Symmetry Restoration, Indicator-Ranked Pillars, and Legend Cavity Filling)
+- **Symbolic Perception Catalog:** **42 Core Knowledge primitive families** (including Diagonal Optical Ray Tracing & Mirror Reflection, Ascending Pillar Height Sorting, Multi-Room Partition Overlay, Sokoban Channel Sliding, Liquid Gravity Cavity Flow, Parallel Line Standardization, Bilateral Reflection Symmetry Restoration, Indicator-Ranked Pillars, and Legend Cavity Filling)
 - **Neural Decoding Engine:** **`score_ensemble` Interleaved Dual-Ranking with Physical Invariant Pruning & Cross-Family Pass@2 Selection** (combining maximum likelihood beam probability with consensus voting across dihedral test-time augmentations, with impossible shapes/colors culled)
-- **Unit Test Suite:** **88/88 tests passing** in 0.26s (`tests/test_dsl.py`, `tests/test_metrics.py`, `tests/test_neural.py`)
+- **Unit Test Suite:** **89/89 tests passing** in 0.33s (`tests/test_dsl.py`, `tests/test_metrics.py`, `tests/test_neural.py`)
 
 ---
 

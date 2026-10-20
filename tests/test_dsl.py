@@ -1318,6 +1318,30 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_sort_vertical_pillars_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_simulate_diagonal_optical_mirrors(self):
+        from src.dsl import simulate_diagonal_optical_mirrors, extract_diagonal_optical_mirrors_rule
+
+        # 5x5 canvas with background 0, seeds 1 at (0, 0) and (4, 4), mirror 6 at (2, 2)
+        grid_in = [
+            [1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 6, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1],
+        ]
+        # Diagonal from (0,0) to (4,4) filled with 1. Mirror at (2,2) reflects perpendicular diagonal: (0,4) to (4,0) filled with 6!
+        grid_out = [
+            [1, 0, 0, 0, 6],
+            [0, 1, 0, 6, 0],
+            [0, 0, 6, 0, 0],
+            [0, 6, 0, 1, 0],
+            [6, 0, 0, 0, 1],
+        ]
+        res = simulate_diagonal_optical_mirrors(grid_in)
+        assert res == grid_out
+        assert extract_diagonal_optical_mirrors_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

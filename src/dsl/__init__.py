@@ -101,11 +101,15 @@ from src.dsl.primitives import (
     extract_partitioned_rooms_rule,
     sort_vertical_pillars_ascending,
     extract_sort_vertical_pillars_rule,
+    simulate_diagonal_optical_mirrors,
+    extract_diagonal_optical_mirrors_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "simulate_diagonal_optical_mirrors",
+    "extract_diagonal_optical_mirrors_rule",
     "sort_vertical_pillars_ascending",
     "extract_sort_vertical_pillars_rule",
     "compose_partitioned_rooms",
