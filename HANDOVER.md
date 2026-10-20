@@ -27,8 +27,7 @@
   - `Hybrid v20`: `25.97%` (Submission ID 57264962, Cluster Validation Score: `12.0`!, `SubmissionStatus.COMPLETE`)
   - `Hybrid v21`: `24.44%` (Submission ID 57315906, Cluster Validation Score: `11.5`!, `SubmissionStatus.COMPLETE`)
   - `Hybrid v22`: `22.78%` (Submission ID 57329657, Cluster Validation Score: `12.0`!, `SubmissionStatus.COMPLETE`)
-- **Active Submission in Scoring:**
-  - **Version 23** (Submission ID `57372890`, **Primitive 41 + Cheap-First + Cross-Family**, **Cluster Val: `12.5` (All-Time Record)**, Local Val: `8.72%`!). Status: `SubmissionStatus.PENDING`.
+  - `Hybrid v23`: `23.33%` (Submission ID 57372890, Cluster Validation Score: `12.5`!, `SubmissionStatus.COMPLETE`)
 - **Recent Completed Kernel:** **Version 23** (Validation Score: `12.5` on 4x L4 cluster, cached at `submissions/submission_hybrid_sota_v23.json`).
 
 ---
