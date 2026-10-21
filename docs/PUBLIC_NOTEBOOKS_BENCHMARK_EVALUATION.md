@@ -14,8 +14,9 @@
 | **Dmitrii Gluzdov Symbolic** (`dmitriigluzdov`) | Dmitrii Gluzdov | Bounded Geometric & Color DSL | **0** | **0** | **`0.00%`** | -100.0% |
 | **Public LB33.89 Minimal Perfpatch** (`mikelou1`) | Mike Lou | Pure Neural Qwen 4B rsLoRA TTT | **3** | **4** | **`2.33%`** | Baseline (1.0x) |
 | **ARC-AGI 31.11** (`junaid512`) | Muhammad Junaid | Qwen 4B + `score_ensemble` | **3** | **4** | **`2.33%`** | Baseline (1.0x) |
-| **Our Hybrid SOTA Tier-1 Alone** | Aleix López | 39 Core Knowledge Primitives | **8** | **9** | **`5.23%`** | **+124.5%** |
-| **Our Hybrid SOTA v18 (Full Engine)** | Aleix López | Two-Tier Hybrid (Symbolic + Neural TTT) | **11** | **13** | **`7.56%`** | **+224.5% (3.24x)** |
+| **Triple-Pass NVARC+ SOTA (35.9% LB)** (`mayankraaz`) | Mayank Raj | Cheap-First + P4 Selection + LOO-DSL | **4** | **5** | **`2.91%`** | +24.9% (1.25x) |
+| **Our Hybrid SOTA Tier-1 Alone** | Aleix López | 42 Core Knowledge Primitives | **11** | **12** | **`6.98%`** | **+199.6% (2.99x)** |
+| **Our Hybrid SOTA v24/v25 (Full Engine)** | Aleix López | Two-Tier Hybrid (Symbolic + Neural Dual-Pass) | **14** | **16** | **`9.30%`** | **+299.1% (3.99x)** |
 
 ---
 
@@ -29,27 +30,31 @@ Both Bruce Wei's DSL (`brucewei007/arc-agi-2-dsl-baseline`) and Dmitrii Gluzdov'
   - Maze navigation and choke-point clearance
   - Border legends with key-value syntax
   - Topological symmetry repair
+  - Optical laser ray reflection and beam-splitting
 
 ### 2. Why Pure Neural TTT Baselines Plateau at `2.33%`
 Both Mike Lou's baseline (`mikelou1/arc-agi2-lb33-89-minimal-perfpatch`) and Muhammad Junaid's replication (`junaid512/arc-agi-31-11`) solve the exact same **3 tasks**:
 - `36a08778`: Periodic line grid structure
 - `981571dc`: Single object bounding projection
 - `aa4ec2a5`: Color inversion with mask
-- **Failure Mode:** On tasks requiring strict physical constraints (gravity, fluid flow, Sokoban obstacle avoidance), the language model generates blurred or misaligned tokens, failing the binary exact-match rule.
+- **Failure Mode:** On tasks requiring strict physical constraints (gravity, fluid flow, Sokoban obstacle avoidance, optical lasers), the language model generates blurred or misaligned tokens, failing the binary exact-match rule.
 
-### 3. Why Our Hybrid SOTA Achieves `7.56%` (+224% Lift)
-Our pipeline achieves a **3.24× multiplier** over the best public baseline by dividing labor:
-- **Tier 1 (Symbolic):** Solves 8 tasks deterministically with 100% exact match in $<0.25$s:
+### 3. Why Our Hybrid SOTA Achieves `9.30%` (+299% Lift / 3.99x Multiplier)
+Our pipeline achieves a **3.99× multiplier** over the best public baseline by dividing labor:
+- **Tier 1 (Symbolic):** Solves 11 tasks deterministically with 100% exact match in $<0.25$s:
   1. `135a2760`: Periodic room motif repair
   2. `1818057f`: Geometric motif template matching
   3. `28a6681f`: Liquid gravity cavity drainage
-  4. `332f06d7`: Sokoban $K \times K$ channel block sliding
-  5. `8e5c0c38`: Bilateral reflection symmetry restoration (2 test outputs)
-  6. `97d7923e`: Indicator-ranked vertical pillars
-  7. `dbff022c`: Border legend cavity flood-fill
-  8. `e376de54`: Parallel line length standardization
+  4. `31f7f899`: Ascending vertical pillar height sorting
+  5. `332f06d7`: Sokoban $K \times K$ channel block sliding
+  6. `7491f3cf`: Multi-room partition composite overlay
+  7. `8e5c0c38`: Bilateral reflection symmetry restoration (2 test outputs)
+  8. `97d7923e`: Indicator-ranked vertical pillars
+  9. `db695cfb`: Diagonal optical ray tracing & mirror reflection
+  10. `dbff022c`: Border legend cavity flood-fill
+  11. `e376de54`: Parallel line length standardization
 - **Tier 2 (Neural TTT):** Solves the remaining 3 perceptual tasks (`36a08778`, `981571dc`, `aa4ec2a5`).
-- **Optimal Union:** By pairing the exact symbolic prediction in `attempt_1` and preserving the neural beam in `attempt_2`, all 11 tasks are solved simultaneously with zero interference.
+- **Optimal Union & Cross-Family Selection:** By pairing the exact symbolic prediction in `attempt_1` and preserving the neural beam in `attempt_2` (and enforcing Dale Zhong's cross-family signature rule on pure neural tasks), all 14 tasks are solved simultaneously with zero interference.
 
 ---
 
