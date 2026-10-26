@@ -1,0 +1,265 @@
+docs/superpowers/plans/2026-10-21-arc-baseline-and-adaptive-pass.md
+  s_135dc339f29b29::t_80b16a75612dc2 2,26,48-50,55-57,62-64,69-71,78,80,88,91-93,97-99
+  s_cdd5652a90c0ec::t_4d7f269317b5ff 1,4-5,7-10,12-13,15,19,21,23-24,28-29,39-47,51-54,58-61,67-68,72-77,87,89-90,94-96
+  s_24d139f46b133c::t_c909f12dd28e52 3,6,11,14,16-18,20,22
+HANDOVER.md
+  s_2c0e787e9b9f2b::t_f53af39fd648a8 3,32-33,35
+  s_2c0e787e9b9f2b::t_ba863c8330d67e 34,51
+src/dsl/search.py
+  s_2c0e787e9b9f2b::t_4eb0be9be17ddf 652-661
+  s_2c0e787e9b9f2b::t_9aab49e947e9e5 634-642
+  s_2c0e787e9b9f2b::t_385f6439e21e89 643-651
+  s_2c0e787e9b9f2b::t_376e8e2f4bc5c1 625-633
+src/neural/pass_priority.py
+  s_260d53dc76930b::t_3bad31e64df20b 44
+  s_238a5bb20666d1::t_6b59959181ff00 2-19,21-42
+  s_2a9ac085c6f9f0::t_44749df8d5289b 1,43,45-93
+  s_66531bafe8a405::t_4680ace7f3ed38 20
+tests/test_submission_notebook_builder.py
+  s_ad7ae48ac4af80::t_2cf8ca2b66b368 37,43,87,94,97-98
+  s_225de5bbe7ce98::t_287db60e955d77 95-96
+  s_1b61994232a406::t_b719b3cf33d0a4 1-36,40-41,44-46,59-86,91-93,101-103
+  s_c172bfd0b9604b::t_8032776486cec0 47-58
+  s_7be5643134b3dd::t_b93415d8067648 88-90
+  s_2c0e787e9b9f2b::t_06fd02ae1baad5 276-302
+  s_2c0e787e9b9f2b::t_465d8adc1e972d 377-390
+  s_2c0e787e9b9f2b::t_13fedbfe20fc79 318-319,322-332,334-345
+  s_7be5643134b3dd::t_452235522371b4 38-39
+  s_c172bfd0b9604b::t_87f0a0227ab70e 104-116
+  s_2c0e787e9b9f2b::t_a75bc8ae8d7707 303-317,321,333,346-376
+  s_2c0e787e9b9f2b::t_455be339297770 320
+src/dsl/primitives.py
+  s_2c0e787e9b9f2b::t_b6f4e30ccca2ad 2922-3028,3258
+  s_2c0e787e9b9f2b::t_533e89cf10d1bd 3029-3072,3078-3093,3096-3112,3117-3143,3257
+  s_2c0e787e9b9f2b::t_916b835b44a648 3073-3077,3094-3095,3113-3116
+  s_2c0e787e9b9f2b::t_14951afe3cae29 3144-3223,3227-3256
+  s_2c0e787e9b9f2b::t_c7fc5f3a155184 3224-3226
+  s_2c0e787e9b9f2b::t_4ef76a53969eb3 2788-2921,3259
+docs/superpowers/plans/2026-10-25-attempt2-structural-diversity-reranker.md
+  s_2c0e787e9b9f2b::t_7e1a6157ba079b 1-567
+docs/superpowers/specs/2026-10-25-attempt2-structural-diversity-reranker-design.md
+  s_2c0e787e9b9f2b::t_cb0e18c017ab8d 1-135
+src/tools/build_submission_notebook.py
+  s_e05e579b79bb3e::t_741be053d28d98 339-351,373,432,436,456-463,485,570-588,590-596,605-621,625-628,630-641,643,654,656,658-659,661-662,707,723,755,759,763-764,768,772-788,790-791,802,870,873,881-911,920-926,929,933-935,937-940
+  s_2c0e787e9b9f2b::t_ea851bf650450f 811-830,832-843,865-866
+  s_2c0e787e9b9f2b::t_4caf3b4cc2066c 516-523,539,542-555
+  s_2a0c3ccc864825::t_9773d43c52bff6 359-360,363-364,369,447,451,475,498
+  s_961f4914b0e12a::t_770ba0d0dc0b4f 597,601
+  s_2c0e787e9b9f2b::t_bd21aa69438f5d 382-406,413-417,419-423,428-429
+  s_2a0c3ccc864825::t_f3345f98f20073 3,10-12,14
+  s_af3e6776fa6556::t_5da582f1f3dcbb 7-8
+  s_31ab178a124b44::t_61d093c5583295 354,356-358,362,365-368,370-371
+  s_31ab178a124b44::t_ecbfc6ccd322c2 622-624,642,645-650
+  s_2c0e787e9b9f2b::t_fe52455ae3bdf1 672-688,710,726-741
+.gitignore
+  s_2c0e787e9b9f2b::t_5a47b88adb9f64 21-22
+tests/test_diversity_reranker.py
+  s_2c0e787e9b9f2b::t_c1bde94d550c61 11-12
+  s_2c0e787e9b9f2b::t_2e4de6ca9be4f7 1-10,13-57
+  s_2c0e787e9b9f2b::t_f4b846eba99130 58-110
+README.md
+  s_cdd5652a90c0ec::t_f9301d262411b9 146
+src/dsl/__init__.py
+  s_2c0e787e9b9f2b::t_896dd028e78baf 106-107,125-126
+  s_2c0e787e9b9f2b::t_f3247a95b180e3 110-111,121-122
+  s_2c0e787e9b9f2b::t_a92e6974c73ad5 112-113,119-120
+  s_2c0e787e9b9f2b::t_a9047461a637c1 108-109,123-124
+tests/test_pass_priority.py
+  s_38beac1a111f60::t_fce47912c73ba1 4,10-69
+  s_fb09fd48387647::t_dc0536621b23a2 1,5-8,70-102
+  s_260d53dc76930b::t_51796c117b209d 2-3,9
+  s_6bbc5f578ab68c::t_7d2a964ecaac88 103-106
+src/models/diversity_reranker.py
+  s_2c0e787e9b9f2b::t_0370f08423b236 59-72,77-147
+  s_2c0e787e9b9f2b::t_d71b4a8c408fa5 73-76
+  s_2c0e787e9b9f2b::t_e6d858b90cd69f 1-58
+tests/test_dsl.py
+  s_2c0e787e9b9f2b::t_52d2786861c0bc 1398-1417,1485
+  s_2c0e787e9b9f2b::t_a58fbbd37eb5d6 1344-1372,1487
+  s_2c0e787e9b9f2b::t_28670572fd5fd2 1373-1397,1486
+  s_2c0e787e9b9f2b::t_949ea0fe4a68bf 1418-1449,1484
+  s_2c0e787e9b9f2b::t_60598fbab2cee7 1450-1483
+src/models/hybrid_solver.py
+  s_2c0e787e9b9f2b::t_1495aad7fcd98a 21
+  s_2c0e787e9b9f2b::t_9c9a50b5cf4715 86-96,114,116,120,126,128,130-135,137-138
+docs/experiments.md
+  s_2c0e787e9b9f2b::t_6d14785de67714 42-45,49-58
+  s_2c0e787e9b9f2b::t_abca343ae49f7c 46
+  s_2c0e787e9b9f2b::t_3b51d6b7260d4d 47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "7d2793291cc8245c7327f3546370e9ad1be8ef82",
+  "prompts": {},
+  "sessions": {
+    "s_135dc339f29b29": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "dcee958d-5d66-454c-9713-0c552ea0fffb",
+        "model": "gemini-3.1-pro-preview"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_1b61994232a406": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "cc19e155-f0a0-4c15-aa9a-8afb9770b5d9",
+        "model": "gemini-3.1-pro-preview"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_225de5bbe7ce98": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "32c1ff57-e3df-4936-bd96-85acdb06f9ee",
+        "model": "gemini-3.1-flash-lite"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_238a5bb20666d1": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "3b281dd6-94da-470e-b757-91063007cc11",
+        "model": "gemini-3.1-flash-lite"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_24d139f46b133c": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "fbc00314-d602-46c1-93b9-2de72cba1c4d",
+        "model": "gemini-3.1-pro-preview"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_260d53dc76930b": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "5922e0f0-0205-43fa-a1f5-a706e8c6bf28",
+        "model": "gemini-3.1-flash-lite"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_2a0c3ccc864825": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "bec15cd9-3211-49e1-9984-50c7f910e731",
+        "model": "gemini-3.1-pro-preview"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_2a9ac085c6f9f0": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "f80b0ad3-8860-4dfe-90e6-d2823c561c37",
+        "model": "gemini-3.1-pro-preview"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_2c0e787e9b9f2b": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "2d27286b-4bec-49a9-851f-b8b320ca6feb",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_31ab178a124b44": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "3c56bb07-422e-4c9a-ad5d-aee879c042a2",
+        "model": "gemini-3.1-pro-preview"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_38beac1a111f60": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "ad693922-cf67-40e9-88c9-39f784b52036",
+        "model": "gemini-3.1-pro-preview"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_66531bafe8a405": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "84745a89-56df-45d3-972b-719245b40c87",
+        "model": "gemini-3.1-flash-lite"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_6bbc5f578ab68c": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "62ea0864-ce35-43df-a46f-7fc65e921a8d",
+        "model": "gemini-3.1-flash-lite"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_7be5643134b3dd": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "c5114eb2-2a81-4a17-9a83-a5dfcbc6426e",
+        "model": "gemini-3.1-flash-lite"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_961f4914b0e12a": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "27101cbd-857a-486b-afda-922845971ef3",
+        "model": "gemini-3.1-flash-lite"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_ad7ae48ac4af80": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "9692a038-b65a-4d84-948e-16c26419425d",
+        "model": "gemini-3.1-flash-lite"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_af3e6776fa6556": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "ba5d318f-f163-4cec-8c9e-589e16276a1e",
+        "model": "gemini-3.1-pro-preview"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_c172bfd0b9604b": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "81f768ba-b309-4925-ae9a-cd345435186c",
+        "model": "gemini-3.1-flash-lite"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_cdd5652a90c0ec": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "151437cc-3e17-4597-a026-c76640ba4249",
+        "model": "gemini-3.1-pro-preview"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_e05e579b79bb3e": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "be45b0cd-b1b4-41f1-aeed-ff07d555e310",
+        "model": "gemini-3.1-pro-preview"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    },
+    "s_fb09fd48387647": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "83d5e8f7-7c78-4b3c-ae4b-79c347ce43c4",
+        "model": "gemini-3.1-pro-preview"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
