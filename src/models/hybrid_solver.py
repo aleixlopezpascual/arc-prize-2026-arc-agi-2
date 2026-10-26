@@ -18,6 +18,7 @@ from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 from src.metrics import grid_equal
 from src.neural.augmentation import TaskAugmenter
+from src.models.diversity_reranker import select_diverse_attempt_pair
 
 Grid = list[list[int]]
 
@@ -79,34 +80,20 @@ class HybridSolver:
         test_pairs: list[dict[str, Any]],
     ) -> list[dict[str, Grid]]:
         results: list[dict[str, Grid]] = []
-        best_prog, _ = perfect_programs[0]
 
         for item in test_pairs:
             test_in = item["input"]
-            attempt_1: Grid | None = None
-            attempt_2: Grid | None = None
+            candidates: list[Grid] = []
 
-            try:
-                attempt_1 = best_prog.execute(test_in)
-            except Exception:
-                attempt_1 = [row[:] for row in test_in]
+            for prog, _ in perfect_programs:
+                try:
+                    cand = prog.execute(test_in)
+                    candidates.append(cand)
+                except Exception:
+                    continue
 
-            # Try to pick second distinct program
-            if len(perfect_programs) > 1:
-                for prog, _ in perfect_programs[1:]:
-                    try:
-                        cand2 = prog.execute(test_in)
-                        if not grid_equal(cand2, attempt_1):
-                            attempt_2 = cand2
-                            break
-                    except Exception:
-                        continue
-
-            if attempt_2 is None:
-                alt = reflect_horizontal(test_in)
-                attempt_2 = alt if not grid_equal(alt, attempt_1) else [row[:] for row in test_in]
-
-            results.append({"attempt_1": attempt_1, "attempt_2": attempt_2})
+            a1, a2 = select_diverse_attempt_pair(candidates, fallback_input=test_in)
+            results.append({"attempt_1": a1, "attempt_2": a2})
         return results
 
     def _solve_tier2(self, task: dict[str, Any]) -> list[dict[str, Grid]]:
@@ -124,36 +111,31 @@ class HybridSolver:
         for item in test_pairs:
             test_in = item["input"]
             inp_shape = np.asarray(test_in).shape
+            candidates: list[Grid] = []
 
-            attempt_1: Grid | None = None
-            attempt_2: Grid | None = None
-
-            # Attempt 1: Content crop if target size is smaller, otherwise copy
+            # Candidate 1: Content crop if target size is smaller, otherwise copy
             if fixed_shape and fixed_shape != inp_shape:
-                # Try content crop
                 crop = crop_to_content(test_in, background=0)
                 if np.asarray(crop).shape == fixed_shape:
-                    attempt_1 = crop
+                    candidates.append(crop)
                 else:
-                    # Pad or crop to fixed shape
-                    fh, fw = fixed_shape
                     arr = np.zeros(fixed_shape, dtype=int)
                     copy_h = min(arr.shape[0], inp_shape[0])
                     copy_w = min(arr.shape[1], inp_shape[1])
                     arr[:copy_h, :copy_w] = np.asarray(test_in)[:copy_h, :copy_w]
-                    attempt_1 = arr.tolist()
+                    candidates.append(arr.tolist())
             else:
-                attempt_1 = [row[:] for row in test_in]
+                candidates.append([row[:] for row in test_in])
 
-            # Attempt 2: Symmetric reflection or mode color
-            alt = reflect_vertical(test_in)
-            if not grid_equal(alt, attempt_1):
-                attempt_2 = alt
-            else:
-                alt2 = rotate_180(test_in)
-                attempt_2 = alt2 if not grid_equal(alt2, attempt_1) else [row[:] for row in test_in]
+            # Candidate transforms for diversity pool
+            for fn in (reflect_vertical, reflect_horizontal, rotate_180, rotate_90):
+                try:
+                    candidates.append(fn(test_in))
+                except Exception:
+                    continue
 
-            results.append({"attempt_1": attempt_1, "attempt_2": attempt_2})
+            a1, a2 = select_diverse_attempt_pair(candidates, fallback_input=test_in)
+            results.append({"attempt_1": a1, "attempt_2": a2})
 
         return results
 

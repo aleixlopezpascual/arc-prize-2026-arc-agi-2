@@ -143,6 +143,7 @@ An exhaustive deep dive across all 100 public kernels on Kaggle revealed:
 | Document | Purpose / Key Contents |
 | :--- | :--- |
 | **[`README.md`](README.md)** | Master guide, live leaderboard standing, system overview, and developer workflows |
+| **[`docs/superpowers/plans/2026-10-21-arc-baseline-and-adaptive-pass.md`](docs/superpowers/plans/2026-10-21-arc-baseline-and-adaptive-pass.md)** | Adaptive Pass Baseline & Uncertainty Testing Implementation Plan |
 | **[`docs/hybrid_architecture.md`](docs/hybrid_architecture.md)** | Technical specification of Two-Tier Hybrid Solver and mathematical proof of optimal 2-attempt union |
 | **[`docs/symbolic_primitives_catalog.md`](docs/symbolic_primitives_catalog.md)** | Full catalog of 15+ symbolic primitives, algorithms, and ARC tasks they crack |
 | **[`docs/kaggle_operations_guide.md`](docs/kaggle_operations_guide.md)** | Operations manual: container pinning, builder compile gate, auto-submit watcher, and GPU quotas |

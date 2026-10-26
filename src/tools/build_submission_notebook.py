@@ -1,10 +1,20 @@
 from __future__ import annotations
 
+import argparse
 import json
+import textwrap
 from pathlib import Path
+from typing import Literal
 
 
-def build():
+def build(
+    output_path: Path | None = None,
+    validation_mode: Literal["submission", "train", "eval"] = "submission",
+    pass_b_policy: Literal["broad", "uncertainty", "paired"] = "broad",
+) -> Path:
+    if pass_b_policy == "paired" and validation_mode != "train":
+        raise ValueError("The paired Pass-B validation mode is only supported for train CV.")
+
     base_nb_path = Path(
         "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/notebooks/public_baselines/lb33_89/arc-agi2-lb33-89-minimal-perfpatch.ipynb"
     )
@@ -233,6 +243,26 @@ def score_ensemble(guesses):
 
     # Cell 6: arc_solver.py (with deterministic CRC32 seeding and dynamic task timeouts)
     solver_source = "".join(base_nb["cells"][5]["source"])
+    worker_dataset_selection = """    if rerun_mode:
+        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"
+    else:
+        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"""
+    worker_validation_selection = """    validation_mode = os.getenv("ARC_VALIDATION_MODE", "submission")
+    if validation_mode == "train":
+        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_training_challenges.json"
+        if not os.path.exists(test_path):
+            test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_training_challenges.json"
+    elif validation_mode == "eval":
+        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
+        if not os.path.exists(test_path):
+            test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
+    elif rerun_mode:
+        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"
+    else:
+        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"""
+    if worker_dataset_selection not in solver_source:
+        raise ValueError("Could not find the expected worker dataset selection block.")
+    solver_source = solver_source.replace(worker_dataset_selection, worker_validation_selection)
     if "import zlib" not in solver_source:
         solver_source = solver_source.replace(
             "import bz2\nimport pickle\n", "import bz2\nimport pickle\nimport zlib\n"
@@ -305,8 +335,42 @@ def score_ensemble(guesses):
         }
     )
 
+    if pass_b_policy in ('uncertainty', 'paired'):
+        pass_priority_py = Path(
+            "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/src/neural/pass_priority.py"
+        ).read_text()
+        cells.append(
+            {
+                "cell_type": "code",
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
+                "source": ["%%writefile pass_priority.py\n" + pass_priority_py],
+            }
+        )
+
+    if pass_b_policy in ('uncertainty', 'paired'):
+        uncertainty_routing = """    if os.getenv("ARC_PASS_B_POLICY", "broad") == "uncertainty" and os.path.exists("/kaggle/working/pass_b_uncertainty.json"):
+        import pass_priority
+        with open("/kaggle/working/pass_b_uncertainty.json", "r") as f:
+            unc_map = json.load(f)
+
+        # Rank hard tasks
+        work_map = {k: estimated_work(data[k]) for k in hard_tasks}
+        hard_tasks = pass_priority.rank_tasks_by_uncertainty({k: unc_map.get(k, 1.0) for k in hard_tasks}, work_map)
+
+        # Rank easy tasks
+        easy_work_map = {k: estimated_work(data[k]) for k in easy_tasks}
+        easy_tasks = pass_priority.rank_tasks_by_uncertainty({k: unc_map.get(k, 1.0) for k in easy_tasks}, easy_work_map)
+    else:
+        hard_tasks = sorted(hard_tasks, key=lambda k: estimated_work(data[k]))
+        """
+    else:
+        uncertainty_routing = """    hard_tasks = sorted(hard_tasks, key=lambda k: estimated_work(data[k]))
+"""
+
     # Cell 7: starter.py (with Deficit-First Routing)
-    starter_source = """%%writefile starter.py
+    starter_source = f"""%%writefile starter.py
 import os
 import time
 import json
@@ -315,27 +379,61 @@ import argparse
 import torch.multiprocessing as mp
 
 
+def cleanup_barriers(barrier_dir=None, barrier_tag=None):
+    if barrier_dir is None:
+        barrier_dir = os.environ.get("ARC_BARRIER_DIR", "/kaggle")
+    if barrier_tag is None:
+        barrier_tag = os.environ.get("ARC_BARRIER_TAG", "")
+    if not os.path.isdir(barrier_dir):
+        return
+    prefix = f"worker_{{barrier_tag}}_" if barrier_tag else "worker"
+    for r in range(4):
+        bf = os.path.join(barrier_dir, f"{{prefix}}{{r}}")
+        try:
+            if os.path.isfile(bf):
+                os.remove(bf)
+        except OSError:
+            pass
+    if barrier_tag:
+        for r in range(4):
+            bf = os.path.join(barrier_dir, f"worker{{r}}")
+            try:
+                if os.path.isfile(bf):
+                    os.remove(bf)
+            except OSError:
+                pass
+
+
 def local_worker(rank, queue, end_time):
     
     os.environ["CUDA_VISIBLE_DEVICES"] = str(rank)
 
     torch.set_default_device("cpu")
 
-    # Fix Unsloth patching issue
+    barrier_dir = os.environ.get("ARC_BARRIER_DIR", "/kaggle")
+    barrier_tag = os.environ.get("ARC_BARRIER_TAG", "")
+    prefix = f"worker_{{barrier_tag}}_" if barrier_tag else "worker"
+
+    # Fix Unsloth patching issue: stagger worker imports so rank 0 patches cleanly first
     if rank > 0:
-        while not os.path.exists(f"/kaggle/worker{rank-1}"):
+        prev_barrier = os.path.join(barrier_dir, f"{{prefix}}{{rank-1}}")
+        wait_start = time.time()
+        while not os.path.exists(prev_barrier):
+            if time.time() - wait_start > 300:
+                raise TimeoutError(f"[Rank {{rank}}] Timed out waiting for barrier {{prev_barrier}}")
             time.sleep(5)
     
     from arc_solver import worker
 
-    with open(f"/kaggle/worker{rank}", "w") as f:
+    barrier_file = os.path.join(barrier_dir, f"{{prefix}}{{rank}}")
+    with open(barrier_file, "w") as f:
         f.write("Ok")
     
-    print(f"[Rank {rank}] start!")
+    print(f"[Rank {{rank}}] start!")
     
     worker(rank, queue, end_time)
     
-    print(f"[Rank {rank}] done!")
+    print(f"[Rank {{rank}}] done!")
 
 
 if __name__ == "__main__":
@@ -346,14 +444,23 @@ if __name__ == "__main__":
 
     rerun_mode = os.getenv("KAGGLE_IS_COMPETITION_RERUN")
 
-    if rerun_mode:
-        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"
+    if {validation_mode!r} == 'train':
+        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_training_challenges.json"
         if not os.path.exists(test_path):
-            test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"
-    else:
+            test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_training_challenges.json"
+    elif {validation_mode!r} == 'eval':
         test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
         if not os.path.exists(test_path):
             test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
+    else:
+        if rerun_mode:
+            test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"
+            if not os.path.exists(test_path):
+                test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"
+        else:
+            test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
+            if not os.path.exists(test_path):
+                test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
 
     with open(test_path, "r") as f:
         data = json.load(f)
@@ -365,7 +472,7 @@ if __name__ == "__main__":
     hard_tasks = []
 
     for key in sorted(data.keys()):
-        if not rerun_mode:
+        if {validation_mode!r} == 'submission' and not rerun_mode:
             if key not in ["0934a4d8", "36a08778", "981571dc", "aa4ec2a5"]:
                 continue
         task_train = data[key]["train"]
@@ -375,7 +482,7 @@ if __name__ == "__main__":
         else:
             hard_tasks.append(key)
 
-    print(f"*** Deficit-First Routing: {len(easy_tasks)} Tier-1 Solved | {len(hard_tasks)} Hard (Expanded-TTT)")
+    print(f"*** Deficit-First Routing: {{len(easy_tasks)}} Tier-1 Solved | {{len(hard_tasks)}} Hard (Expanded-TTT)")
 
     # Cheap-First Work Estimator: sort hard tasks so compact, highly solvable grids are processed first!
     def estimated_work(task):
@@ -388,7 +495,7 @@ if __name__ == "__main__":
         test_tokens = sum(ntok(t["input"]) * (1 + ratio) for t in task["test"])
         return train_tokens * 16 + test_tokens * 8 * len(task["test"])
 
-    hard_tasks = sorted(hard_tasks, key=lambda k: estimated_work(data[k]))
+{uncertainty_routing}
 
     # Hard tasks get expanded 720s timeout (+33%), easy tasks get fast 90s timeout
     hard_timeout = 720.0
@@ -406,7 +513,14 @@ if __name__ == "__main__":
     for _ in range(4):
         queue.put(None)
     
-    mp.spawn(local_worker, args=(queue, args.end_time), nprocs=4)
+    barrier_dir = os.environ.get("ARC_BARRIER_DIR", "/kaggle")
+    barrier_tag = os.environ.get("ARC_BARRIER_TAG", "")
+    cleanup_barriers(barrier_dir, barrier_tag)
+
+    try:
+        mp.spawn(local_worker, args=(queue, args.end_time), nprocs=4)
+    finally:
+        cleanup_barriers(barrier_dir, barrier_tag)
 """
     cells.append(
         {
@@ -422,8 +536,23 @@ if __name__ == "__main__":
     multi_pass_runner = """import os
 import sys
 import time
+import glob
 import subprocess
 
+
+def cleanup_kaggle_barriers():
+    barrier_dir = os.environ.get("ARC_BARRIER_DIR", "/kaggle")
+    if os.path.isdir(barrier_dir):
+        for pattern in ("worker*", "worker_*"):
+            for bf in glob.glob(os.path.join(barrier_dir, pattern)):
+                if os.path.isfile(bf):
+                    try:
+                        os.remove(bf)
+                    except OSError:
+                        pass
+
+
+cleanup_kaggle_barriers()
 print("=== [Pass A] Starting Primary Half-Cost TTT Run (Seed 1, ARC_N_TRAIN_AUG=8) ===")
 env_a = dict(
     os.environ,
@@ -438,9 +567,147 @@ subprocess.call([sys.executable, "starter.py", "--end-time", f"{global_end_time}
 
 time_remaining = global_end_time - time.time()
 print(f"[*] Pass A finished. Remaining wall-clock time: {time_remaining/60:.1f} minutes")
+"""
 
+    if pass_b_policy == "paired":
+        pass_a_log_marker = 'print("=== [Pass A] Starting Primary Half-Cost TTT Run (Seed 1, ARC_N_TRAIN_AUG=8) ===")\n'
+        pass_a_call_marker = 'subprocess.call([sys.executable, "starter.py", "--end-time", f"{global_end_time}"], env=env_a)'
+        if multi_pass_runner.count(pass_a_log_marker) != 1 or multi_pass_runner.count(pass_a_call_marker) != 1:
+            raise ValueError("Could not locate the standard Pass-A runner template.")
+        multi_pass_runner = multi_pass_runner.replace(
+            pass_a_log_marker,
+            "paired_run_start = time.time()\n"
+            "paired_inference_deadline = global_end_time - 600\n"
+            "pass_a_end_time = paired_run_start + max(0.0, (paired_inference_deadline - paired_run_start) * 0.5)\n"
+            + pass_a_log_marker,
+        )
+        multi_pass_runner = multi_pass_runner.replace(
+            pass_a_call_marker,
+            'subprocess.run([sys.executable, "starter.py", "--end-time", str(pass_a_end_time)], env=env_a, check=True)',
+        )
+
+    if pass_b_policy in ('uncertainty', 'paired'):
+        multi_pass_runner += f"""
+print("=== Computing Pass-A Uncertainty Map ===")
+import json
+from arc_loader import ArcDataset
+from arc_decoder import ArcDecoder, score_full_probmul_3, score_kgmon, hashable, filter_valid_guesses
+from pass_priority import uncertainty_from_candidate_evidence
+
+if {validation_mode!r} == 'train':
+    test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_training_challenges.json"
+    if not os.path.exists(test_path):
+        test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_training_challenges.json"
+elif {validation_mode!r} == 'eval':
+    test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
+    if not os.path.exists(test_path):
+        test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
+else:
+    rerun_mode = os.getenv("KAGGLE_IS_COMPETITION_RERUN")
+    if rerun_mode:
+        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"
+        if not os.path.exists(test_path):
+            test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"
+    else:
+        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
+        if not os.path.exists(test_path):
+            test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
+
+try:
+    data = ArcDataset.from_file(test_path)
+    decoder = ArcDecoder(data.split_multi_replies(), n_guesses=2)
+    decoder.load_decoded_results("/kaggle/inference_outputs")
+
+    unc_map = {{}}
+    task_unc_list = {{}}
+    for output_key, guesses_dict in decoder.decoded_results.items():
+        task_id = output_key.rsplit('_', 1)[0]
+        valid_guesses = filter_valid_guesses(guesses_dict)
+
+        ranked_prob = score_full_probmul_3(guesses_dict)
+        prob_strs = [str(hashable(g)) for g in ranked_prob]
+
+        ranked_vote = score_kgmon(guesses_dict)
+        vote_strs = [str(hashable(g)) for g in ranked_vote]
+
+        guess_list = list(valid_guesses.values())
+        vote_counts = {{}}
+        for g in guess_list:
+            h_str = str(hashable(g["solution"]))
+            vote_counts[h_str] = vote_counts.get(h_str, 0) + 1
+
+        try:
+            unc = uncertainty_from_candidate_evidence(prob_strs, vote_strs, vote_counts)
+        except Exception as e:
+            print(f"Error computing uncertainty for output {{output_key}}: {{e}}")
+            unc = 1.0
+
+        if task_id not in task_unc_list:
+            task_unc_list[task_id] = []
+        task_unc_list[task_id].append(unc)
+
+    for task_id, uncs in task_unc_list.items():
+        unc_map[task_id] = sum(uncs) / len(uncs)
+
+    if not unc_map:
+        raise ValueError("Pass A produced no candidate uncertainty evidence.")
+
+    with open("/kaggle/working/pass_b_uncertainty.json", "w") as f:
+        json.dump(unc_map, f)
+    print(f"Successfully wrote Pass-A Uncertainty Map for {{len(unc_map)}} task IDs.")
+except Exception as main_e:
+    print(f"Failed to generate uncertainty map: {{main_e}}")
+    raise RuntimeError("Pass-A uncertainty map generation failed") from main_e
+
+"""
+
+    if pass_b_policy == "paired":
+        multi_pass_runner += """
+# Both Pass-B arms reuse the exact same frozen Pass-A output directory.
+pass_b_arm_budget = max(0.0, (paired_inference_deadline - time.time()) / 2.0)
+if pass_b_arm_budget < 900:
+    raise RuntimeError("Insufficient time to give both paired Pass-B arms a minimum budget.")
+
+print("=== [Paired Pass B 1/2] Broad ordering, Seed 137 ===")
+cleanup_kaggle_barriers()
+broad_end_time = min(paired_inference_deadline, time.time() + pass_b_arm_budget)
+env_broad = dict(
+    os.environ,
+    UNSLOTH_DISABLE_STATISTICS="1",
+    TRITON_PTXAS_PATH="/usr/local/cuda/bin/ptxas",
+    OMP_NUM_THREADS="12",
+    ARC_N_TRAIN_AUG="8",
+    ARC_SEED="137",
+    ARC_OUT_DIR="/kaggle/inference_outputs_broad",
+)
+subprocess.run([sys.executable, "starter.py", "--end-time", str(broad_end_time)], env=env_broad, check=True)
+if not any(os.scandir("/kaggle/inference_outputs_broad")):
+    raise RuntimeError("Broad Pass B produced no candidate files.")
+
+print("=== [Paired Pass B 2/2] Uncertainty ordering, Seed 137 ===")
+cleanup_kaggle_barriers()
+uncertainty_time_remaining = paired_inference_deadline - time.time()
+if uncertainty_time_remaining < 900:
+    raise RuntimeError("The broad arm overran the paired budget; refusing an unmatched uncertainty arm.")
+uncertainty_end_time = min(paired_inference_deadline, time.time() + pass_b_arm_budget)
+env_uncertainty = dict(
+    os.environ,
+    UNSLOTH_DISABLE_STATISTICS="1",
+    TRITON_PTXAS_PATH="/usr/local/cuda/bin/ptxas",
+    OMP_NUM_THREADS="12",
+    ARC_N_TRAIN_AUG="8",
+    ARC_SEED="137",
+    ARC_OUT_DIR="/kaggle/inference_outputs_uncertainty",
+)
+subprocess.run([sys.executable, "starter.py", "--end-time", str(uncertainty_end_time)], env=env_uncertainty, check=True)
+if not any(os.scandir("/kaggle/inference_outputs_uncertainty")):
+    raise RuntimeError("Uncertainty Pass B produced no candidate files.")
+"""
+    else:
+        multi_pass_runner += """
 # Pass B: Secondary independent pass with Seed 137 if remaining time > 15 minutes
 if time_remaining > 900:
+    cleanup_kaggle_barriers()
     print("=== [Pass B] Starting Secondary Independent TTT Run (Seed 137, ARC_N_TRAIN_AUG=8) ===")
     env_b = dict(
         os.environ,
@@ -453,6 +720,27 @@ if time_remaining > 900:
     )
     subprocess.call([sys.executable, "starter.py", "--end-time", f"{global_end_time}"], env=env_b)
 """
+
+    validation_mode_env = f'    ARC_VALIDATION_MODE="{validation_mode}",\n'
+    output_policies = {
+        "/kaggle/inference_outputs": ("broad", "pass_a"),
+        "/kaggle/inference_outputs_b": ("uncertainty" if pass_b_policy == "uncertainty" else "broad", "pass_b"),
+        "/kaggle/inference_outputs_broad": ("broad", "pass_b_broad"),
+        "/kaggle/inference_outputs_uncertainty": ("uncertainty", "pass_b_uncertainty"),
+    }
+    for output_dir, (route_policy, barrier_tag) in output_policies.items():
+        marker = f'    ARC_OUT_DIR="{output_dir}",\n'
+        occurrences = multi_pass_runner.count(marker)
+        if occurrences > 1:
+            raise ValueError(f"Expected at most one environment block for {output_dir}.")
+        if occurrences == 1:
+            route_env = (
+                validation_mode_env
+                + f'    ARC_PASS_B_POLICY="{route_policy}",\n'
+                + f'    ARC_BARRIER_TAG="{barrier_tag}",\n'
+            )
+            multi_pass_runner = multi_pass_runner.replace(marker, marker + route_env)
+
     cells.append(
         {
             "cell_type": "code",
@@ -464,6 +752,43 @@ if time_remaining > 900:
     )
 
     # Cell 9: Hybrid merge and submission
+    if validation_mode == 'train':
+        cell9_paths = """    test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_training_challenges.json"
+    if not os.path.exists(test_path):
+        test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_training_challenges.json"
+    data = ArcDataset.from_file(test_path)
+    sol_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_training_solutions.json"
+    if not os.path.exists(sol_path):
+        sol_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_training_solutions.json"
+    data = data.load_replies(sol_path)"""
+    elif validation_mode == 'eval':
+        cell9_paths = """    test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
+    if not os.path.exists(test_path):
+        test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
+    data = ArcDataset.from_file(test_path)
+    sol_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_solutions.json"
+    if not os.path.exists(sol_path):
+        sol_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_evaluation_solutions.json"
+    data = data.load_replies(sol_path)"""
+    else: # submission
+        cell9_paths = """    if rerun_mode:
+        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"
+        if not os.path.exists(test_path):
+            test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"
+        data = ArcDataset.from_file(test_path)
+    else:
+        eval_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
+        if not os.path.exists(eval_path):
+            eval_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
+        data = ArcDataset.from_file(eval_path)
+        sol_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_solutions.json"
+        if not os.path.exists(sol_path):
+            sol_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_evaluation_solutions.json"
+        data = data.load_replies(sol_path)"""
+
+    cell9_paths = textwrap.dedent(cell9_paths)
+    output_filename = "validation_predictions.json" if validation_mode in ('train', 'eval') else "submission.json"
+
     merge_lines = [
         "import os\n",
         "import json\n",
@@ -474,20 +799,7 @@ if time_remaining > 900:
         "\n",
         'rerun_mode = os.getenv("KAGGLE_IS_COMPETITION_RERUN")\n',
         "\n",
-        "if rerun_mode:\n",
-        '    test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"\n',
-        "    if not os.path.exists(test_path):\n",
-        '        test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"\n',
-        "    data = ArcDataset.from_file(test_path)\n",
-        "else:\n",
-        '    eval_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"\n',
-        "    if not os.path.exists(eval_path):\n",
-        '        eval_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"\n',
-        "    data = ArcDataset.from_file(eval_path)\n",
-        '    sol_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_solutions.json"\n',
-        "    if not os.path.exists(sol_path):\n",
-        '        sol_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_evaluation_solutions.json"\n',
-        "    data = data.load_replies(sol_path)\n",
+        cell9_paths + "\n",
         "\n",
         "decoder = ArcDecoder(data.split_multi_replies(), n_guesses=2)\n",
         'print("[*] Loading Pass A decoded candidates from /kaggle/inference_outputs...")\n',
@@ -496,8 +808,39 @@ if time_remaining > 900:
         '    print("[*] Pooling Pass B candidates from /kaggle/inference_outputs_b into ArcDecoder...")\n',
         '    decoder.load_decoded_results("/kaggle/inference_outputs_b", run_name=".b")\n',
         "\n",
+        "# Diversity Selection Helper: ensures Attempt 2 is structurally distinct from Attempt 1\n",
+        "def select_diverse_pair(cand_list, fallback=None):\n",
+        "    clean = [c for c in cand_list if c is not None]\n",
+        "    if not clean:\n",
+        "        fb = [[0]] if fallback is None else (fallback.tolist() if hasattr(fallback, 'tolist') else fallback)\n",
+        "        return fb, fb\n",
+        "    a1 = clean[0].tolist() if hasattr(clean[0], 'tolist') else clean[0]\n",
+        "    for c in clean[1:]:\n",
+        "        c_list = c.tolist() if hasattr(c, 'tolist') else c\n",
+        "        if np.shape(c_list) != np.shape(a1):\n",
+        "            return a1, c_list\n",
+        "        diff = int(np.sum(np.asarray(c_list) != np.asarray(a1)))\n",
+        "        if diff >= 2 and (diff / np.asarray(a1).size) >= 0.05:\n",
+        "            return a1, c_list\n",
+        "    for c in clean[1:]:\n",
+        "        c_list = c.tolist() if hasattr(c, 'tolist') else c\n",
+        "        if not np.array_equal(np.asarray(c_list), np.asarray(a1)):\n",
+        "            return a1, c_list\n",
+        "    return a1, a1\n",
+        "\n",
         "# Base neural predictions with interleaved probability and voting ensemble\n",
-        "submission = data.get_submission(decoder.run_selection_algo(score_ensemble))\n",
+        "neural_raw_results = decoder.run_selection_algo(score_ensemble)\n",
+        "submission = data.get_submission(neural_raw_results)\n",
+        "\n",
+        "# Apply structural diversity reranking across base neural predictions\n",
+        "for base_key, ordered_cands in neural_raw_results.items():\n",
+        "    if '_' in base_key:\n",
+        "        t_id, sub_idx = base_key.split('_')\n",
+        "        sub_i = int(sub_idx)\n",
+        "        if t_id in submission and sub_i < len(submission[t_id]):\n",
+        "            c1, c2 = select_diverse_pair(ordered_cands, fallback=submission[t_id][sub_i].get('attempt_1'))\n",
+        "            submission[t_id][sub_i]['attempt_1'] = c1\n",
+        "            submission[t_id][sub_i]['attempt_2'] = c2\n",
         "\n",
         "# Tier 1 Symbolic Induction Filter\n",
         'print("*** Running Tier 1 Symbolic Verification pre-pass...")\n',
@@ -519,17 +862,15 @@ if time_remaining > 900:
         '                sym_cand = sym_item["attempt_1"]\n',
         "                # Optimal 2-attempt union: keep top neural guess if distinct from symbolic\n",
         '                submission[task_id][i]["attempt_1"] = sym_cand\n',
-        "                if arc_dsl.grid_equal(sym_cand, base_cand_1):\n",
-        '                    submission[task_id][i]["attempt_2"] = base_cand_2\n',
-        "                else:\n",
-        '                    submission[task_id][i]["attempt_2"] = base_cand_1\n',
+        "                _, div_cand = select_diverse_pair([sym_cand, base_cand_1, base_cand_2], fallback=sym_cand)\n",
+        '                submission[task_id][i]["attempt_2"] = div_cand\n',
         "\n",
         'print(f"*** Tier 1 Symbolic Verified Hits: {tier1_hits}/{len(data.queries)} tasks")\n',
         "\n",
-        'with open("submission.json", "w") as f:\n',
+        f'with open("{output_filename}", "w") as f:\n',
         "    json.dump(submission, f)\n",
         "\n",
-        'with open("submission.json", "r") as f:\n',
+        f'with open("{output_filename}", "r") as f:\n',
         "    reload_submission = json.load(f)\n",
         "\n",
         "if not rerun_mode:\n",
@@ -537,15 +878,37 @@ if time_remaining > 900:
         '    print("*** Final Hybrid Validation score:", data.validate_submission(reload_submission))\n',
     ]
 
-    cells.append(
-        {
-            "cell_type": "code",
-            "execution_count": None,
-            "metadata": {},
-            "outputs": [],
-            "source": merge_lines,
-        }
-    )
+    if pass_b_policy == "paired":
+        # Skip the notebook's internal benchmark; the paired outputs are scored locally via src.metrics.
+        merge_lines = merge_lines[:-3]
+        for pass_b_dir, prediction_name in (
+            ("/kaggle/inference_outputs_broad", "validation_predictions_broad.json"),
+            ("/kaggle/inference_outputs_uncertainty", "validation_predictions_uncertainty.json"),
+        ):
+            paired_merge_lines = [
+                line.replace("/kaggle/inference_outputs_b", pass_b_dir)
+                .replace("validation_predictions.json", prediction_name)
+                for line in merge_lines
+            ]
+            cells.append(
+                {
+                    "cell_type": "code",
+                    "execution_count": None,
+                    "metadata": {},
+                    "outputs": [],
+                    "source": paired_merge_lines,
+                }
+            )
+    else:
+        cells.append(
+            {
+                "cell_type": "code",
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
+                "source": merge_lines,
+            }
+        )
 
     out_nb = {
         "cells": cells,
@@ -554,12 +917,24 @@ if time_remaining > 900:
         "nbformat_minor": 4,
     }
 
-    dst_path = Path(
-        "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/notebooks/submissions/hybrid_sota_v1/submission_kernel.ipynb"
-    )
+    if output_path is None:
+        dst_path = Path(
+            "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/notebooks/submissions/hybrid_sota_v1/submission_kernel.ipynb"
+        )
+    else:
+        dst_path = output_path
+
     dst_path.write_text(json.dumps(out_nb, indent=1))
     print(f"Successfully generated hybrid submission notebook at {dst_path}")
+    return dst_path
 
 
 if __name__ == "__main__":
-    build()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", type=str, default=None, help="Output path for the notebook")
+    parser.add_argument("--validation-mode", type=str, choices=["submission", "train", "eval"], default="submission")
+    parser.add_argument("--pass-b-policy", type=str, choices=["broad", "uncertainty", "paired"], default="broad")
+    args = parser.parse_args()
+
+    out_path = Path(args.output) if args.output else None
+    build(output_path=out_path, validation_mode=args.validation_mode, pass_b_policy=args.pass_b_policy)

@@ -103,11 +103,27 @@ from src.dsl.primitives import (
     extract_sort_vertical_pillars_rule,
     simulate_diagonal_optical_mirrors,
     extract_diagonal_optical_mirrors_rule,
+    transfer_circuit_tokens,
+    extract_circuit_tokens_rule,
+    generate_room_histogram,
+    extract_room_histogram_rule,
+    slide_particles_by_legend_compass,
+    extract_legend_compass_sliding_rule,
+    simulate_projectile_cannons,
+    extract_projectile_cannons_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "simulate_projectile_cannons",
+    "extract_projectile_cannons_rule",
+    "slide_particles_by_legend_compass",
+    "extract_legend_compass_sliding_rule",
+    "generate_room_histogram",
+    "extract_room_histogram_rule",
+    "transfer_circuit_tokens",
+    "extract_circuit_tokens_rule",
     "simulate_diagonal_optical_mirrors",
     "extract_diagonal_optical_mirrors_rule",
     "sort_vertical_pillars_ascending",

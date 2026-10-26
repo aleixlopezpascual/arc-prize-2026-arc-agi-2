@@ -1341,6 +1341,150 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_diagonal_optical_mirrors_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_transfer_circuit_tokens(self):
+        from src.dsl import transfer_circuit_tokens, extract_circuit_tokens_rule
+
+        # 8x8 grid with two 3x3 stamps: stamp 3 (center 4) and stamp 4 (center 2)
+        # Stamp 3 points to stamp 4, so stamp 3 receives token 2 and stamp 4 is erased
+        grid_in = [
+            [3, 3, 3, 0, 0, 0, 0, 0],
+            [3, 4, 3, 5, 5, 0, 0, 0],
+            [3, 3, 3, 0, 5, 0, 0, 0],
+            [0, 0, 0, 0, 5, 5, 5, 0],
+            [0, 0, 0, 0, 0, 4, 4, 4],
+            [0, 0, 0, 0, 0, 4, 2, 4],
+            [0, 0, 0, 0, 0, 4, 4, 4],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+        ]
+        grid_out = [
+            [3, 3, 3, 0, 0, 0, 0, 0],
+            [3, 2, 3, 5, 5, 0, 0, 0],
+            [3, 3, 3, 0, 5, 0, 0, 0],
+            [0, 0, 0, 0, 5, 5, 5, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+        ]
+        res = transfer_circuit_tokens(grid_in)
+        assert res == grid_out
+        assert extract_circuit_tokens_rule([{"input": grid_in, "output": grid_out}])
+
+    def test_generate_room_histogram(self):
+        from src.dsl import generate_room_histogram, extract_room_histogram_rule
+
+        # Synthetic grid with noise 5, a 4x4 box of 1s (1 room) and two side-by-side 4x4 boxes of 2s (2 rooms)
+        grid_in = [
+            [1, 1, 1, 1, 0, 5, 0, 0, 0, 0],
+            [1, 0, 0, 1, 0, 0, 0, 5, 0, 0],
+            [1, 0, 0, 1, 0, 5, 0, 0, 0, 0],
+            [1, 1, 1, 1, 0, 0, 0, 0, 5, 0],
+            [0, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 2, 2, 2, 2, 2, 2, 2, 0],
+            [5, 0, 2, 0, 0, 2, 0, 0, 2, 0],
+            [0, 0, 2, 0, 0, 2, 0, 0, 2, 0],
+            [0, 0, 2, 2, 2, 2, 2, 2, 2, 0],
+            [0, 5, 0, 0, 0, 0, 5, 0, 0, 0],
+        ]
+        # Expected output: 1 of color 1 (padded with 5 to width 2), and 2 of color 2
+        grid_out = [
+            [1, 5],
+            [2, 2],
+        ]
+        res = generate_room_histogram(grid_in)
+        assert res == grid_out
+        assert extract_room_histogram_rule([{"input": grid_in, "output": grid_out}])
+
+    def test_hybrid_solver_generates_diverse_attempts(self):
+        from src.models.hybrid_solver import HybridSolver
+
+        solver = HybridSolver()
+        # Task with identity transform
+        task = {
+            "train": [
+                {"input": [[1, 2], [3, 4]], "output": [[1, 2], [3, 4]]}
+            ],
+            "test": [
+                {"input": [[5, 6], [7, 8]]}
+            ]
+        }
+        preds = solver.solve_task(task)
+        assert len(preds) == 1
+        assert "attempt_1" in preds[0]
+        assert "attempt_2" in preds[0]
+        # Attempt 1 and Attempt 2 must never be bitwise identical
+        assert preds[0]["attempt_1"] != preds[0]["attempt_2"]
+
+    def test_slide_particles_by_legend_compass(self):
+        from src.dsl import slide_particles_by_legend_compass, extract_legend_compass_sliding_rule
+
+        # 10x10 canvas: legend box of 5s at (0, 0), vector (1, 0) pointing DOWN towards obstacle of 5s at row 8
+        grid_in = [
+            [5, 5, 5, 5, 5, 0, 0, 0, 0, 0],
+            [5, 0, 1, 0, 5, 0, 0, 0, 0, 0],
+            [5, 0, 0, 0, 5, 0, 0, 0, 0, 0],
+            [5, 0, 2, 0, 5, 0, 0, 0, 0, 0],
+            [5, 5, 5, 5, 5, 4, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 5, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ]
+        grid_out = [
+            [5, 5, 5, 5, 5, 0, 0, 0, 0, 0],
+            [5, 0, 1, 0, 5, 0, 0, 0, 0, 0],
+            [5, 0, 0, 0, 5, 0, 0, 0, 0, 0],
+            [5, 0, 2, 0, 5, 0, 0, 0, 0, 0],
+            [5, 5, 5, 5, 5, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 4, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 5, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ]
+        res = slide_particles_by_legend_compass(grid_in)
+        assert res == grid_out
+        assert extract_legend_compass_sliding_rule([{"input": grid_in, "output": grid_out}])
+
+    def test_simulate_projectile_cannons(self):
+        from src.dsl import simulate_projectile_cannons, extract_projectile_cannons_rule
+
+        # 10x10 grid with background 7: an up-arrow cannon at (6, 4) shooting 5 pixels up to (1, 4)
+        grid_in = [
+            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            [7, 7, 7, 7, 0, 7, 7, 7, 7, 7],
+            [7, 7, 7, 0, 7, 0, 7, 7, 7, 7],
+            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+        ]
+        # Bullet 9 appears 5 units up at (1, 4)
+        grid_out = [
+            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            [7, 7, 7, 7, 9, 7, 7, 7, 7, 7],
+            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            [7, 7, 7, 7, 0, 7, 7, 7, 7, 7],
+            [7, 7, 7, 0, 7, 0, 7, 7, 7, 7],
+            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            [7, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+        ]
+        res = simulate_projectile_cannons(grid_in)
+        assert res == grid_out
+        assert extract_projectile_cannons_rule([{"input": grid_in, "output": grid_out}])
+
+
+
+
+
+
 
 
 

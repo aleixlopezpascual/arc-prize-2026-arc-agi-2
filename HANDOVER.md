@@ -1,6 +1,6 @@
 # Session Handover & State Briefing: ARC Prize 2026 (ARC-AGI-2)
 
-**Timestamp:** October 12, 2026  
+**Timestamp:** October 25, 2026  
 **Repository:** `aleixlopezpascual/arc-prize-2026-arc-agi-2` (`master` branch)  
 **Workspace Directory:** `/Users/aleix.lopez/arc-prize-2026-arc-agi-2`  
 **Official Competition:** [Kaggle ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2)
@@ -29,8 +29,10 @@
   - `Hybrid v22`: `22.78%` (Submission ID 57329657, Cluster Validation Score: `12.0`!, `SubmissionStatus.COMPLETE`)
   - `Hybrid v23`: `23.33%` (Submission ID 57372890, Cluster Validation Score: `12.5`!, `SubmissionStatus.COMPLETE`)
   - `Hybrid v24`: `22.78%` (Submission ID 57439702, Cluster Validation Score: `14.0`!, `SubmissionStatus.COMPLETE`)
-- **Staged Submission:** **Version 25** (Dual-Pass Pooling Seed 1+137, 42 Primitives, Cheap-First Work Scheduling, Cross-Family Pass@2, Solves 14 Tasks, Local Val: `9.30%`!).
-- **Recent Completed Kernel:** **Version 24** (Validation Score: `14.0` on 4x L4 cluster, cached at `submissions/submission_hybrid_sota_v24.json`).
+  - `Hybrid v25`: `23.47%` (Submission ID 57475078, Cluster Validation Score: `14.0`!, `SubmissionStatus.COMPLETE`)
+  - `Hybrid v25 (Rerun)`: **`25.56%`** (Submission ID `57609744`, `SubmissionStatus.COMPLETE` on 2026-10-25)
+- **Staged Submission:** **Version 26** (46 Symbolic Primitives, 11.67% / 14-task local eval solve, 17/172 test outputs, Attempt-2 Structural Diversity Reranker, Broad Pass B verified on 5-fold CV).
+- **Recent Completed Kernel:** **Version 25** (Public Score: `25.56%`, output at `submissions/submission.json`).
 
 ---
 
@@ -46,7 +48,7 @@
                                      ▼
                 ┌──────────────────────────────────────────┐
                 │ Tier 1: Fast Symbolic Induction Engine   │
-                │ • 38 Core Knowledge primitive families   │
+                │ • 46 Core Knowledge primitive families   │
                 │ • Semantic priority ranking over CA      │
                 │ • 1- & 2-step combinatorial pipelines    │
                 │ • D4-TTA Dihedral test-time invariance   │

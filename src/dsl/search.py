@@ -622,7 +622,43 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 43. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 43. Circuit Token Packet Passing
+    if P.extract_circuit_tokens_rule(train_pairs):
+        progs.append(
+            Program(
+                name="transfer_circuit_tokens",
+                steps=[("transfer_circuit_tokens", lambda g: P.transfer_circuit_tokens(g))],
+            )
+        )
+
+    # 44. Room Histogram Generator
+    if P.extract_room_histogram_rule(train_pairs):
+        progs.append(
+            Program(
+                name="generate_room_histogram",
+                steps=[("generate_room_histogram", lambda g: P.generate_room_histogram(g))],
+            )
+        )
+
+    # 45. Legend Compass Particle Sliding
+    if P.extract_legend_compass_sliding_rule(train_pairs):
+        progs.append(
+            Program(
+                name="slide_particles_by_legend_compass",
+                steps=[("slide_particles_by_legend_compass", lambda g: P.slide_particles_by_legend_compass(g))],
+            )
+        )
+
+    # 46. Projectile Cannon Physics & Exploding Targets
+    if P.extract_projectile_cannons_rule(train_pairs):
+        progs.append(
+            Program(
+                name="simulate_projectile_cannons",
+                steps=[("simulate_projectile_cannons", lambda g: P.simulate_projectile_cannons(g))],
+            )
+        )
+
+    # 47. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

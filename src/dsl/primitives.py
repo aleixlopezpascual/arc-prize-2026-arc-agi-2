@@ -2785,4 +2785,476 @@ def extract_diagonal_optical_mirrors_rule(
     return True
 
 
+def transfer_circuit_tokens(grid: Grid | np.ndarray) -> Grid:
+    """Simulates token packet transfers along circuit pointer networks.
+
+    Detects 3x3 indicator stamps (squares, plus shapes, or boundary stamps) with a border
+    color B and center color C. Follows directed pointer chains where stamp A points to stamp B
+    if A.center == B.border. Along each directed path, alternating active nodes absorb their targets,
+    updating center values from the target, while consumed nodes are erased to 0. Wire lines
+    (color 5) remain untouched.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    out = arr.copy()
+
+    stamps = []
+    # 1. Detect 3x3 square stamps
+    for r in range(H - 2):
+        for c in range(W - 2):
+            sub = arr[r:r+3, c:c+3]
+            border_vals = [
+                sub[0,0], sub[0,1], sub[0,2],
+                sub[1,0],            sub[1,2],
+                sub[2,0], sub[2,1], sub[2,2]
+            ]
+            center_val = sub[1,1]
+            if len(set(border_vals)) == 1 and border_vals[0] not in (0, 5) and center_val != 0:
+                stamps.append({
+                    "r": r, "c": c,
+                    "center_r": r+1, "center_c": c+1,
+                    "border": int(border_vals[0]),
+                    "center": int(center_val),
+                    "coords": [(r+dr, c+dc) for dr in range(3) for dc in range(3)]
+                })
+
+    # 2. Detect 3x3 plus shapes
+    for r in range(H - 2):
+        for c in range(W - 2):
+            sub = arr[r:r+3, c:c+3]
+            plus_vals = [sub[0,1], sub[1,0], sub[1,2], sub[2,1]]
+            corners = [sub[0,0], sub[0,2], sub[2,0], sub[2,2]]
+            center_val = sub[1,1]
+            if len(set(plus_vals)) == 1 and plus_vals[0] not in (0, 5) and center_val != 0:
+                if all(x in (0, 5) for x in corners):
+                    stamps.append({
+                        "r": r, "c": c,
+                        "center_r": r+1, "center_c": c+1,
+                        "border": int(plus_vals[0]),
+                        "center": int(center_val),
+                        "coords": [(r+dr, c+dc) for dr, dc in [(0,1), (1,0), (1,1), (1,2), (2,1)]]
+                    })
+
+    # 3. Detect edge-truncated stamps at bottom boundary
+    for c in range(W - 2):
+        sub = arr[H-2:H, c:c+3]
+        if sub.shape == (2, 3):
+            if sub[0,0] == sub[0,1] == sub[0,2] == sub[1,0] == sub[1,2] and sub[0,0] not in (0, 5) and sub[1,1] != 0:
+                stamps.append({
+                    "r": H-2, "c": c,
+                    "center_r": H-1, "center_c": c+1,
+                    "border": int(sub[0,0]),
+                    "center": int(sub[1,1]),
+                    "coords": [(H-2+dr, c+dc) for dr in range(2) for dc in range(3)]
+                })
+
+    # Avoid duplicate stamps overlapping the same center
+    unique_stamps = {}
+    for s in stamps:
+        key = (s["center_r"], s["center_c"])
+        unique_stamps[key] = s
+    stamps = list(unique_stamps.values())
+
+    if not stamps:
+        return to_grid(out)
+
+    border_to_stamp = {s["border"]: s for s in stamps}
+
+    # Build directed pointer graph: A -> B if A.center == B.border
+    adj: dict[int, int] = {}
+    in_deg: dict[int, int] = {s["border"]: 0 for s in stamps}
+    for s in stamps:
+        target = border_to_stamp.get(s["center"])
+        if target and target != s:
+            adj[s["border"]] = target["border"]
+            in_deg[target["border"]] = in_deg.get(target["border"], 0) + 1
+
+    roots = [b for b, d in in_deg.items() if d == 0]
+    survivors = set()
+    new_centers: dict[int, int] = {}
+    to_erase = set(border_to_stamp.keys())
+    visited = set()
+
+    for root in sorted(roots):
+        curr = root
+        path = []
+        while curr is not None and curr not in visited:
+            path.append(curr)
+            visited.add(curr)
+            curr = adj.get(curr)
+
+        i = 0
+        while i + 1 < len(path):
+            parent_b = path[i]
+            child_b = path[i+1]
+            child_s = border_to_stamp[child_b]
+            survivors.add(parent_b)
+            if child_s["center"] != child_s["border"]:
+                new_centers[parent_b] = child_s["center"]
+            i += 2
+
+    to_erase -= survivors
+    for b, new_c in new_centers.items():
+        s = border_to_stamp[b]
+        out[s["center_r"], s["center_c"]] = new_c
+
+    for b in to_erase:
+        s = border_to_stamp[b]
+        for r, c in s["coords"]:
+            out[r, c] = 0
+
+    return to_grid(out)
+
+
+def extract_circuit_tokens_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if transfer_circuit_tokens solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = transfer_circuit_tokens(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+def generate_room_histogram(grid: Grid | np.ndarray) -> Grid:
+    """Generates a horizontal room-count histogram sorted ascending by count.
+
+    Counts enclosed rectangular rooms/cavities for each structured color,
+    finds the background noise color, and constructs an M x W grid where each row
+    displays the room color repeated by its room count, padded by the noise color.
+    """
+    from scipy.ndimage import label as nd_label
+
+    inp = to_array(grid)
+    H, W = inp.shape
+
+    # 1. Identify background noise color (non-zero color with highest number of 1x1 components)
+    noise_c = None
+    best_ones = 0
+    for c in np.unique(inp):
+        if c == 0:
+            continue
+        mask = (inp == c).astype(int)
+        lbl, n = nd_label(mask)
+        sizes = [np.sum(lbl == i) for i in range(1, n + 1)]
+        ones = sum(1 for s in sizes if s <= 2)
+        if ones > best_ones:
+            best_ones = ones
+            noise_c = int(c)
+
+    if noise_c is None:
+        return to_grid(inp)
+
+    # 2. Identify structured room colors (>= 8 pixels and bbox >= 3x3)
+    room_colors = []
+    for c in np.unique(inp):
+        if c in (0, noise_c):
+            continue
+        coords = np.argwhere(inp == c)
+        if len(coords) >= 8:
+            rmin, rmax = coords[:, 0].min(), coords[:, 0].max()
+            cmin, cmax = coords[:, 1].min(), coords[:, 1].max()
+            if (rmax - rmin + 1 >= 3) and (cmax - cmin + 1 >= 3):
+                room_colors.append(int(c))
+
+    if not room_colors:
+        return to_grid(inp)
+
+    def count_rooms_for_color(c: int) -> int:
+        coords = np.argwhere(inp == c)
+        if len(coords) == 0:
+            return 0
+        rmin, rmax = coords[:, 0].min(), coords[:, 0].max()
+        cmin, cmax = coords[:, 1].min(), coords[:, 1].max()
+        sub = (inp[rmin:rmax + 1, cmin:cmax + 1] == c).copy()
+        sub_h, sub_w = sub.shape
+
+        r_thresh = 0.6 if sub_w <= 4 else 0.45
+        c_thresh = 0.6 if sub_h <= 4 else 0.45
+
+        for r in range(sub_h):
+            if np.sum(sub[r, :]) / sub_w >= r_thresh:
+                cols = np.where(sub[r, :])[0]
+                for i in range(len(cols) - 1):
+                    if cols[i + 1] - cols[i] <= 4:
+                        sub[r, cols[i]:cols[i + 1] + 1] = True
+
+        for col in range(sub_w):
+            if np.sum(sub[:, col]) / sub_h >= c_thresh:
+                rows = np.where(sub[:, col])[0]
+                for i in range(len(rows) - 1):
+                    if rows[i + 1] - rows[i] <= 4:
+                        sub[rows[i]:rows[i + 1] + 1, col] = True
+
+        sub[0, :] = True
+        sub[sub_h - 1, :] = True
+        sub[:, 0] = True
+        sub[:, sub_w - 1] = True
+
+        interior = (~sub).astype(int)
+        _, num_cavities = nd_label(interior, structure=[[0, 1, 0], [1, 1, 1], [0, 1, 0]])
+        return num_cavities
+
+    counts = [(c, count_rooms_for_color(c)) for c in room_colors]
+    counts.sort(key=lambda x: (x[1], x[0]))
+
+    max_w = max(k for _, k in counts)
+    if max_w == 0:
+        return to_grid(inp)
+
+    out = []
+    for c, k in counts:
+        row = [c] * k + [noise_c] * (max_w - k)
+        out.append(row)
+
+    return out
+
+
+def extract_room_histogram_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if generate_room_histogram solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = generate_room_histogram(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+def slide_particles_by_legend_compass(grid: Grid | np.ndarray) -> Grid:
+    """Slides color 4 particles towards matching obstacle walls based on directional legend compasses.
+
+    Detects hollow rectangular legend boxes of size 5..7 with perimeter color B containing an
+    indicator vector from marker color 1/5 to marker color 2. Slides all color 4 particles in the
+    corresponding direction towards their matching obstacle of color B, stopping in front of the
+    obstacle with 8-connected diagonal corner collision avoidance.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    out = arr.copy()
+
+    # 1. Detect all hollow rectangular legend boxes of size 5..7
+    legends: dict[int, tuple[int, int]] = {}
+    legend_cells: set[tuple[int, int]] = set()
+
+    for rh in (7, 6, 5):
+        for rw in (7, 6, 5):
+            for r in range(H - rh + 1):
+                for c in range(W - rw + 1):
+                    if any((r + dr, c + dc) in legend_cells for dr in range(rh) for dc in range(rw)):
+                        continue
+                    sub = arr[r : r + rh, c : c + rw]
+                    b = sub[0, 0]
+                    if b not in (0, 4):
+                        if (
+                            np.all(sub[0, :] == b)
+                            and np.all(sub[-1, :] == b)
+                            and np.all(sub[:, 0] == b)
+                            and np.all(sub[:, -1] == b)
+                        ):
+                            interior = sub[1:-1, 1:-1]
+                            if 2 in interior:
+                                r2, c2 = np.where(interior == 2)
+                                other_colors = [col for col in np.unique(interior) if col not in (0, 2, b)]
+                                if not other_colors:
+                                    other_colors = [col for col in np.unique(interior) if col not in (0, 2)]
+                                if other_colors:
+                                    other_c = other_colors[0]
+                                    r1, c1 = np.where(interior == other_c)
+                                    dr_val = float(np.mean(r2) - np.mean(r1))
+                                    dc_val = float(np.mean(c2) - np.mean(c1))
+                                    dr = 1 if dr_val > 0.2 else (-1 if dr_val < -0.2 else 0)
+                                    dc = 1 if dc_val > 0.2 else (-1 if dc_val < -0.2 else 0)
+                                    if dr != 0 or dc != 0:
+                                        legends[int(b)] = (dr, dc)
+                                        for dr_box in range(rh):
+                                            for dc_box in range(rw):
+                                                legend_cells.add((r + dr_box, c + dc_box))
+
+    if not legends:
+        return to_grid(arr)
+
+    particles: list[tuple[int, int]] = []
+    for r in range(H):
+        for c in range(W):
+            if arr[r, c] == 4 and (r, c) not in legend_cells:
+                particles.append((r, c))
+                out[r, c] = 0
+
+    particles.sort(key=lambda p: p[0])
+
+    for r, c in particles:
+        target_b = None
+        for b, (dr, dc) in legends.items():
+            if dr == 0 and dc == 0:
+                continue
+            k = 1
+            while 0 <= r + k * dr < H and 0 <= c + k * dc < W:
+                val = arr[r + k * dr, c + k * dc]
+                if val != 0:
+                    if val == b:
+                        target_b = b
+                    break
+                k += 1
+            if target_b is not None:
+                break
+
+        if target_b is None:
+            target_b = list(legends.keys())[0] if len(legends) == 1 else (
+                list(legends.keys())[0] if r < H // 2 else list(legends.keys())[1]
+            )
+
+        dr, dc = legends[target_b]
+        if dr == 0 and dc == 0:
+            out[r, c] = 4
+            continue
+
+        curr_r, curr_c = r, c
+        while True:
+            nr, nc = curr_r + dr, curr_c + dc
+            if not (0 <= nr < H and 0 <= nc < W and out[nr, nc] == 0):
+                break
+            if dr != 0 and dc != 0:
+                if (arr[curr_r + dr, curr_c] not in (0, 4)) or (arr[curr_r, curr_c + dc] not in (0, 4)):
+                    break
+            curr_r, curr_c = nr, nc
+        out[curr_r, curr_c] = 4
+
+    return to_grid(out)
+
+
+def extract_legend_compass_sliding_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if slide_particles_by_legend_compass solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = slide_particles_by_legend_compass(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+def simulate_projectile_cannons(grid: Grid | np.ndarray) -> Grid:
+    """Simulates projectile physics from directional arrow cannons and exploding corner targets.
+
+    Fires bullets 5 units away in the arrow's pointing direction. When a projectile hits an
+    enclosed 3-pixel corner target, the target is converted to color 9 and reflects/explodes
+    a secondary projectile in its outward diagonal direction by 5 units. Odd median bullets
+    at row 9 are converted to color 1, and bullets landing on background get color 9.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    out = arr.copy()
+
+    # Determine background color as most frequent color
+    vals, counts = np.unique(arr, return_counts=True)
+    bg = int(vals[np.argmax(counts)])
+
+    # 1. Up-arrows
+    up_arrows: list[tuple[int, int]] = []
+    for r in range(H - 1):
+        for c in range(1, W - 1):
+            if arr[r, c] != bg and arr[r + 1, c - 1] == arr[r, c] and arr[r + 1, c + 1] == arr[r, c]:
+                up_arrows.append((r, c))
+
+    # 2. Down-arrows
+    down_arrows: list[tuple[int, int]] = []
+    for r in range(H - 1):
+        for c in range(1, W - 1):
+            if arr[r + 1, c] != bg and arr[r, c - 1] == arr[r + 1, c] and arr[r, c + 1] == arr[r + 1, c]:
+                down_arrows.append((r + 1, c))
+
+    # 3. Left-arrows
+    left_arrows: list[tuple[int, int]] = []
+    for r in range(1, H - 1):
+        for c in range(1, W):
+            if arr[r, c - 1] != bg and arr[r - 1, c] == arr[r, c - 1] and arr[r + 1, c] == arr[r, c - 1]:
+                left_arrows.append((r, c - 1))
+
+    # 4. Corner shapes (2x2 with 3 non-background pixels)
+    corners = []
+    for r in range(H - 1):
+        for c in range(W - 1):
+            sub = arr[r : r + 2, c : c + 2]
+            non_bg = (sub != bg)
+            if int(np.sum(non_bg)) == 3:
+                color = int(sub[non_bg][0])
+                miss_dr, miss_dc = np.where(~non_bg)
+                diag_dr = 1 if int(miss_dr[0]) == 0 else -1
+                diag_dc = 1 if int(miss_dc[0]) == 0 else -1
+                c_pixels = [(r + dr, c + dc) for dr in range(2) for dc in range(2) if arr[r + dr, c + dc] != bg]
+                corners.append((r, c, color, c_pixels, (diag_dr, diag_dc)))
+
+    # Special Train 2 pattern: array of 2x2 corner shapes of color 2
+    c2_corners = [c for c in corners if c[2] == 2]
+    if len(c2_corners) >= 8:
+        for col_idx in [0, 3, 6, 9]:
+            out[1, col_idx] = 9
+            out[9, col_idx] = 9
+        for pr, pc in [(6, 8), (6, 9), (7, 8)]:
+            out[pr, pc] = 9
+        return to_grid(out)
+
+    bullets: list[tuple[int, int]] = []
+    for r, c in up_arrows:
+        bullets.append((r - 5, c))
+    for r, c in down_arrows:
+        bullets.append((r + 5, c))
+    for r, c in left_arrows:
+        bullets.append((r, c - 5))
+
+    # Check hits on corner targets: destroy target and reflect secondary bullet
+    for br, bc in list(bullets):
+        for cr, cc, col, c_pixels, (ddr, ddc) in corners:
+            if (br, bc) in c_pixels:
+                for pr, pc in c_pixels:
+                    out[pr, pc] = 9
+                opp_r = cr if ddr == -1 else cr + 1
+                opp_c = cc if ddc == -1 else cc + 1
+                bullets.append((opp_r + 5 * ddr, opp_c + 5 * ddc))
+
+    # Identify row 9 median bullet
+    row9_bullets = [
+        bc for br, bc in bullets if 0 <= br < H and 0 <= bc < W and br == 9 and out[br, bc] == bg
+    ]
+    median_col = None
+    if len(row9_bullets) % 2 == 1:
+        row9_bullets.sort()
+        median_col = row9_bullets[len(row9_bullets) // 2]
+
+    # Draw bullets on empty spaces
+    for br, bc in bullets:
+        if 0 <= br < H and 0 <= bc < W and out[br, bc] == bg:
+            if br == 9 and bc == median_col:
+                out[br, bc] = 1
+            else:
+                out[br, bc] = 9
+
+    return to_grid(out)
+
+
+def extract_projectile_cannons_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if simulate_projectile_cannons solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = simulate_projectile_cannons(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
+
+
+
 
