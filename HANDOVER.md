@@ -31,8 +31,8 @@
   - `Hybrid v24`: `22.78%` (Submission ID 57439702, Cluster Validation Score: `14.0`!, `SubmissionStatus.COMPLETE`)
   - `Hybrid v25`: `23.47%` (Submission ID 57475078, Cluster Validation Score: `14.0`!, `SubmissionStatus.COMPLETE`)
   - `Hybrid v25 (Rerun)`: **`25.56%`** (Submission ID `57609744`, `SubmissionStatus.COMPLETE` on 2026-10-25)
-- **Staged Submission:** **Version 26** (46 Symbolic Primitives, 11.67% / 14-task local eval solve, 17/172 test outputs, Attempt-2 Structural Diversity Reranker, Broad Pass B verified on 5-fold CV).
-- **Recent Completed Kernel:** **Version 25** (Public Score: `25.56%`, output at `submissions/submission.json`).
+- **Staged Submission:** **Version 27** (47 Symbolic Primitives, 12.50% / 15-task local eval solve, 18/172 test outputs, Attempt-2 Structural Diversity Reranker, Broad Pass B verified on 5-fold CV).
+- **Recent Completed Kernel:** **Version 26** (Submission Ref: `57669765`, evaluating on Kaggle, output cached at `submissions/submission_hybrid_sota_v26.json`).
 
 ---
 
@@ -48,7 +48,7 @@
                                      ▼
                 ┌──────────────────────────────────────────┐
                 │ Tier 1: Fast Symbolic Induction Engine   │
-                │ • 46 Core Knowledge primitive families   │
+                │ • 47 Core Knowledge primitive families   │
                 │ • Semantic priority ranking over CA      │
                 │ • 1- & 2-step combinatorial pipelines    │
                 │ • D4-TTA Dihedral test-time invariance   │

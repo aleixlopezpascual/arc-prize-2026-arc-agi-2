@@ -3253,6 +3253,124 @@ def extract_projectile_cannons_rule(
     return True
 
 
+def heal_orthogonal_wire_detours(grid: Grid | np.ndarray) -> Grid:
+    """Heals broken orthogonal wires in a circuit board by removing diagonal detours.
+
+    Detects straight horizontal and vertical lines of the foreground color.
+    Identifies 3-pixel gaps that have adjacent diagonal detour pixels at distance 1,
+    fills the line gaps, and erases the floating detour and diagonal stub pixels.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    out = arr.copy()
+    vals, counts = np.unique(arr, return_counts=True)
+    bg = int(vals[np.argmax(counts)])
+    fg = int(vals[np.argmin(counts)])
+
+    # Identify gaps of size 3 in input
+    gap_endpoints: set[tuple[int, int]] = set()
+    for r in range(H):
+        cols = np.where(arr[r, :] == fg)[0]
+        for i in range(len(cols) - 1):
+            if cols[i + 1] - cols[i] - 1 == 3:
+                gap_endpoints.add((r, cols[i]))
+                gap_endpoints.add((r, cols[i + 1]))
+    for c in range(W):
+        rows = np.where(arr[:, c] == fg)[0]
+        for i in range(len(rows) - 1):
+            if rows[i + 1] - rows[i] - 1 == 3:
+                gap_endpoints.add((rows[i], c))
+                gap_endpoints.add((rows[i + 1], c))
+
+    # 1. Identify true lines (length >= 2 in horizontal or vertical)
+    is_line = np.zeros((H, W), dtype=bool)
+    for r in range(H):
+        for c in range(W - 1):
+            if arr[r, c] == fg and arr[r, c + 1] == fg:
+                is_line[r, c : c + 2] = True
+    for c in range(W):
+        for r in range(H - 1):
+            if arr[r, c] == fg and arr[r + 1, c] == fg:
+                is_line[r : r + 2, c] = True
+
+    detour_pixels: set[tuple[int, int]] = set()
+    for r in range(H):
+        for c in range(W):
+            if arr[r, c] == fg and not is_line[r, c]:
+                for dr in (-1, 1):
+                    for dc in (-1, 1):
+                        nr, nc = r + dr, c + dc
+                        if 0 <= nr < H and 0 <= nc < W and arr[nr, nc] == fg:
+                            detour_pixels.add((r, c))
+
+    # Stubs attached to a line that continue diagonally, unless they are gap endpoints
+    for r in range(H):
+        for c in range(W):
+            if arr[r, c] == fg and (r, c) not in detour_pixels and (r, c) not in gap_endpoints:
+                has_diag_detour = any(
+                    (r + dr, c + dc) in detour_pixels
+                    for dr in (-1, 1)
+                    for dc in (-1, 1)
+                    if 0 <= r + dr < H and 0 <= c + dc < W
+                )
+                if has_diag_detour:
+                    for dr in (-1, 1):
+                        if 0 <= r + dr < H and arr[r + dr, c] == fg and not (0 <= r - dr < H and arr[r - dr, c] == fg):
+                            h_neigh = sum(1 for dc in (-1, 1) if 0 <= c + dc < W and arr[r + dr, c + dc] == fg)
+                            if h_neigh >= 1:
+                                detour_pixels.add((r, c))
+
+    wire_grid = arr.copy()
+    for r, c in detour_pixels:
+        wire_grid[r, c] = bg
+
+    # Horizontal gaps of size 3
+    for r in range(H):
+        cols = np.where(wire_grid[r, :] == fg)[0]
+        for i in range(len(cols) - 1):
+            c1, c2 = cols[i], cols[i + 1]
+            if c2 - c1 - 1 == 3:
+                has_detour = any(
+                    c1 <= dc <= c2 and abs(dr - r) == 1
+                    for dr, dc in detour_pixels
+                )
+                if has_detour:
+                    out[r, c1 + 1 : c2] = fg
+
+    # Vertical gaps of size 3
+    for c in range(W):
+        rows = np.where(wire_grid[:, c] == fg)[0]
+        for i in range(len(rows) - 1):
+            r1, r2 = rows[i], rows[i + 1]
+            if r2 - r1 - 1 == 3:
+                has_detour = any(
+                    r1 <= dr <= r2 and abs(dc - c) == 1
+                    for dr, dc in detour_pixels
+                )
+                if has_detour:
+                    out[r1 + 1 : r2, c] = fg
+
+    # Erase all detour pixels
+    for r, c in detour_pixels:
+        out[r, c] = bg
+
+    return to_grid(out)
+
+
+def extract_wire_detours_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if heal_orthogonal_wire_detours solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = heal_orthogonal_wire_detours(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

@@ -111,11 +111,15 @@ from src.dsl.primitives import (
     extract_legend_compass_sliding_rule,
     simulate_projectile_cannons,
     extract_projectile_cannons_rule,
+    heal_orthogonal_wire_detours,
+    extract_wire_detours_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "heal_orthogonal_wire_detours",
+    "extract_wire_detours_rule",
     "simulate_projectile_cannons",
     "extract_projectile_cannons_rule",
     "slide_particles_by_legend_compass",

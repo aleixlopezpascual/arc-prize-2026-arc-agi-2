@@ -1480,6 +1480,42 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_projectile_cannons_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_heal_orthogonal_wire_detours(self):
+        from src.dsl import heal_orthogonal_wire_detours, extract_wire_detours_rule
+
+        # 10x10 grid with background 0, foreground 3.
+        # A horizontal wire at row 4 broken at cols 3, 4, 5 (gap of 3)
+        # with an adjacent diagonal detour at (5, 4), (6, 5)
+        grid_in = [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [3, 3, 3, 0, 0, 0, 3, 3, 3, 3],
+            [0, 0, 0, 0, 3, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 3, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ]
+        # In output, the gap at row 4 cols 3..5 is filled, and the diagonal detour is erased
+        grid_out = [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ]
+        res = heal_orthogonal_wire_detours(grid_in)
+        assert res == grid_out
+        assert extract_wire_detours_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

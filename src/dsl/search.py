@@ -658,7 +658,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 47. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 47. Circuit Wire Detour Healing & Air Gap Preservation
+    if P.extract_wire_detours_rule(train_pairs):
+        progs.append(
+            Program(
+                name="heal_orthogonal_wire_detours",
+                steps=[("heal_orthogonal_wire_detours", lambda g: P.heal_orthogonal_wire_detours(g))],
+            )
+        )
+
+    # 48. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"
