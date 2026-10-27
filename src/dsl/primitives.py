@@ -4312,6 +4312,78 @@ def extract_box_tokens_rule(
     return True
 
 
+def execute_abacus_bead_addition(grid: Grid | np.ndarray) -> Grid:
+    """Executes abacus column addition: Platform 2 dyes beads to 5 and adds its bead counts to Platform 3.
+
+    Identifies platforms of colors 2 and 3 on the bottom row (row 29).
+    Counts total beads across all columns above Platform 2, and dyes their pixels to color 5.
+    Adds that total bead count to the column above Platform 3, stacking additional beads upward.
+    Erases all platform indicators on row 29 to background.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H != 30 or W != 30:
+        return to_grid(arr)
+
+    out = arr.copy()
+    vals, counts = np.unique(arr, return_counts=True)
+    bg = int(vals[np.argmax(counts)])
+
+    if not (2 in arr[29, :] or 3 in arr[29, :]):
+        return to_grid(arr)
+
+    out[29, :] = bg
+
+    cols_2 = np.where(arr[29, :] == 2)[0]
+    total_plat2_beads = 0
+
+    for c_start in [3, 9, 15, 21]:
+        if c_start + 2 in cols_2:
+            n_beads = sum(1 for r in [25, 21, 17, 13, 9, 5, 1] if arr[r+1, c_start+2] != bg)
+            total_plat2_beads += n_beads
+            for r in range(29):
+                for c in range(c_start, c_start + 5):
+                    if arr[r, c] != bg:
+                        out[r, c] = 5
+
+    cols_3 = np.where(arr[29, :] == 3)[0]
+    for c_start in [3, 9, 15, 21]:
+        if c_start + 2 in cols_3:
+            in_beads = sum(1 for r in [25, 21, 17, 13, 9, 5, 1] if arr[r+1, c_start+2] != bg)
+            target_beads = in_beads + total_plat2_beads
+            bead_cand = [arr[r, c] for r in range(29) for c in range(c_start, c_start + 5) if arr[r, c] != bg]
+            if not bead_cand:
+                continue
+            b_color = bead_cand[0]
+
+            for k in range(target_beads):
+                r_start = 25 - 4 * k
+                if r_start >= 0:
+                    out[r_start, c_start] = bg
+                    out[r_start, c_start+1:c_start+4] = b_color
+                    out[r_start, c_start+4] = bg
+                    out[r_start+1, c_start:c_start+5] = b_color
+                    out[r_start+2, c_start] = bg
+                    out[r_start+2, c_start+1:c_start+4] = b_color
+                    out[r_start+2, c_start+4] = bg
+
+    return to_grid(out)
+
+
+def extract_abacus_addition_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if execute_abacus_bead_addition solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = execute_abacus_bead_addition(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 
