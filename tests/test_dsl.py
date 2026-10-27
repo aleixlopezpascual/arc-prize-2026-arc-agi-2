@@ -1621,6 +1621,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_optical_beams_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_reflect_shapes_across_planar_mirrors(self):
+        from src.dsl import reflect_shapes_across_planar_mirrors, extract_planar_mirrors_rule
+
+        # Test on Train 1 of 7ed72f31
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["7ed72f31"]["train"][1]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = reflect_shapes_across_planar_mirrors(grid_in)
+        assert res == grid_out
+        assert extract_planar_mirrors_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

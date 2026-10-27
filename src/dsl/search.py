@@ -712,7 +712,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 53. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 53. Planar and Point Symmetry Mirror Reflections
+    if P.extract_planar_mirrors_rule(train_pairs):
+        progs.append(
+            Program(
+                name="reflect_shapes_across_planar_mirrors",
+                steps=[("reflect_shapes_across_planar_mirrors", lambda g: P.reflect_shapes_across_planar_mirrors(g))],
+            )
+        )
+
+    # 54. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

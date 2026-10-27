@@ -3860,6 +3860,82 @@ def extract_optical_beams_rule(
     return True
 
 
+def reflect_shapes_across_planar_mirrors(grid: Grid | np.ndarray) -> Grid:
+    """Reflects shapes across planar and point mirrors of color 2.
+
+    Identifies vertical mirrors (h > 1, w == 1), horizontal mirrors (h == 1, w > 1),
+    and point mirrors (h == 1, w == 1) formed by color 2.
+    For each mirror, finds the closest 8-connected shape of non-background, non-mirror color,
+    and reflects it across the mirror (horizontally, vertically, or point inversion).
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    out = arr.copy()
+
+    vals, counts = np.unique(arr, return_counts=True)
+    bg = int(vals[np.argmax(counts)])
+    mirror_col = 2
+
+    from scipy.ndimage import label
+    lbl2, n2 = label(arr == mirror_col)
+    if n2 == 0:
+        return to_grid(arr)
+
+    s8 = np.ones((3, 3), dtype=int)
+    shape_mask = (arr != bg) & (arr != mirror_col)
+    lbl_s, n_s = label(shape_mask, structure=s8)
+    if n_s == 0:
+        return to_grid(arr)
+
+    shapes = [list(zip(*np.where(lbl_s == s_idx))) for s_idx in range(1, n_s + 1)]
+
+    for m_idx in range(1, n2 + 1):
+        m_coords = np.argwhere(lbl2 == m_idx)
+        rmin, rmax = m_coords[:, 0].min(), m_coords[:, 0].max()
+        cmin, cmax = m_coords[:, 1].min(), m_coords[:, 1].max()
+        h, w = rmax - rmin + 1, cmax - cmin + 1
+
+        best_shape = min(shapes, key=lambda sh: min(abs(sr - mr) + abs(sc - mc) for sr, sc in sh for mr, mc in m_coords))
+
+        if h > 1 and w == 1:
+            c_m = cmin
+            for sr, sc in best_shape:
+                c_new = 2 * c_m - sc
+                if 0 <= c_new < W:
+                    out[sr, c_new] = arr[sr, sc]
+
+        elif h == 1 and w > 1:
+            r_m = rmin
+            for sr, sc in best_shape:
+                r_new = 2 * r_m - sr
+                if 0 <= r_new < H:
+                    out[r_new, sc] = arr[sr, sc]
+
+        elif h == 1 and w == 1:
+            r_m, c_m = rmin, cmin
+            for sr, sc in best_shape:
+                r_new = 2 * r_m - sr
+                c_new = 2 * c_m - sc
+                if 0 <= r_new < H and 0 <= c_new < W:
+                    out[r_new, c_new] = arr[sr, sc]
+
+    return to_grid(out)
+
+
+def extract_planar_mirrors_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if reflect_shapes_across_planar_mirrors solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = reflect_shapes_across_planar_mirrors(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 
