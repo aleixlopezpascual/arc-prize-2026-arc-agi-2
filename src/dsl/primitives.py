@@ -3935,6 +3935,109 @@ def extract_planar_mirrors_rule(
     return True
 
 
+def replicate_isotropic_ruler_schedule(grid: Grid | np.ndarray) -> Grid:
+    """Replicates KxK stamp blocks across an isotropic 2D lattice according to a left-margin ruler schedule.
+
+    Parses the ruler program in the left columns (step s, slot j -> color).
+    Identifies block size K and horizontal slot step step_x from existing stamps.
+    In an isotropic lattice, step_y == step_x.
+    Aligns the existing stamp with its matching step in the ruler schedule,
+    and renders all other steps across the grid.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 10 or W < 10:
+        return to_grid(arr)
+
+    out = arr.copy()
+
+    vals, counts = np.unique(arr, return_counts=True)
+    bg = int(vals[np.argmax(counts)])
+
+    ruler_rows = [r for r in range(H) if arr[r, 1] != bg]
+    ruler_schedule = []
+    for r in ruler_rows:
+        slots = []
+        c = 1
+        while c < 8 and c < W and arr[r, c] != bg:
+            slots.append(arr[r, c])
+            c += 2
+        ruler_schedule.append((r, slots))
+
+    if not ruler_schedule:
+        return to_grid(arr)
+
+    from scipy.ndimage import label
+    stamp_mask = (arr != bg) & (np.arange(W) >= 8)
+    lbl_st, n_st = label(stamp_mask)
+    if n_st == 0:
+        return to_grid(arr)
+
+    first_block = np.argwhere(lbl_st == 1)
+    K = first_block[:, 0].max() - first_block[:, 0].min() + 1
+    existing_row = first_block[:, 0].min()
+
+    blocks = []
+    for b_idx in range(1, n_st + 1):
+        b_coords = np.argwhere(lbl_st == b_idx)
+        b_r = b_coords[:, 0].min()
+        b_c = b_coords[:, 1].min()
+        b_color = arr[b_coords[0, 0], b_coords[0, 1]]
+        blocks.append((b_r, b_c, b_color))
+
+    c_coords = sorted(list({b_c for b_r, b_c, b_color in blocks}))
+    if len(c_coords) >= 2:
+        step_x = c_coords[1] - c_coords[0]
+    else:
+        step_x = K + 1
+
+    step_y = step_x  # Isotropic lattice invariant
+
+    s_star = None
+    C_0 = None
+
+    for s_idx, (r_ruler, slots) in enumerate(ruler_schedule):
+        for j in range(len(slots)):
+            cand_C0 = c_coords[0] - j * step_x
+            matches = True
+            for b_r, b_c, b_color in blocks:
+                slot_idx = (b_c - cand_C0) // step_x
+                if not (0 <= slot_idx < len(slots) and slots[slot_idx] == b_color and (b_c - cand_C0) % step_x == 0):
+                    matches = False
+                    break
+            if matches:
+                s_star = s_idx
+                C_0 = cand_C0
+                break
+        if s_star is not None:
+            break
+
+    if s_star is not None and C_0 is not None:
+        R_star = existing_row
+        for s_idx, (r_ruler, slots) in enumerate(ruler_schedule):
+            R_s = R_star + (s_idx - s_star) * step_y
+            for j, col_val in enumerate(slots):
+                C_s = C_0 + j * step_x
+                if 0 <= R_s and R_s + K <= H and 0 <= C_s and C_s + K <= W:
+                    out[R_s : R_s + K, C_s : C_s + K] = col_val
+
+    return to_grid(out)
+
+
+def extract_isotropic_ruler_schedule_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if replicate_isotropic_ruler_schedule solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = replicate_isotropic_ruler_schedule(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

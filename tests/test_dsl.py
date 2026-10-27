@@ -1634,6 +1634,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_planar_mirrors_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_replicate_isotropic_ruler_schedule(self):
+        from src.dsl import replicate_isotropic_ruler_schedule, extract_isotropic_ruler_schedule_rule
+
+        # Test on Train 1 of c4d067a0
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["c4d067a0"]["train"][1]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = replicate_isotropic_ruler_schedule(grid_in)
+        assert res == grid_out
+        assert extract_isotropic_ruler_schedule_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

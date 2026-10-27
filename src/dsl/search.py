@@ -721,7 +721,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 54. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 54. Isotropic 2D Lattice Ruler Schedule Replication
+    if P.extract_isotropic_ruler_schedule_rule(train_pairs):
+        progs.append(
+            Program(
+                name="replicate_isotropic_ruler_schedule",
+                steps=[("replicate_isotropic_ruler_schedule", lambda g: P.replicate_isotropic_ruler_schedule(g))],
+            )
+        )
+
+    # 55. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"
