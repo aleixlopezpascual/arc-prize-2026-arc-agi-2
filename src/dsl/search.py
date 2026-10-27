@@ -703,7 +703,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 52. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 52. Periodic Optical Beam Ray Extrapolation
+    if P.extract_optical_beams_rule(train_pairs):
+        progs.append(
+            Program(
+                name="extrapolate_periodic_optical_beams",
+                steps=[("extrapolate_periodic_optical_beams", lambda g: P.extrapolate_periodic_optical_beams(g))],
+            )
+        )
+
+    # 53. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

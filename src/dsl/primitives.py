@@ -3798,6 +3798,69 @@ def extract_circuit_enclosures_rule(
     return True
 
 
+def extrapolate_periodic_optical_beams(grid: Grid | np.ndarray) -> Grid:
+    """Extrapolates periodic optical beams attached to diamond/cross 1-shapes to the canvas boundary.
+
+    Finds short vertical beam segments attached to 1-shapes.
+    Determines their repeating period P (1 or 2 rows).
+    Extrapolates the repeating pattern upward to row 0 or downward to row H-1,
+    overriding intersecting lower-priority beams.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    out = arr.copy()
+    vals, counts = np.unique(arr, return_counts=True)
+    bg = int(vals[np.argmax(counts)])
+
+    from scipy.ndimage import label
+    beam_mask = (arr != bg) & (arr != 1)
+    lbl, n = label(beam_mask)
+
+    for i in range(1, n + 1):
+        coords = np.argwhere(lbl == i)
+        rmin, rmax = coords[:, 0].min(), coords[:, 0].max()
+        cmin, cmax = coords[:, 1].min(), coords[:, 1].max()
+        h, w = rmax - rmin + 1, cmax - cmin + 1
+
+        if h <= 4:
+            touches_1_below = (rmax + 1 < H and any(arr[rmax + 1, c] == 1 for c in range(cmin, cmax + 1)))
+            touches_1_above = (rmin - 1 >= 0 and any(arr[rmin - 1, c] == 1 for c in range(cmin, cmax + 1)))
+
+            if touches_1_below and not touches_1_above:
+                sub = arr[rmin:rmax+1, cmin:cmax+1]
+                P = 1 if h == 1 or (h == 2 and np.array_equal(sub[0], sub[1])) else 2
+
+                for r in range(rmin - 1, -1, -1):
+                    offset = (rmax - r) % P
+                    pat_row = sub[h - 1 - offset]
+                    out[r, cmin:cmax+1] = pat_row
+
+            elif touches_1_above and not touches_1_below:
+                sub = arr[rmin:rmax+1, cmin:cmax+1]
+                P = 1 if h == 1 or (h == 2 and np.array_equal(sub[0], sub[1])) else 2
+
+                for r in range(rmax + 1, H):
+                    offset = (r - rmin) % P
+                    pat_row = sub[offset]
+                    out[r, cmin:cmax+1] = pat_row
+
+    return to_grid(out)
+
+
+def extract_optical_beams_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if extrapolate_periodic_optical_beams solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = extrapolate_periodic_optical_beams(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

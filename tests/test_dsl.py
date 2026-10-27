@@ -1608,6 +1608,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_circuit_enclosures_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_extrapolate_periodic_optical_beams(self):
+        from src.dsl import extrapolate_periodic_optical_beams, extract_optical_beams_rule
+
+        # Test on Train 0 of 53fb4810
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["53fb4810"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = extrapolate_periodic_optical_beams(grid_in)
+        assert res == grid_out
+        assert extract_optical_beams_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

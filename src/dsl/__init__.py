@@ -121,11 +121,15 @@ from src.dsl.primitives import (
     extract_fractal_tessellation_rule,
     power_circuit_enclosures,
     extract_circuit_enclosures_rule,
+    extrapolate_periodic_optical_beams,
+    extract_optical_beams_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "extrapolate_periodic_optical_beams",
+    "extract_optical_beams_rule",
     "power_circuit_enclosures",
     "extract_circuit_enclosures_rule",
     "inpaint_fractal_tessellation",
