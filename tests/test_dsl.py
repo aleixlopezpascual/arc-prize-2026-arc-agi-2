@@ -1673,6 +1673,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_apparatus_dual_polarity_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_populate_hollow_boxes_from_tokens(self):
+        from src.dsl import populate_hollow_boxes_from_tokens, extract_box_tokens_rule
+
+        # Test on Train 0 of 8f215267
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["8f215267"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = populate_hollow_boxes_from_tokens(grid_in)
+        assert res == grid_out
+        assert extract_box_tokens_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

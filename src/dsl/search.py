@@ -748,7 +748,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 57. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 57. Hollow Box Dot Population from Free-Floating Tokens
+    if P.extract_box_tokens_rule(train_pairs):
+        progs.append(
+            Program(
+                name="populate_hollow_boxes_from_tokens",
+                steps=[("populate_hollow_boxes_from_tokens", lambda g: P.populate_hollow_boxes_from_tokens(g))],
+            )
+        )
+
+    # 58. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

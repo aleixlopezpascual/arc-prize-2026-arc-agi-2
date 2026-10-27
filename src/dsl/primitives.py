@@ -4248,6 +4248,71 @@ def extract_apparatus_dual_polarity_rule(
     return True
 
 
+def populate_hollow_boxes_from_tokens(grid: Grid | np.ndarray) -> Grid:
+    """Populates hollow rectangular boxes on the left with dots matching free-floating token counts on the right.
+
+    Identifies large hollow rectangular frames (h >= 4, w >= 7).
+    Tokens are all non-background components lying outside the boxes.
+    Erases all free-floating tokens.
+    For each box, counts the token components of that color, and renders that many dots
+    along the box's horizontal midline, right-aligned to the inner right wall.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 10 or W < 10:
+        return to_grid(arr)
+
+    out = arr.copy()
+    vals, counts = np.unique(arr, return_counts=True)
+    bg = int(vals[np.argmax(counts)])
+
+    from scipy.ndimage import label
+    lbl_all, n_all = label(arr != bg)
+    boxes = []
+    box_mask = np.zeros((H, W), dtype=bool)
+
+    for i in range(1, n_all + 1):
+        pts = np.argwhere(lbl_all == i)
+        rmin, rmax = pts[:, 0].min(), pts[:, 0].max()
+        cmin, cmax = pts[:, 1].min(), pts[:, 1].max()
+        h = rmax - rmin + 1
+        w = cmax - cmin + 1
+        if h >= 4 and w >= 7:
+            box_col = arr[pts[0, 0], pts[0, 1]]
+            boxes.append((box_col, rmin, rmax, cmin, cmax))
+            box_mask[rmin:rmax+1, cmin:cmax+1] = True
+
+    if not boxes:
+        return to_grid(arr)
+
+    token_mask = (arr != bg) & (~box_mask)
+    out[token_mask] = bg
+
+    for box_col, rmin, rmax, cmin, cmax in boxes:
+        lbl_tok, n_tok = label(token_mask & (arr == box_col))
+        mid_r = (rmin + rmax) // 2
+        for k in range(1, n_tok + 1):
+            dot_c = cmax - 2 * k
+            if dot_c > cmin:
+                out[mid_r, dot_c] = box_col
+
+    return to_grid(out)
+
+
+def extract_box_tokens_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if populate_hollow_boxes_from_tokens solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = populate_hollow_boxes_from_tokens(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

@@ -131,11 +131,15 @@ from src.dsl.primitives import (
     extract_quadrant_dihedral_rule,
     invert_apparatus_dual_polarity,
     extract_apparatus_dual_polarity_rule,
+    populate_hollow_boxes_from_tokens,
+    extract_box_tokens_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "populate_hollow_boxes_from_tokens",
+    "extract_box_tokens_rule",
     "invert_apparatus_dual_polarity",
     "extract_apparatus_dual_polarity_rule",
     "scale_quadrant_dihedral_templates",
