@@ -694,7 +694,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 51. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 51. Circuit Wire Flood Fill of Powered Enclosures
+    if P.extract_circuit_enclosures_rule(train_pairs):
+        progs.append(
+            Program(
+                name="power_circuit_enclosures",
+                steps=[("power_circuit_enclosures", lambda g: P.power_circuit_enclosures(g))],
+            )
+        )
+
+    # 52. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

@@ -119,11 +119,15 @@ from src.dsl.primitives import (
     extract_room_tour_corridors_rule,
     inpaint_fractal_tessellation,
     extract_fractal_tessellation_rule,
+    power_circuit_enclosures,
+    extract_circuit_enclosures_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "power_circuit_enclosures",
+    "extract_circuit_enclosures_rule",
     "inpaint_fractal_tessellation",
     "extract_fractal_tessellation_rule",
     "connect_room_tour_corridors",

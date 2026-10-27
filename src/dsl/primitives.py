@@ -3705,6 +3705,100 @@ def extract_fractal_tessellation_rule(
     return True
 
 
+def power_circuit_enclosures(grid: Grid | np.ndarray) -> Grid:
+    """Powers enclosed hollow cavities touched by wires conducting from power source markers.
+
+    Finds single-pixel markers of unique colors (count == 1).
+    Traces 8-connected conductive wire tracks originating from each marker.
+    Fills the interior background of any enclosed cavity whose boundary wall directly touches
+    the powered wire with the marker's color.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    out = arr.copy()
+
+    vals, counts = np.unique(arr, return_counts=True)
+    bg = int(vals[np.argmax(counts)])
+
+    # Markers: all non-bg colors with count == 1
+    markers = [c for c, cnt in zip(vals, counts) if c != bg and cnt == 1]
+    if not markers:
+        non_bg_sorted = sorted([(c, cnt) for c, cnt in zip(vals, counts) if c != bg], key=lambda x: x[1])
+        if not non_bg_sorted:
+            return to_grid(arr)
+        markers = [non_bg_sorted[0][0]]
+
+    from scipy.ndimage import label
+    bg_mask = (arr == bg)
+    lbl_bg, n_bg = label(bg_mask)
+    cavities = []
+    for i in range(1, n_bg + 1):
+        coords = list(zip(*np.where(lbl_bg == i)))
+        sz = len(coords)
+        tb = any(r == 0 or r == H - 1 or c == 0 or c == W - 1 for r, c in coords)
+        is_cavity = (not tb and sz <= 16) or (tb and sz == 4 and min(r for r, c in coords) > 0 and max(r for r, c in coords) < H - 1)
+        if is_cavity:
+            wall_pixels = set()
+            for hr, hc in coords:
+                for dr in (-1, 0, 1):
+                    for dc in (-1, 0, 1):
+                        nr, nc = hr + dr, hc + dc
+                        if 0 <= nr < H and 0 <= nc < W and arr[nr, nc] != bg:
+                            wall_pixels.add((nr, nc))
+            cavities.append((coords, wall_pixels))
+
+    for m_col in markers:
+        m_pts = list(zip(*np.where(arr == m_col)))
+        for m_pos in m_pts:
+            mr, mc = m_pos
+            wire_colors = set()
+            for dr in (-1, 0, 1):
+                for dc in (-1, 0, 1):
+                    if (dr, dc) != (0, 0) and 0 <= mr+dr < H and 0 <= mc+dc < W:
+                        val = arr[mr+dr, mc+dc]
+                        if val != bg and val != m_col:
+                            wire_colors.add(val)
+
+            powered_net = set([m_pos])
+            queue = [m_pos]
+            while queue:
+                cr, cc = queue.pop(0)
+                for dr in (-1, 0, 1):
+                    for dc in (-1, 0, 1):
+                        nr, nc = cr + dr, cc + dc
+                        if 0 <= nr < H and 0 <= nc < W and (nr, nc) not in powered_net:
+                            if arr[nr, nc] != bg:
+                                powered_net.add((nr, nc))
+                                queue.append((nr, nc))
+
+            powered_wire = {pt for pt in powered_net if arr[pt] in wire_colors or arr[pt] == m_col}
+
+            for c_coords, wall_pts in cavities:
+                touches_wire = any(
+                    any((wr+dr, wc+dc) in powered_wire for dr in (-1, 0, 1) for dc in (-1, 0, 1))
+                    for wr, wc in wall_pts
+                )
+                if touches_wire:
+                    for hr, hc in c_coords:
+                        out[hr, hc] = m_col
+
+    return to_grid(out)
+
+
+def extract_circuit_enclosures_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if power_circuit_enclosures solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = power_circuit_enclosures(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

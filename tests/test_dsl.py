@@ -1595,6 +1595,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_fractal_tessellation_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_power_circuit_enclosures(self):
+        from src.dsl import power_circuit_enclosures, extract_circuit_enclosures_rule
+
+        # 8x8 test grid matching Train 3 of 8b7bacbf
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["8b7bacbf"]["train"][3]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = power_circuit_enclosures(grid_in)
+        assert res == grid_out
+        assert extract_circuit_enclosures_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 
