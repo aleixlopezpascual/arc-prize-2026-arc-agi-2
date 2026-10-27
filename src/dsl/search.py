@@ -685,7 +685,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 50. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 50. Fractal Self-Similar Tessellation Inpainting
+    if P.extract_fractal_tessellation_rule(train_pairs):
+        progs.append(
+            Program(
+                name="inpaint_fractal_tessellation",
+                steps=[("inpaint_fractal_tessellation", lambda g: P.inpaint_fractal_tessellation(g))],
+            )
+        )
+
+    # 51. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

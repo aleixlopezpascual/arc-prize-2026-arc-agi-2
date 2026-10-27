@@ -3629,6 +3629,83 @@ def extract_room_tour_corridors_rule(
     return True
 
 
+def inpaint_fractal_tessellation(grid: Grid | np.ndarray) -> Grid:
+    """Inpaints a regular 7x7 tiled grid of 3x3 cells using self-similar fractal blueprinting.
+
+    Extracts all 49 cells (size 3x3) separated by orthogonal gridlines.
+    Identifies the background pattern (Pattern A) and the foreground template tile (Pattern B).
+    Extracts the 3x3 binary shape from Pattern B, aligns it with existing Pattern B positions in the
+    7x7 macro cell grid, and inpaints the entire 3x3 macro shape with Pattern B.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H != 29 or W != 29:
+        return to_grid(arr)
+
+    out = arr.copy()
+    cells = {}
+    for i in range(7):
+        for j in range(7):
+            sub = arr[4 * i + 1 : 4 * i + 4, 4 * j + 1 : 4 * j + 4]
+            cells[(i, j)] = sub
+
+    counts = Counter(tuple(sub.flatten()) for sub in cells.values())
+    sorted_pats = sorted(counts.keys(), key=lambda k: counts[k], reverse=True)
+    if len(sorted_pats) < 2:
+        return to_grid(arr)
+
+    pat_B = np.array(sorted_pats[1]).reshape((3, 3))
+    b_colors = np.unique(pat_B)
+    existing_B = [pos for pos, sub in cells.items() if np.array_equal(sub, pat_B)]
+    if not existing_B:
+        return to_grid(arr)
+
+    best_bin_shape = None
+    best_offset = None
+
+    for c in b_colors:
+        bin_shape = (pat_B == c).astype(int)
+        for r0 in range(5):
+            for c0 in range(5):
+                valid = True
+                for er, ec in existing_B:
+                    if not (r0 <= er < r0 + 3 and c0 <= ec < c0 + 3 and bin_shape[er - r0, ec - c0] == 1):
+                        valid = False
+                        break
+                if valid:
+                    best_bin_shape = bin_shape
+                    best_offset = (r0, c0)
+                    break
+            if best_offset is not None:
+                break
+        if best_offset is not None:
+            break
+
+    if best_offset is not None and best_bin_shape is not None:
+        r0, c0 = best_offset
+        for dr in range(3):
+            for dc in range(3):
+                if best_bin_shape[dr, dc] == 1:
+                    i, j = r0 + dr, c0 + dc
+                    out[4 * i + 1 : 4 * i + 4, 4 * j + 1 : 4 * j + 4] = pat_B
+
+    return to_grid(out)
+
+
+def extract_fractal_tessellation_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if inpaint_fractal_tessellation solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = inpaint_fractal_tessellation(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

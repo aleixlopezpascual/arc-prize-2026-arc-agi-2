@@ -1582,6 +1582,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_room_tour_corridors_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_inpaint_fractal_tessellation(self):
+        from src.dsl import inpaint_fractal_tessellation, extract_fractal_tessellation_rule
+
+        # Small 29x29 test grid matching Train 0
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["b99e7126"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = inpaint_fractal_tessellation(grid_in)
+        assert res == grid_out
+        assert extract_fractal_tessellation_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 
