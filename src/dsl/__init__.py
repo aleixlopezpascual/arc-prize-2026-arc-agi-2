@@ -115,11 +115,15 @@ from src.dsl.primitives import (
     extract_wire_detours_rule,
     generate_greek_key_labyrinth,
     extract_greek_key_labyrinth_rule,
+    connect_room_tour_corridors,
+    extract_room_tour_corridors_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "connect_room_tour_corridors",
+    "extract_room_tour_corridors_rule",
     "generate_greek_key_labyrinth",
     "extract_greek_key_labyrinth_rule",
     "heal_orthogonal_wire_detours",

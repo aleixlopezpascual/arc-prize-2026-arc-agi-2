@@ -3533,6 +3533,103 @@ def extract_greek_key_labyrinth_rule(
     return True
 
 
+def connect_room_tour_corridors(grid: Grid | np.ndarray) -> Grid:
+    """Connects adjacent rooms according to an ordered tour defined on the bottom row.
+
+    Each room is an enclosed cavity with an inner value (1x1 or 2x2).
+    The tour at row H - 2 defines the ordered sequence of room visits [v_0, v_1, ...].
+    For each transition v_i -> v_{i+1}, opens and fills the connecting hallway
+    between the current room and the closest adjacent room of value v_{i+1} with the color v_i.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    out = arr.copy()
+    wall_color = int(arr[0, 0])
+
+    # Tour is located at row H - 2
+    tour_row = H - 2
+    tour = [int(arr[tour_row, c]) for c in range(W) if arr[tour_row, c] not in (wall_color, 0)]
+    if len(tour) < 2:
+        return to_grid(arr)
+
+    board = arr[:tour_row - 1, :].copy()
+    from scipy.ndimage import label
+    non_wall = (board != wall_color)
+    lbl, n = label(non_wall)
+    rooms = []
+    for i in range(1, n + 1):
+        coords = np.argwhere(lbl == i)
+        rmin, rmax = coords[:, 0].min(), coords[:, 0].max()
+        cmin, cmax = coords[:, 1].min(), coords[:, 1].max()
+        h, w = rmax - rmin + 1, cmax - cmin + 1
+        if h >= 2 and w >= 2:
+            sub = board[rmin:rmax+1, cmin:cmax+1]
+            room_bg = sub[0, 0]
+            center_mask = (sub != wall_color) & (sub != room_bg)
+            if np.any(center_mask):
+                val = int(sub[center_mask][0])
+                center_coords = np.argwhere(center_mask)
+                cr = rmin + int(np.mean(center_coords[:, 0]))
+                cc = cmin + int(np.mean(center_coords[:, 1]))
+                core_h = int(np.max(center_coords[:, 0]) - np.min(center_coords[:, 0]) + 1)
+                core_w = int(np.max(center_coords[:, 1]) - np.min(center_coords[:, 1]) + 1)
+                rooms.append((val, cr, cc, rmin, rmax, cmin, cmax, core_h, core_w))
+
+    curr_room = None
+    first_val = tour[0]
+    cand_rooms = [r for r in rooms if r[0] == first_val]
+    if len(cand_rooms) > 1 and len(tour) > 1:
+        second_val = tour[1]
+        second_rooms = [r for r in rooms if r[0] == second_val]
+        if second_rooms:
+            cand_rooms.sort(key=lambda r: min(abs(r[1] - s[1]) + abs(r[2] - s[2]) for s in second_rooms))
+    if cand_rooms:
+        curr_room = cand_rooms[0]
+
+    if curr_room is None:
+        return to_grid(arr)
+
+    for next_val in tour[1:]:
+        cand_next = [r for r in rooms if r[0] == next_val and r != curr_room]
+        cand_next.sort(key=lambda c: abs(c[1] - curr_room[1]) + abs(c[2] - curr_room[2]))
+        chosen = cand_next[0] if cand_next else None
+        if chosen is not None:
+            fill_color = curr_room[0]
+            cr1, cc1 = curr_room[1], curr_room[2]
+            cr2, cc2 = chosen[1], chosen[2]
+            core_h, core_w = curr_room[7], curr_room[8]
+
+            if abs(cr1 - cr2) <= 1:
+                row_start = min(cr1, cr2) - (core_h - 1) // 2
+                row_end = row_start + core_h
+                c_min_box = min(curr_room[6], chosen[6]) + 1
+                c_max_box = max(curr_room[5], chosen[5])
+                out[row_start:row_end, c_min_box:c_max_box] = fill_color
+            elif abs(cc1 - cc2) <= 1:
+                col_start = min(cc1, cc2) - (core_w - 1) // 2
+                col_end = col_start + core_w
+                r_min_box = min(curr_room[4], chosen[4]) + 1
+                r_max_box = max(curr_room[3], chosen[3])
+                out[r_min_box:r_max_box, col_start:col_end] = fill_color
+            curr_room = chosen
+
+    return to_grid(out)
+
+
+def extract_room_tour_corridors_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if connect_room_tour_corridors solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = connect_room_tour_corridors(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

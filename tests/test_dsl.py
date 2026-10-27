@@ -1551,6 +1551,38 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_greek_key_labyrinth_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_connect_room_tour_corridors(self):
+        from src.dsl import connect_room_tour_corridors, extract_room_tour_corridors_rule
+
+        # 9x9 grid with 2 rooms (center 2 and center 3), tour at row 7: [2, 3]
+        grid_in = [
+            [8, 8, 8, 8, 8, 8, 8, 8, 8],
+            [8, 1, 1, 8, 1, 1, 8, 8, 8],
+            [8, 1, 2, 8, 1, 3, 8, 8, 8],
+            [8, 1, 1, 8, 1, 1, 8, 8, 8],
+            [8, 8, 8, 8, 8, 8, 8, 8, 8],
+            [8, 8, 8, 8, 8, 8, 8, 8, 8],
+            [8, 8, 8, 8, 8, 8, 8, 8, 8],
+            [8, 2, 8, 3, 8, 8, 8, 8, 8],
+            [8, 8, 8, 8, 8, 8, 8, 8, 8],
+        ]
+        # In output, the doorway between Room 2 and Room 3 at (2, 3) is filled with 2
+        grid_out = [
+            [8, 8, 8, 8, 8, 8, 8, 8, 8],
+            [8, 1, 1, 8, 1, 1, 8, 8, 8],
+            [8, 1, 2, 2, 1, 3, 8, 8, 8],
+            [8, 1, 1, 8, 1, 1, 8, 8, 8],
+            [8, 8, 8, 8, 8, 8, 8, 8, 8],
+            [8, 8, 8, 8, 8, 8, 8, 8, 8],
+            [8, 8, 8, 8, 8, 8, 8, 8, 8],
+            [8, 2, 8, 3, 8, 8, 8, 8, 8],
+            [8, 8, 8, 8, 8, 8, 8, 8, 8],
+        ]
+        res = connect_room_tour_corridors(grid_in)
+        assert res == grid_out
+        assert extract_room_tour_corridors_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 
