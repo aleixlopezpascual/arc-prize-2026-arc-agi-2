@@ -1647,6 +1647,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_isotropic_ruler_schedule_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_scale_quadrant_dihedral_templates(self):
+        from src.dsl import scale_quadrant_dihedral_templates, extract_quadrant_dihedral_rule
+
+        # Test on Train 0 of b10624e5
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["b10624e5"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = scale_quadrant_dihedral_templates(grid_in)
+        assert res == grid_out
+        assert extract_quadrant_dihedral_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

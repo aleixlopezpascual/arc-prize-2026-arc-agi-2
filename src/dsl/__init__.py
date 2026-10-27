@@ -127,11 +127,15 @@ from src.dsl.primitives import (
     extract_planar_mirrors_rule,
     replicate_isotropic_ruler_schedule,
     extract_isotropic_ruler_schedule_rule,
+    scale_quadrant_dihedral_templates,
+    extract_quadrant_dihedral_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "scale_quadrant_dihedral_templates",
+    "extract_quadrant_dihedral_rule",
     "replicate_isotropic_ruler_schedule",
     "extract_isotropic_ruler_schedule_rule",
     "reflect_shapes_across_planar_mirrors",

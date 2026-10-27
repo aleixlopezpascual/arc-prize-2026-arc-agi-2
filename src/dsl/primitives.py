@@ -4037,6 +4037,117 @@ def extract_isotropic_ruler_schedule_rule(
     return True
 
 
+def scale_quadrant_dihedral_templates(grid: Grid | np.ndarray) -> Grid:
+    """Scales and reflects master quadrant templates across a 4-quadrant D4 grid.
+
+    Identifies the central dividing cross (at mid_r, mid_c, usually 13, 13).
+    Extracts the master template from the Top-Left quadrant, anchored by its seed block of 2s.
+    For each other quadrant (TR, BL, BR), measures the local seed block of 2s (size N x N),
+    scales the master template according to N, applies the quadrant's dihedral reflection,
+    and renders the scaled shape aligned to the seed block.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 15 or W < 15:
+        return to_grid(arr)
+
+    out = arr.copy()
+    vals, counts = np.unique(arr, return_counts=True)
+    bg = int(vals[np.argmax(counts)])
+
+    cross_r = [r for r in range(H) if np.sum(arr[r, :] == 1) > W * 0.8]
+    cross_c = [c for c in range(W) if np.sum(arr[:, c] == 1) > H * 0.8]
+    if not cross_r or not cross_c:
+        return to_grid(arr)
+
+    mid_r = cross_r[0]
+    mid_c = cross_c[0]
+
+    tl = arr[:mid_r, :mid_c]
+    pts_tl = np.argwhere(tl != bg)
+    if len(pts_tl) == 0:
+        return to_grid(arr)
+
+    tl_rmin, tl_rmax = pts_tl[:, 0].min(), pts_tl[:, 0].max()
+    tl_cmin, tl_cmax = pts_tl[:, 1].min(), pts_tl[:, 1].max()
+    template = tl[tl_rmin : tl_rmax + 1, tl_cmin : tl_cmax + 1]
+
+    pts2_temp = np.argwhere(template == 2)
+    if len(pts2_temp) == 0:
+        return to_grid(arr)
+
+    t2_r0 = pts2_temp[:, 0].min()
+    t2_c0 = pts2_temp[:, 1].min()
+
+    quads = [
+        ("TR", 0, mid_r, mid_c + 1, W, False, True),
+        ("BL", mid_r + 1, H, 0, mid_c, True, False),
+        ("BR", mid_r + 1, H, mid_c + 1, W, True, True),
+    ]
+
+    for q_name, r1, r2, c1, c2, flip_r, flip_c in quads:
+        q_in = arr[r1:r2, c1:c2]
+        pts2_q = np.argwhere(q_in == 2)
+        if len(pts2_q) == 0:
+            continue
+        N = pts2_q[:, 0].max() - pts2_q[:, 0].min() + 1
+        q_r0 = r1 + pts2_q[:, 0].min()
+        q_c0 = c1 + pts2_q[:, 1].min()
+
+        if N == 2:
+            scaled = template.copy()
+            s2_r0, s2_c0 = t2_r0, t2_c0
+        elif N == 4:
+            scaled = np.kron(template, np.ones((2, 2), dtype=int))
+            s2_r0, s2_c0 = t2_r0 * 2, t2_c0 * 2
+        elif N == 1:
+            scaled = template[::2, ::2].copy()
+            s2_r0, s2_c0 = t2_r0 // 2, t2_c0 // 2
+        elif N == 3:
+            base = template[::2, ::2]
+            scaled = np.kron(base, np.ones((3, 3), dtype=int))
+            pts2_base = np.argwhere(base == 2)
+            s2_r0 = pts2_base[:, 0].min() * 3
+            s2_c0 = pts2_base[:, 1].min() * 3
+        else:
+            scaled = template.copy()
+            s2_r0, s2_c0 = t2_r0, t2_c0
+
+        if flip_r:
+            scaled = np.flipud(scaled)
+            s2_r0 = scaled.shape[0] - s2_r0 - N
+        if flip_c:
+            scaled = np.fliplr(scaled)
+            s2_c0 = scaled.shape[1] - s2_c0 - N
+
+        top_r = q_r0 - s2_r0
+        left_c = q_c0 - s2_c0
+
+        for dr in range(scaled.shape[0]):
+            for dc in range(scaled.shape[1]):
+                val = scaled[dr, dc]
+                curr_r = top_r + dr
+                curr_c = left_c + dc
+                if r1 <= curr_r < r2 and c1 <= curr_c < c2 and val != bg:
+                    out[curr_r, curr_c] = val
+
+    return to_grid(out)
+
+
+def extract_quadrant_dihedral_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if scale_quadrant_dihedral_templates solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = scale_quadrant_dihedral_templates(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 
