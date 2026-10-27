@@ -1515,6 +1515,43 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_wire_detours_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_generate_greek_key_labyrinth(self):
+        from src.dsl import generate_greek_key_labyrinth, extract_greek_key_labyrinth_rule
+
+        # 12x12 grid with central cross at (4, 5) of color 8 and arm length 1
+        grid_in = [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ]
+        grid_out = [
+            [0, 8, 0, 8, 8, 8, 8, 8, 8, 8, 8, 8],
+            [0, 8, 0, 8, 0, 0, 0, 0, 0, 0, 0, 8],
+            [0, 8, 0, 8, 0, 8, 8, 8, 8, 8, 0, 8],
+            [0, 8, 0, 8, 0, 8, 0, 0, 0, 8, 0, 8],
+            [0, 8, 0, 8, 8, 0, 8, 8, 0, 8, 0, 8],
+            [0, 8, 0, 0, 0, 8, 0, 8, 0, 8, 0, 8],
+            [0, 8, 8, 8, 8, 8, 0, 8, 0, 8, 0, 8],
+            [0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 8],
+            [8, 8, 8, 8, 8, 8, 8, 8, 0, 8, 0, 8],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8],
+            [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 0, 8],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8],
+        ]
+        res = generate_greek_key_labyrinth(grid_in)
+        assert res == grid_out
+        assert extract_greek_key_labyrinth_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

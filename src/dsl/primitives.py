@@ -3370,6 +3370,170 @@ def extract_wire_detours_rule(
     return True
 
 
+def generate_greek_key_labyrinth(grid: Grid | np.ndarray) -> Grid:
+    """Generates an Archimedean Greek Key Meander labyrinth from a central cross of arm length L.
+
+    Finds the central empty pixel surrounded by 4 symmetric cross arms of length L.
+    Expands the 4-fold concentric meander spiral clockwise with step size +4 per cycle:
+    - For L in (1, 2): pure concentric square spiral with initial side length 4.
+    - For L == 3: Greek key meander with jog (1 step in new direction, 3 steps in previous direction)
+      and initial main side length 10.
+    - For L == 4: Greek key meander with jog (2 steps in new direction, 4 steps in previous direction)
+      and initial main side length 10.
+    Applies 4-fold rotational symmetry around the cross center and clips to canvas boundaries.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    out = np.zeros((H, W), dtype=int)
+
+    # Find non-background foreground color of the cross
+    vals, counts = np.unique(arr, return_counts=True)
+    fg = int(vals[np.argmin(counts)])
+
+    # 1. Locate cross center: empty pixel surrounded by 4 arms of fg
+    rc, cc = -1, -1
+    for r in range(1, H - 1):
+        for c in range(1, W - 1):
+            if (
+                arr[r, c] == 0
+                and arr[r - 1, c] == fg
+                and arr[r + 1, c] == fg
+                and arr[r, c - 1] == fg
+                and arr[r, c + 1] == fg
+            ):
+                rc, cc = r, c
+                break
+        if rc != -1:
+            break
+
+    if rc == -1:
+        return to_grid(arr)
+
+    # Measure arm length L
+    L = 0
+    while rc - L - 1 >= 0 and arr[rc - L - 1, cc] == fg:
+        L += 1
+
+    # Minimum effective arm length in output labyrinth is 2
+    eff_L = max(2, L)
+
+    arm_coords: list[tuple[int, int]] = []
+    for k in range(1, eff_L + 1):
+        arm_coords.append((-k, 0))
+    curr_r, curr_c = -eff_L, 0
+
+    dirs = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # R, D, L, U
+    d_idx = 0
+
+    if eff_L == 2:
+        side_len = 4
+        for _ in range(15):
+            cdir = dirs[d_idx]
+            for _ in range(side_len):
+                curr_r += cdir[0]
+                curr_c += cdir[1]
+                arm_coords.append((curr_r, curr_c))
+            d_idx = (d_idx + 1) % 4
+            side_len += 4
+
+    elif eff_L == 3:
+        for _ in range(2):
+            curr_c += 1
+            arm_coords.append((curr_r, curr_c))
+        for _ in range(1):
+            curr_r += 1
+            arm_coords.append((curr_r, curr_c))
+        for _ in range(3):
+            curr_c += 1
+            arm_coords.append((curr_r, curr_c))
+        for _ in range(6):
+            curr_r += 1
+            arm_coords.append((curr_r, curr_c))
+        d_idx = 2  # Left
+        side_len = 10
+        jog_step = 1
+        jog_back = 3
+        for _ in range(15):
+            cdir = dirs[d_idx]
+            pdir = dirs[(d_idx - 1) % 4]
+            for _ in range(jog_step):
+                curr_r += cdir[0]
+                curr_c += cdir[1]
+                arm_coords.append((curr_r, curr_c))
+            for _ in range(jog_back):
+                curr_r += pdir[0]
+                curr_c += pdir[1]
+                arm_coords.append((curr_r, curr_c))
+            for _ in range(side_len):
+                curr_r += cdir[0]
+                curr_c += cdir[1]
+                arm_coords.append((curr_r, curr_c))
+            d_idx = (d_idx + 1) % 4
+            side_len += 4
+
+    elif eff_L == 4:
+        for _ in range(2):
+            curr_c += 1
+            arm_coords.append((curr_r, curr_c))
+        for _ in range(2):
+            curr_r += 1
+            arm_coords.append((curr_r, curr_c))
+        for _ in range(4):
+            curr_c += 1
+            arm_coords.append((curr_r, curr_c))
+        for _ in range(6):
+            curr_r += 1
+            arm_coords.append((curr_r, curr_c))
+        d_idx = 2  # Left
+        side_len = 10
+        jog_step = 2
+        jog_back = 4
+        for _ in range(15):
+            cdir = dirs[d_idx]
+            pdir = dirs[(d_idx - 1) % 4]
+            for _ in range(jog_step):
+                curr_r += cdir[0]
+                curr_c += cdir[1]
+                arm_coords.append((curr_r, curr_c))
+            for _ in range(jog_back):
+                curr_r += pdir[0]
+                curr_c += pdir[1]
+                arm_coords.append((curr_r, curr_c))
+            for _ in range(side_len):
+                curr_r += cdir[0]
+                curr_c += cdir[1]
+                arm_coords.append((curr_r, curr_c))
+            d_idx = (d_idx + 1) % 4
+            side_len += 4
+
+    # Apply 4-fold rotation around center (rc, cc)
+    for rot in range(4):
+        for dr, dc in arm_coords:
+            r_dr, r_dc = dr, dc
+            for _ in range(rot):
+                r_dr, r_dc = r_dc, -r_dr
+            final_r = rc + r_dr
+            final_c = cc + r_dc
+            if 0 <= final_r < H and 0 <= final_c < W:
+                out[final_r, final_c] = fg
+
+    return to_grid(out)
+
+
+def extract_greek_key_labyrinth_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if generate_greek_key_labyrinth solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = generate_greek_key_labyrinth(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

@@ -667,7 +667,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 48. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 48. Archimedean Greek Key Meander Labyrinth
+    if P.extract_greek_key_labyrinth_rule(train_pairs):
+        progs.append(
+            Program(
+                name="generate_greek_key_labyrinth",
+                steps=[("generate_greek_key_labyrinth", lambda g: P.generate_greek_key_labyrinth(g))],
+            )
+        )
+
+    # 49. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"
