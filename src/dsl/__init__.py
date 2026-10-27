@@ -129,11 +129,15 @@ from src.dsl.primitives import (
     extract_isotropic_ruler_schedule_rule,
     scale_quadrant_dihedral_templates,
     extract_quadrant_dihedral_rule,
+    invert_apparatus_dual_polarity,
+    extract_apparatus_dual_polarity_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "invert_apparatus_dual_polarity",
+    "extract_apparatus_dual_polarity_rule",
     "scale_quadrant_dihedral_templates",
     "extract_quadrant_dihedral_rule",
     "replicate_isotropic_ruler_schedule",

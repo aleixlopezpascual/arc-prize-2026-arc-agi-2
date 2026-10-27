@@ -1660,6 +1660,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_quadrant_dihedral_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_invert_apparatus_dual_polarity(self):
+        from src.dsl import invert_apparatus_dual_polarity, extract_apparatus_dual_polarity_rule
+
+        # Test on Train 1 of c7f57c3e
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["c7f57c3e"]["train"][1]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = invert_apparatus_dual_polarity(grid_in)
+        assert res == grid_out
+        assert extract_apparatus_dual_polarity_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

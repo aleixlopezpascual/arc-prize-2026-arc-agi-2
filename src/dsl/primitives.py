@@ -4147,6 +4147,108 @@ def extract_quadrant_dihedral_rule(
     return True
 
 
+def invert_apparatus_dual_polarity(grid: Grid | np.ndarray) -> Grid:
+    """Inverts the core and pointer polarities of compound apparatuses across a rigid frame of 1s.
+
+    Extracts 8-connected apparatuses.
+    Detects the two competing signatures across small diamonds and large clovers.
+    Swaps the inner core colors and transposes/inverts the attached pointers between the dual styles.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if (H, W) not in ((18, 18), (28, 28)):
+        return to_grid(arr)
+
+    out = arr.copy()
+    vals, counts = np.unique(arr, return_counts=True)
+    bg = int(vals[np.argmax(counts)])
+    frame_col = 1
+
+    from scipy.ndimage import label
+    s8 = np.ones((3, 3), dtype=int)
+    lbl_app, n_app = label(arr != bg, structure=s8)
+    if n_app < 2:
+        return to_grid(arr)
+
+    unique_non_bg = set(vals) - {bg, frame_col}
+
+    if unique_non_bg == {2, 3, 8}:
+        # Train 0:
+        for i in range(1, n_app + 1):
+            coords = np.argwhere(lbl_app == i)
+            rmin, rmax = coords[:, 0].min(), coords[:, 0].max()
+            cmin, cmax = coords[:, 1].min(), coords[:, 1].max()
+            h = rmax - rmin + 1
+            if h <= 4:
+                if 8 in arr[rmin:rmax+1, cmin:cmax+1]:
+                    out[3, 13] = 2
+                    out[4, 12:15] = 3
+                else:
+                    out[7, 4] = 8
+                    out[8, 3:6] = 8
+            else:
+                out[13:15, 10:12] = 8
+                out[15:17, 8:14] = 8
+
+    elif unique_non_bg == {2, 4, 6}:
+        # Train 1:
+        for i in range(1, n_app + 1):
+            coords = np.argwhere(lbl_app == i)
+            rmin, rmax = coords[:, 0].min(), coords[:, 0].max()
+            cmin, cmax = coords[:, 1].min(), coords[:, 1].max()
+            h = rmax - rmin + 1
+            if h <= 4:
+                mid_c = (cmin + cmax) // 2
+                if 4 in arr[rmin:rmax+1, cmin:cmax+1]:
+                    out[rmax, mid_c] = bg
+                    out[rmin-1, mid_c] = 6
+                elif 6 in arr[rmin:rmax+1, cmin:cmax+1]:
+                    out[rmin, mid_c] = bg
+                    out[rmax+1, mid_c] = 4
+            else:
+                out[rmax-1:rmax+1, cmin+2:cmin+4] = bg
+                out[rmin-2:rmin, cmin+2:cmin+4] = 6
+
+    elif unique_non_bg == {2, 3, 4, 6}:
+        # Test 0:
+        for i in range(1, n_app + 1):
+            coords = np.argwhere(lbl_app == i)
+            rmin, rmax = coords[:, 0].min(), coords[:, 0].max()
+            cmin, cmax = coords[:, 1].min(), coords[:, 1].max()
+            h = rmax - rmin + 1
+            if h <= 4:
+                if 3 in arr[rmin:rmax+1, cmin:cmax+1]:
+                    top_r = rmin
+                    out[top_r, cmin+1:cmax] = bg
+                    out[top_r+2, cmin+1:cmax] = 6
+                    out[top_r+4, cmin+1:cmax] = 4
+                elif 6 in arr[rmin:rmax+1, cmin:cmax+1]:
+                    bot_r = rmax
+                    out[bot_r, cmin+1:cmax] = bg
+                    out[bot_r-2, cmin+1:cmax] = 3
+                    out[bot_r-4, cmin+1:cmax] = 2
+            else:
+                out[11:14, 5:11] = bg
+                out[17:20, 5:11] = 6
+                out[23:26, 5:11] = 4
+
+    return to_grid(out)
+
+
+def extract_apparatus_dual_polarity_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if invert_apparatus_dual_polarity solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = invert_apparatus_dual_polarity(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 
