@@ -865,7 +865,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 70. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 70. Prototype Tile Macrogrid Assembly
+    if P.extract_prototype_macrogrid_rule(train_pairs):
+        progs.append(
+            Program(
+                name="assemble_prototype_tile_macrogrid",
+                steps=[("assemble_prototype_tile_macrogrid", lambda g: P.assemble_prototype_tile_macrogrid(g))],
+            )
+        )
+
+    # 71. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

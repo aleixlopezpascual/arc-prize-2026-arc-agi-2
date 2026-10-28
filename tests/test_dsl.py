@@ -1842,6 +1842,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_histogram_legend_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_assemble_prototype_tile_macrogrid(self):
+        from src.dsl import assemble_prototype_tile_macrogrid, extract_prototype_macrogrid_rule
+
+        # Test on Train 0 of 65b59efc
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["65b59efc"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = assemble_prototype_tile_macrogrid(grid_in)
+        assert res == grid_out
+        assert extract_prototype_macrogrid_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

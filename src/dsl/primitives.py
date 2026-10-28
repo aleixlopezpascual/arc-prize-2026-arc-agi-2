@@ -5346,6 +5346,92 @@ def extract_histogram_legend_rule(
     return True
 
 
+def assemble_prototype_tile_macrogrid(grid: Grid | np.ndarray) -> Grid:
+    """Assembles prototype tiles into an S^2 x S^2 macrogrid based on a placement map and palette.
+
+    Separates the canvas using separator lines of color 5:
+    1. Top section: extracts S x S prototype tiles with color P_k.
+    2. Bottom palette row: extracts re-coloring target colors C_k for each prototype P_k.
+    3. Middle section: parses placement indicator pixels (r, c) of color P_k
+       to determine tile placement at (tr, tc) = (r - r_start, c % (S + 1)).
+    Emits an S^2 x S^2 grid of re-colored prototype tiles.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    sep_col = 5
+
+    sep_rows = [r for r in range(H) if np.sum(arr[r] == sep_col) >= W // 3]
+    sep_cols = [c for c in range(W) if np.sum(arr[:, c] == sep_col) >= H // 3]
+
+    if len(sep_rows) < 2:
+        return to_grid(arr)
+
+    S = sep_rows[0]
+    if S < 2:
+        return to_grid(arr)
+
+    protos = {}
+    for k in range(len(sep_cols) + 1):
+        c_start = k * (S + 1)
+        c_end = c_start + S
+        if c_end <= W:
+            tile_sub = arr[0:S, c_start:c_end]
+            vals = [v for v in np.unique(tile_sub) if v != 0]
+            if vals:
+                p_col = int(vals[0])
+                protos[p_col] = (k, tile_sub.copy())
+
+    if not protos:
+        return to_grid(arr)
+
+    cand_rows = [r for r in range(sep_rows[1] + 1, H) if any(arr[r, c] not in [0, sep_col] for c in range(W))]
+    pal_r = cand_rows[0] if cand_rows else H - 1
+
+    recolor = {}
+    for p_col, (k, tile_sub) in protos.items():
+        c_start = k * (S + 1)
+        c_end = c_start + S
+        bot_vals = [v for v in arr[pal_r, c_start:c_end] if v not in [0, sep_col]]
+        if bot_vals:
+            recolor[p_col] = int(bot_vals[0])
+        else:
+            recolor[p_col] = p_col
+
+    r_mid_start = sep_rows[0] + 1
+    r_mid_end = sep_rows[1]
+
+    out = np.zeros((S * S, S * S), dtype=int)
+
+    for r in range(r_mid_start, r_mid_end):
+        tr = r - r_mid_start
+        for c in range(W):
+            val = int(arr[r, c])
+            if val != 0 and val != sep_col and val in protos:
+                tc = c % (S + 1)
+                if tr < S and tc < S:
+                    orig_tile = protos[val][1]
+                    new_c = recolor[val]
+                    tile_to_place = orig_tile.copy()
+                    tile_to_place[orig_tile == val] = new_c
+                    out[tr * S : (tr + 1) * S, tc * S : (tc + 1) * S] = tile_to_place
+
+    return to_grid(out)
+
+
+def extract_prototype_macrogrid_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if assemble_prototype_tile_macrogrid solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = assemble_prototype_tile_macrogrid(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 
