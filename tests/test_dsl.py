@@ -1829,6 +1829,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_4x4_hollow_solid_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_plot_incontext_histogram_legend(self):
+        from src.dsl import plot_incontext_histogram_legend, extract_histogram_legend_rule
+
+        # Test on Train 0 of 58490d8a
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["58490d8a"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = plot_incontext_histogram_legend(grid_in)
+        assert res == grid_out
+        assert extract_histogram_legend_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

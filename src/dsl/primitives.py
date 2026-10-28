@@ -5290,6 +5290,63 @@ def extract_4x4_hollow_solid_rule(
     return True
 
 
+def plot_incontext_histogram_legend(grid: Grid | np.ndarray) -> Grid:
+    """Plots a dot-grid histogram inside an in-context legend bounding box.
+
+    Identifies the bounding box of color 0 representing the legend grid.
+    For each row in the legend with a color indicator at col 1:
+    Counts the number of 8-connected components of that color outside the legend.
+    Plots that count of indicator dots at odd columns (1, 3, 5, ...) in that row.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 5 or W < 5:
+        return to_grid(arr)
+
+    from scipy.ndimage import label
+
+    pts0 = np.argwhere(arr == 0)
+    if len(pts0) == 0:
+        return to_grid(arr)
+
+    rmin, rmax = pts0[:, 0].min(), pts0[:, 0].max()
+    cmin, cmax = pts0[:, 1].min(), pts0[:, 1].max()
+    legend = arr[rmin:rmax+1, cmin:cmax+1]
+    lh, lw = legend.shape
+
+    if lh < 3 or lw < 3:
+        return to_grid(arr)
+
+    out = np.zeros((lh, lw), dtype=int)
+
+    for r in range(lh):
+        col_indicator = int(legend[r, 1])
+        if col_indicator != 0:
+            mask = (arr == col_indicator)
+            mask[rmin:rmax+1, cmin:cmax+1] = False
+            lbl, n_comps = label(mask, structure=np.ones((3, 3)))
+            for i in range(n_comps):
+                c_idx = 1 + 2 * i
+                if c_idx < lw:
+                    out[r, c_idx] = col_indicator
+
+    return to_grid(out)
+
+
+def extract_histogram_legend_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if plot_incontext_histogram_legend solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = plot_incontext_histogram_legend(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

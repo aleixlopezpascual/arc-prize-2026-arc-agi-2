@@ -856,7 +856,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 69. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 69. In-Context Histogram Legend Dot Plotting
+    if P.extract_histogram_legend_rule(train_pairs):
+        progs.append(
+            Program(
+                name="plot_incontext_histogram_legend",
+                steps=[("plot_incontext_histogram_legend", lambda g: P.plot_incontext_histogram_legend(g))],
+            )
+        )
+
+    # 70. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

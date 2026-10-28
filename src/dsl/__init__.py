@@ -155,11 +155,15 @@ from src.dsl.primitives import (
     extract_chamber_absorption_rule,
     pair_4x4_hollow_solid_squares,
     extract_4x4_hollow_solid_rule,
+    plot_incontext_histogram_legend,
+    extract_histogram_legend_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "plot_incontext_histogram_legend",
+    "extract_histogram_legend_rule",
     "pair_4x4_hollow_solid_squares",
     "extract_4x4_hollow_solid_rule",
     "absorb_maze_particles_into_chamber",
