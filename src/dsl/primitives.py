@@ -4691,6 +4691,81 @@ def extract_pulse_interference_rule(
     return True
 
 
+def operate_pin_tumbler_lock(grid: Grid | np.ndarray) -> Grid:
+    """Operates a pin tumbler lock: inserts a multi-tooth key from the left into the lock channels.
+
+    Identifies the key apparatus on the left (cols 0..8) with teeth at columns 1,3,5,7.
+    Measures tooth heights upward from base row 5.
+    Inserts the key into the lock channels (cols 11,13,15,17), pushing colored pin tumblers upward.
+    Erases the key on the left margin.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H != 8 or W != 20:
+        return to_grid(arr)
+
+    out = arr.copy()
+    bg = 0
+    key_col = 5
+
+    if not (arr[5, 1] == key_col and arr[5, 7] == key_col):
+        return to_grid(arr)
+
+    teeth_cols = [1, 3, 5, 7]
+    base_r = 5
+    heights = []
+    for c in teeth_cols:
+        h = 0
+        r = base_r
+        while r >= 0 and arr[r, c] == key_col:
+            h += 1
+            r -= 1
+        heights.append(h)
+
+    out[:, :9] = bg
+    lock_cols = [11, 13, 15, 17]
+    out[5, 11:18] = key_col
+
+    for k in range(4):
+        c_lock = lock_cols[k]
+        h_tooth = heights[k]
+
+        pin_pixels = [(r, arr[r, c_lock]) for r in range(1, 5) if arr[r, c_lock] not in (bg, key_col)]
+
+        for r in range(1, 6):
+            if arr[r, c_lock] != key_col or r == 5:
+                out[r, c_lock] = bg
+
+        for dh in range(h_tooth):
+            r_tooth = base_r - dh
+            out[r_tooth, c_lock] = key_col
+
+        top_of_tooth = base_r - h_tooth
+        if pin_pixels:
+            pin_col = pin_pixels[0][1]
+            n_pin = len(pin_pixels)
+            for dh in range(n_pin):
+                r_pin = top_of_tooth - dh
+                if r_pin >= 1:
+                    out[r_pin, c_lock] = pin_col
+
+    return to_grid(out)
+
+
+def extract_pin_tumbler_lock_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if operate_pin_tumbler_lock solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = operate_pin_tumbler_lock(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

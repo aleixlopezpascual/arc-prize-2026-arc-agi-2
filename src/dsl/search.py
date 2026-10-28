@@ -793,7 +793,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 62. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 62. Pin Tumbler Lock Key Insertion and Tumbler Elevation
+    if P.extract_pin_tumbler_lock_rule(train_pairs):
+        progs.append(
+            Program(
+                name="operate_pin_tumbler_lock",
+                steps=[("operate_pin_tumbler_lock", lambda g: P.operate_pin_tumbler_lock(g))],
+            )
+        )
+
+    # 63. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

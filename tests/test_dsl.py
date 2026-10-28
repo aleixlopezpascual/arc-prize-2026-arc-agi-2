@@ -1738,6 +1738,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_pulse_interference_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_operate_pin_tumbler_lock(self):
+        from src.dsl import operate_pin_tumbler_lock, extract_pin_tumbler_lock_rule
+
+        # Test on Train 0 of 4c3d4a41
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["4c3d4a41"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = operate_pin_tumbler_lock(grid_in)
+        assert res == grid_out
+        assert extract_pin_tumbler_lock_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

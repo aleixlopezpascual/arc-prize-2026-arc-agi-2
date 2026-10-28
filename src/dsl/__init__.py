@@ -141,11 +141,15 @@ from src.dsl.primitives import (
     extract_nozzle_jets_rule,
     modulate_optical_pulse_interference,
     extract_pulse_interference_rule,
+    operate_pin_tumbler_lock,
+    extract_pin_tumbler_lock_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "operate_pin_tumbler_lock",
+    "extract_pin_tumbler_lock_rule",
     "modulate_optical_pulse_interference",
     "extract_pulse_interference_rule",
     "fire_container_nozzle_jets",
