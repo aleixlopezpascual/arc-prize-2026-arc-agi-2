@@ -4583,6 +4583,115 @@ def extract_nozzle_jets_rule(
     return True
 
 
+def modulate_optical_pulse_interference(grid: Grid | np.ndarray) -> Grid:
+    """Synthesizes optical pulse interference waveforms across a vertical divider bar.
+
+    Identifies the vertical dividing column that spans the canvas.
+    For each row containing signal color segments on the demonstration side:
+    - Extracts contiguous color runs (C_1, L_1), (C_2, L_2) ordered from the divider outward.
+    - Synthesizes primary pulse train: pulses of C_1 at intervals of L_1 (0, L_1, 2*L_1, ...).
+    - Synthesizes secondary pulse train: pulses of C_2 at intervals of L_2 into remaining empty slots.
+    - Emits the resulting waveform across the opposite side of the divider.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 3 or W < 3:
+        return to_grid(arr)
+
+    out = arr.copy()
+    bg = 0
+
+    best_c = None
+    max_cnt = 0
+    for c in range(W):
+        vals, counts = np.unique(arr[:, c][arr[:, c] != bg], return_counts=True)
+        if len(counts) > 0 and counts.max() > max_cnt:
+            max_cnt = counts.max()
+            best_c = c
+
+    if best_c is None or max_cnt < H - 2:
+        return to_grid(arr)
+
+    div_c = best_c
+    left_nonzeros = np.sum(arr[:, :div_c] != bg)
+    right_nonzeros = np.sum(arr[:, div_c+1:] != bg)
+    signal_on_left = left_nonzeros > right_nonzeros
+
+    for r in range(H):
+        if signal_on_left:
+            sig = arr[r, :div_c]
+            target_len = W - (div_c + 1)
+        else:
+            sig = arr[r, div_c+1:]
+            target_len = div_c
+
+        nonzeros = [c for c in sig if c != bg]
+        if not nonzeros:
+            continue
+
+        sig_from_div = list(reversed(sig)) if signal_on_left else list(sig)
+
+        runs = []
+        curr_c = None
+        curr_len = 0
+        for val in sig_from_div:
+            if val != bg:
+                if curr_c is None:
+                    curr_c = val
+                    curr_len = 1
+                elif val == curr_c:
+                    curr_len += 1
+                else:
+                    runs.append((curr_c, curr_len))
+                    curr_c = val
+                    curr_len = 1
+            else:
+                if curr_c is not None:
+                    runs.append((curr_c, curr_len))
+                    curr_c = None
+                    curr_len = 0
+        if curr_c is not None:
+            runs.append((curr_c, curr_len))
+
+        if not runs:
+            continue
+
+        t_line = [bg] * target_len
+
+        c1, l1 = runs[0]
+        for k in range(0, target_len, l1):
+            t_line[k] = c1
+
+        if len(runs) > 1:
+            c2, l2 = runs[1]
+            for k in range(l2, target_len, l2):
+                if t_line[k] == bg:
+                    t_line[k] = c2
+
+        if signal_on_left:
+            for i, val in enumerate(t_line):
+                out[r, div_c + 1 + i] = val
+        else:
+            for i, val in enumerate(t_line):
+                out[r, div_c - 1 - i] = val
+
+    return to_grid(out)
+
+
+def extract_pulse_interference_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if modulate_optical_pulse_interference solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = modulate_optical_pulse_interference(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

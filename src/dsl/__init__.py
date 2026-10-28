@@ -139,11 +139,15 @@ from src.dsl.primitives import (
     extract_harmonic_combs_rule,
     fire_container_nozzle_jets,
     extract_nozzle_jets_rule,
+    modulate_optical_pulse_interference,
+    extract_pulse_interference_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "modulate_optical_pulse_interference",
+    "extract_pulse_interference_rule",
     "fire_container_nozzle_jets",
     "extract_nozzle_jets_rule",
     "extrapolate_aligned_harmonic_combs",
