@@ -838,7 +838,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 67. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 67. Maze Particle Absorption into Central Chamber
+    if P.extract_chamber_absorption_rule(train_pairs):
+        progs.append(
+            Program(
+                name="absorb_maze_particles_into_chamber",
+                steps=[("absorb_maze_particles_into_chamber", lambda g: P.absorb_maze_particles_into_chamber(g))],
+            )
+        )
+
+    # 68. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

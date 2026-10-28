@@ -151,11 +151,15 @@ from src.dsl.primitives import (
     extract_snake_path_rule,
     transpose_and_stack_axis_blocks,
     extract_axis_blocks_rule,
+    absorb_maze_particles_into_chamber,
+    extract_chamber_absorption_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "absorb_maze_particles_into_chamber",
+    "extract_chamber_absorption_rule",
     "transpose_and_stack_axis_blocks",
     "extract_axis_blocks_rule",
     "serialize_snake_path_runs",

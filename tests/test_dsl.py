@@ -1803,6 +1803,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_axis_blocks_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_absorb_maze_particles_into_chamber(self):
+        from src.dsl import absorb_maze_particles_into_chamber, extract_chamber_absorption_rule
+
+        # Test on Train 0 of dd6b8c4b
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["dd6b8c4b"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = absorb_maze_particles_into_chamber(grid_in)
+        assert res == grid_out
+        assert extract_chamber_absorption_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

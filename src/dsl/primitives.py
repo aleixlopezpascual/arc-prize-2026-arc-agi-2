@@ -5137,6 +5137,84 @@ def extract_axis_blocks_rule(
     return True
 
 
+def absorb_maze_particles_into_chamber(grid: Grid | np.ndarray) -> Grid:
+    """Absorbs reachable floating maze particles into a central target chamber.
+
+    Identifies the central target chamber containing pixels 2 and 3.
+    Conducts BFS pathfinding from the chamber across empty passages (non-wall != 6).
+    Collects reachable particles of color 9 ordered by shortest-path distance (up to capacity 9).
+    Erases absorbed particles outside (replacing with background 7).
+    Fills absorbed particles into chamber slots in row-major order.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 5 or W < 5:
+        return to_grid(arr)
+
+    bg = 7
+    wall = 6
+    particle = 9
+
+    chamber_pts = [(r, c) for r in range(H) for c in range(W) if arr[r, c] in [2, 3]]
+    if not chamber_pts or len(chamber_pts) > 9:
+        return to_grid(arr)
+
+    c_rmin = min(p[0] for p in chamber_pts)
+    c_rmax = max(p[0] for p in chamber_pts)
+    c_cmin = min(p[1] for p in chamber_pts)
+    c_cmax = max(p[1] for p in chamber_pts)
+
+    if (c_rmax - c_rmin + 1) != 3 or (c_cmax - c_cmin + 1) != 3:
+        return to_grid(arr)
+
+    slots = [(r, c) for r in range(c_rmin, c_rmax + 1) for c in range(c_cmin, c_cmax + 1)]
+    if len(slots) != 9:
+        return to_grid(arr)
+
+    visited = set(chamber_pts)
+    q = list(chamber_pts)
+    absorbed_particles = []
+
+    while q:
+        cr, cc = q.pop(0)
+        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            nr, nc = cr + dr, cc + dc
+            if 0 <= nr < H and 0 <= nc < W:
+                if arr[nr, nc] != wall and (nr, nc) not in visited:
+                    visited.add((nr, nc))
+                    q.append((nr, nc))
+                    if arr[nr, nc] == particle:
+                        absorbed_particles.append((nr, nc))
+                        if len(absorbed_particles) == len(slots):
+                            break
+        if len(absorbed_particles) == len(slots):
+            break
+
+    out = arr.copy()
+    for pr, pc in absorbed_particles:
+        out[pr, pc] = bg
+
+    for i in range(len(absorbed_particles)):
+        sr, sc = slots[i]
+        out[sr, sc] = particle
+
+    return to_grid(out)
+
+
+def extract_chamber_absorption_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if absorb_maze_particles_into_chamber solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = absorb_maze_particles_into_chamber(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 
