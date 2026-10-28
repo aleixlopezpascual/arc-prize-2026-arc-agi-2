@@ -5214,6 +5214,83 @@ def extract_chamber_absorption_rule(
     return True
 
 
+def pair_4x4_hollow_solid_squares(grid: Grid | np.ndarray) -> Grid:
+    """Detects 4x4 hollow and solid squares, sorts each by row, and pairs them into a (4*N, 8) grid.
+
+    Identifies all 4x4 square components in the canvas.
+    Categorizes each into hollow (2x2 center is background 0) vs solid (all 16 pixels same color).
+    Sorts hollow squares in top-to-bottom row order.
+    Sorts solid squares in top-to-bottom row order.
+    Emits a (4*N, 8) grid placing hollow square on the left and solid square on the right.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 4 or W < 4:
+        return to_grid(arr)
+
+    bg = 0
+
+    visited = np.zeros((H, W), dtype=bool)
+    hollow_squares = []
+    solid_squares = []
+
+    for r in range(H - 3):
+        for c in range(W - 3):
+            sub = arr[r:r+4, c:c+4]
+            b_col = int(sub[0, 0])
+            if b_col != bg and not visited[r, c]:
+                border = np.concatenate([sub[0, :], sub[-1, :], sub[:, 0], sub[:, -1]])
+                if np.all(border == b_col):
+                    is_hollow = (sub[1, 1] == bg and sub[1, 2] == bg and sub[2, 1] == bg and sub[2, 2] == bg)
+                    is_solid = np.all(sub == b_col)
+                    if is_hollow:
+                        visited[r:r+4, c:c+4] = True
+                        hollow_squares.append((r, c, b_col, sub.copy()))
+                    elif is_solid:
+                        visited[r:r+4, c:c+4] = True
+                        solid_squares.append((r, c, b_col, sub.copy()))
+
+    if not hollow_squares and not solid_squares:
+        return to_grid(arr)
+
+    hollow_squares.sort(key=lambda x: (x[0], x[1]))
+    solid_squares.sort(key=lambda x: (x[0], x[1]))
+
+    n_blocks = max(len(hollow_squares), len(solid_squares))
+    out = np.zeros((n_blocks * 4, 8), dtype=int)
+
+    empty_hollow = np.zeros((4, 4), dtype=int)
+    empty_solid = np.zeros((4, 4), dtype=int)
+
+    for k in range(n_blocks):
+        r_start = k * 4
+        if k < len(hollow_squares):
+            out[r_start:r_start+4, 0:4] = hollow_squares[k][3]
+        else:
+            out[r_start:r_start+4, 0:4] = empty_hollow
+
+        if k < len(solid_squares):
+            out[r_start:r_start+4, 4:8] = solid_squares[k][3]
+        else:
+            out[r_start:r_start+4, 4:8] = empty_solid
+
+    return to_grid(out)
+
+
+def extract_4x4_hollow_solid_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if pair_4x4_hollow_solid_squares solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = pair_4x4_hollow_solid_squares(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

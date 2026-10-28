@@ -1816,6 +1816,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_chamber_absorption_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_pair_4x4_hollow_solid_squares(self):
+        from src.dsl import pair_4x4_hollow_solid_squares, extract_4x4_hollow_solid_rule
+
+        # Test on Train 0 of 2ba387bc
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["2ba387bc"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = pair_4x4_hollow_solid_squares(grid_in)
+        assert res == grid_out
+        assert extract_4x4_hollow_solid_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

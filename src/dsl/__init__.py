@@ -153,11 +153,15 @@ from src.dsl.primitives import (
     extract_axis_blocks_rule,
     absorb_maze_particles_into_chamber,
     extract_chamber_absorption_rule,
+    pair_4x4_hollow_solid_squares,
+    extract_4x4_hollow_solid_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "pair_4x4_hollow_solid_squares",
+    "extract_4x4_hollow_solid_rule",
     "absorb_maze_particles_into_chamber",
     "extract_chamber_absorption_rule",
     "transpose_and_stack_axis_blocks",
