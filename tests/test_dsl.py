@@ -1699,6 +1699,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_abacus_addition_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_extrapolate_aligned_harmonic_combs(self):
+        from src.dsl import extrapolate_aligned_harmonic_combs, extract_harmonic_combs_rule
+
+        # Test on Train 0 of 16de56c4
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["16de56c4"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = extrapolate_aligned_harmonic_combs(grid_in)
+        assert res == grid_out
+        assert extract_harmonic_combs_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

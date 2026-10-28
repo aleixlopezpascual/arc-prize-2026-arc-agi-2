@@ -135,11 +135,15 @@ from src.dsl.primitives import (
     extract_box_tokens_rule,
     execute_abacus_bead_addition,
     extract_abacus_addition_rule,
+    extrapolate_aligned_harmonic_combs,
+    extract_harmonic_combs_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "extrapolate_aligned_harmonic_combs",
+    "extract_harmonic_combs_rule",
     "execute_abacus_bead_addition",
     "extract_abacus_addition_rule",
     "populate_hollow_boxes_from_tokens",

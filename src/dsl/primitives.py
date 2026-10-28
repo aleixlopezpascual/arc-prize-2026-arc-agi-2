@@ -4383,6 +4383,102 @@ def extract_abacus_addition_rule(
     return True
 
 
+def extrapolate_aligned_harmonic_combs(grid: Grid | np.ndarray) -> Grid:
+    """Extrapolates 1D periodic harmonic combs along rows or columns.
+
+    Identifies line orientation (horizontal vs vertical) based on multi-pixel clusters.
+    For each line containing a periodic comb of color A (period P, phase x0 % P):
+    - Checks if another indicator pixel is present on that line.
+    - If an indicator of color B is phase-aligned (x_ind % P == phase):
+        The comb is re-colored with B and spans between the comb and indicator.
+    - If no phase-aligned indicator is present:
+        The comb extrapolates across the entire line with color A, preserving any off-phase pixels.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 3 or W < 3:
+        return to_grid(arr)
+
+    out = arr.copy()
+    bg = 0
+
+    h_lines = sum(1 for r in range(H) if max(np.unique(arr[r, arr[r, :] != bg], return_counts=True)[1], default=0) >= 2)
+    v_lines = sum(1 for c in range(W) if max(np.unique(arr[arr[:, c] != bg, c], return_counts=True)[1], default=0) >= 2)
+    if h_lines == 0 and v_lines == 0:
+        return to_grid(arr)
+
+    is_horiz = h_lines > v_lines
+    num_lines = H if is_horiz else W
+    line_len = W if is_horiz else H
+
+    import math
+
+    for line_idx in range(num_lines):
+        line = arr[line_idx, :] if is_horiz else arr[:, line_idx]
+        pts = [(i, val) for i, val in enumerate(line) if val != bg]
+        if not pts:
+            continue
+
+        vals, counts = np.unique([val for i, val in pts], return_counts=True)
+        max_c_idx = np.argmax(counts)
+        comb_col = vals[max_c_idx]
+        comb_count = counts[max_c_idx]
+
+        if comb_count < 2:
+            continue
+
+        comb_pos = sorted([i for i, val in pts if val == comb_col])
+        diffs = [comb_pos[i+1] - comb_pos[i] for i in range(len(comb_pos) - 1)]
+        P = math.gcd(*diffs) if diffs else 1
+        phase = comb_pos[0] % P
+
+        other_pts = [(i, val) for i, val in pts if val != comb_col]
+        aligned_ind = [(i, val) for i, val in other_pts if i % P == phase]
+
+        if aligned_ind:
+            ind_pos, target_col = aligned_ind[0]
+            for cp in comb_pos:
+                if is_horiz: out[line_idx, cp] = bg
+                else: out[cp, line_idx] = bg
+
+            x_min = min(min(comb_pos), ind_pos)
+            x_max = max(max(comb_pos), ind_pos)
+
+            for x in range(x_min, x_max + 1):
+                if x % P == phase:
+                    if is_horiz: out[line_idx, x] = target_col
+                    else: out[x, line_idx] = target_col
+
+            if is_horiz: out[line_idx, ind_pos] = target_col
+            else: out[ind_pos, line_idx] = target_col
+
+        else:
+            for x in range(line_len):
+                if x % P == phase:
+                    if is_horiz: out[line_idx, x] = comb_col
+                    else: out[x, line_idx] = comb_col
+
+            for op, oc in other_pts:
+                if is_horiz: out[line_idx, op] = oc
+                else: out[op, line_idx] = oc
+
+    return to_grid(out)
+
+
+def extract_harmonic_combs_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if extrapolate_aligned_harmonic_combs solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = extrapolate_aligned_harmonic_combs(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 
