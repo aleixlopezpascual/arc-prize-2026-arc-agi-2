@@ -4942,6 +4942,108 @@ def extract_satellite_constellation_rule(
     return True
 
 
+def serialize_snake_path_runs(grid: Grid | np.ndarray) -> Grid:
+    """Serializes a connected multi-color snake path into a single vertical column.
+
+    Identifies a single connected continuous path of non-background pixels.
+    Traverses the snake from head to tail (starting at the top-most point).
+    Groups path traversal into contiguous monochromatic segments (C_i, L_i).
+    Emits a (N_total, 1) column vector where each color C_i is repeated L_i times.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 3 or W < 3:
+        return to_grid(arr)
+
+    vals, counts = np.unique(arr, return_counts=True)
+    bg = int(vals[np.argmax(counts)])
+
+    non_bg_pts = [(r, c) for r in range(H) for c in range(W) if arr[r, c] != bg]
+    if not non_bg_pts:
+        return [[bg]]
+
+    start_pt = min(non_bg_pts, key=lambda p: (p[0], p[1]))
+
+    visited = set()
+    path = []
+
+    curr = start_pt
+    visited.add(curr)
+    path.append(curr)
+
+    while len(visited) < len(non_bg_pts):
+        cr, cc = curr
+        neighbors = []
+        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
+            nr, nc = cr + dr, cc + dc
+            if (nr, nc) in non_bg_pts and (nr, nc) not in visited:
+                same_c = (arr[nr, nc] == arr[cr, cc])
+                is_ortho = (abs(dr) + abs(dc) == 1)
+                neighbors.append(((nr, nc), same_c, is_ortho))
+
+        if not neighbors:
+            best_next = None
+            best_dist = float('inf')
+            for vp in path:
+                vr, vc = vp
+                for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
+                    nr, nc = vr + dr, vc + dc
+                    if (nr, nc) in non_bg_pts and (nr, nc) not in visited:
+                        d = abs(cr - nr) + abs(cc - nc)
+                        if d < best_dist:
+                            best_dist = d
+                            best_next = (nr, nc)
+            if best_next is not None:
+                curr = best_next
+                visited.add(curr)
+                path.append(curr)
+            else:
+                break
+        else:
+            neighbors.sort(key=lambda x: (x[1], x[2]), reverse=True)
+            curr = neighbors[0][0]
+            visited.add(curr)
+            path.append(curr)
+
+    segments = []
+    curr_c = None
+    curr_len = 0
+    for p in path:
+        c = int(arr[p])
+        if curr_c is None:
+            curr_c = c
+            curr_len = 1
+        elif c == curr_c:
+            curr_len += 1
+        else:
+            segments.append((curr_c, curr_len))
+            curr_c = c
+            curr_len = 1
+    if curr_c is not None:
+        segments.append((curr_c, curr_len))
+
+    out_col: list[list[int]] = []
+    for c, l in segments:
+        for _ in range(l):
+            out_col.append([c])
+
+    return out_col
+
+
+def extract_snake_path_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if serialize_snake_path_runs solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = serialize_snake_path_runs(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

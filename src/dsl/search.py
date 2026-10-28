@@ -820,7 +820,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 65. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 65. Connected Multi-Color Snake Path Serialization
+    if P.extract_snake_path_rule(train_pairs):
+        progs.append(
+            Program(
+                name="serialize_snake_path_runs",
+                steps=[("serialize_snake_path_runs", lambda g: P.serialize_snake_path_runs(g))],
+            )
+        )
+
+    # 66. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

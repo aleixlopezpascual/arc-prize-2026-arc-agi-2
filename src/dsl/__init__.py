@@ -147,11 +147,15 @@ from src.dsl.primitives import (
     extract_crosshair_stamps_rule,
     replicate_satellite_constellation,
     extract_satellite_constellation_rule,
+    serialize_snake_path_runs,
+    extract_snake_path_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "serialize_snake_path_runs",
+    "extract_snake_path_rule",
     "replicate_satellite_constellation",
     "extract_satellite_constellation_rule",
     "stamp_crosshair_palette_glyphs",

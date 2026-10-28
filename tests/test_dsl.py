@@ -1777,6 +1777,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_satellite_constellation_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_serialize_snake_path_runs(self):
+        from src.dsl import serialize_snake_path_runs, extract_snake_path_rule
+
+        # Test on Train 0 of 7b5033c1
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["7b5033c1"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = serialize_snake_path_runs(grid_in)
+        assert res == grid_out
+        assert extract_snake_path_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 
