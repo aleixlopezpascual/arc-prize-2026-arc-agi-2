@@ -31,9 +31,10 @@
   - `Hybrid v24`: `22.78%` (Submission ID 57439702, Cluster Validation Score: `14.0`!, `SubmissionStatus.COMPLETE`)
   - `Hybrid v25`: `23.47%` (Submission ID 57475078, Cluster Validation Score: `14.0`!, `SubmissionStatus.COMPLETE`)
   - `Hybrid v25 (Rerun)`: **`25.56%`** (Submission ID `57609744`, `SubmissionStatus.COMPLETE` on 2026-10-25)
-  - `Hybrid v26`: (Submission ID `57669765`, Cluster Validation Score: **`17.33`**! [ALL-TIME RECORD], `SubmissionStatus.COMPLETE` on 2026-10-26)
-- **Active Submission in Flight:** **Version 27** (Pushed to 4x L4 cluster at 16:24 UTC, auto-submit watcher active, 58 Symbolic Primitives, 21.67% / 26-task local eval solve, 32/172 test outputs, 80 / 360 test challenge hits, Attempt-2 Structural Diversity Reranker, Broad Pass B verified on 5-fold CV).
-- **Recent Completed Kernel:** **Version 26** (Submission Ref: `57669765`, Public Status: `COMPLETE`, Record Cluster Val: `17.33`, output cached at `submissions/submission_hybrid_sota_v26.json`).
+  - `Hybrid v26`: (Submission ID `57669765`, Cluster Validation Score: **`17.33`**, `SubmissionStatus.COMPLETE` on 2026-10-26)
+  - `Hybrid v27`: (Submission ID **`57708431`**, Cluster Validation Score: **`29.33`**! [ALL-TIME COMPETITION RECORD], `SubmissionStatus.COMPLETE` on 2026-10-27)
+- **Active Submission in Flight:** None (Today's daily submission quota successfully utilized by **Version 27**; next submission window opens at 00:00 UTC).
+- **Recent Completed Kernel:** **Version 27** (Submission Ref: `57708431`, Public Status: `COMPLETE`, Record Cluster Val: **`29.33`**!, output cached at `submissions/submission_hybrid_sota_v27.json`).
 
 ---
 
