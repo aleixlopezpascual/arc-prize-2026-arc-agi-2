@@ -149,11 +149,15 @@ from src.dsl.primitives import (
     extract_satellite_constellation_rule,
     serialize_snake_path_runs,
     extract_snake_path_rule,
+    transpose_and_stack_axis_blocks,
+    extract_axis_blocks_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "transpose_and_stack_axis_blocks",
+    "extract_axis_blocks_rule",
     "serialize_snake_path_runs",
     "extract_snake_path_rule",
     "replicate_satellite_constellation",

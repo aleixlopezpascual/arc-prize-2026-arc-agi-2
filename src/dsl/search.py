@@ -829,7 +829,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 66. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 66. Axis-Oriented Block Normalization and Vertical Stacking
+    if P.extract_axis_blocks_rule(train_pairs):
+        progs.append(
+            Program(
+                name="transpose_and_stack_axis_blocks",
+                steps=[("transpose_and_stack_axis_blocks", lambda g: P.transpose_and_stack_axis_blocks(g))],
+            )
+        )
+
+    # 67. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

@@ -5043,6 +5043,101 @@ def extract_snake_path_rule(
     return True
 
 
+def transpose_and_stack_axis_blocks(grid: Grid | np.ndarray) -> Grid:
+    """Extracts, transposes vertical blocks, and stacks them in major-axis order.
+
+    Identifies origin (0) and axes (1, 2) that frame the canvas.
+    Determines major scan axis from axis 1 (horizontal vs vertical).
+    Segments and extracts all inner data blocks.
+    Rotates vertical blocks (h > w) counter-clockwise (k=1) into horizontal blocks.
+    Orders blocks along the major scan axis and horizontally centers each block in the output canvas.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 3 or W < 3:
+        return to_grid(arr)
+
+    bg = 8
+
+    pts_0 = np.argwhere(arr == 0)
+    if len(pts_0) == 0:
+        return to_grid(arr)
+
+    r0, c0 = pts_0[0]
+
+    is_major_vert = False
+    if c0 == 0:
+        if np.any(arr[1:, 0] == 1): is_major_vert = True
+    elif c0 == W - 1:
+        if np.any(arr[1:, W - 1] == 1): is_major_vert = True
+
+    from scipy.ndimage import label
+
+    data_mask = np.ones((H, W), dtype=bool)
+    data_mask[arr == 0] = False
+    data_mask[arr == bg] = False
+    data_mask[r0, :] = False
+    data_mask[:, c0] = False
+
+    lbl, n_blocks = label(data_mask, structure=np.ones((3, 3)))
+    if n_blocks == 0:
+        return to_grid(arr)
+
+    blocks = []
+    for b_id in range(1, n_blocks + 1):
+        pts = np.argwhere(lbl == b_id)
+        rmin, rmax = pts[:, 0].min(), pts[:, 0].max()
+        cmin, cmax = pts[:, 1].min(), pts[:, 1].max()
+        sub = arr[rmin:rmax+1, cmin:cmax+1].copy()
+
+        if is_major_vert:
+            col_rank = abs(cmin - c0)
+            row_rank = abs(rmin - r0)
+            blocks.append((col_rank, row_rank, sub))
+        else:
+            row_rank = abs(rmin - r0)
+            col_rank = abs(cmin - c0)
+            blocks.append((row_rank, col_rank, sub))
+
+    blocks.sort(key=lambda b: (b[0], b[1]))
+
+    norm_blocks = []
+    for b in blocks:
+        sub = b[2]
+        if is_major_vert:
+            sub_norm = np.rot90(sub, k=1)
+        else:
+            sub_norm = sub
+        norm_blocks.append(sub_norm)
+
+    max_w = max(b.shape[1] for b in norm_blocks)
+    total_h = sum(b.shape[0] for b in norm_blocks)
+
+    out = np.full((total_h, max_w), bg, dtype=int)
+    curr_r = 0
+    for b in norm_blocks:
+        bh, bw = b.shape
+        pad_l = (max_w - bw) // 2
+        out[curr_r:curr_r+bh, pad_l:pad_l+bw] = b
+        curr_r += bh
+
+    return to_grid(out)
+
+
+def extract_axis_blocks_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if transpose_and_stack_axis_blocks solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = transpose_and_stack_axis_blocks(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

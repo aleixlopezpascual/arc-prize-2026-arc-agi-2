@@ -1790,6 +1790,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_snake_path_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_transpose_and_stack_axis_blocks(self):
+        from src.dsl import transpose_and_stack_axis_blocks, extract_axis_blocks_rule
+
+        # Test on Train 0 of 291dc1e1
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["291dc1e1"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = transpose_and_stack_axis_blocks(grid_in)
+        assert res == grid_out
+        assert extract_axis_blocks_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 
