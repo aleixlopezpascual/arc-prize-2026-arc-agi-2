@@ -4765,6 +4765,84 @@ def extract_pin_tumbler_lock_rule(
     return True
 
 
+def stamp_crosshair_palette_glyphs(grid: Grid | np.ndarray) -> Grid:
+    """Stamps palette glyphs from the left margin onto room crosshair marker intersections.
+
+    Identifies the vertical dividing column separating the left palette from the right room.
+    Extracts glyphs of each color on the left margin.
+    Finds matching perimeter markers of that color on the room walls:
+    - marker_rows on the left/right walls.
+    - marker_cols on the top/bottom walls.
+    Stamps the glyph centered at every intersection (mr, mc).
+    Erases the stamped glyphs from the left margin.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 3 or W < 3:
+        return to_grid(arr)
+
+    out = arr.copy()
+    bg = 0
+
+    div_c = None
+    for c in range(W):
+        if len(np.unique(arr[:, c])) == 1 and arr[0, c] != bg:
+            div_c = c
+            break
+
+    if div_c is None or div_c < 2 or div_c >= W - 3:
+        return to_grid(arr)
+
+    room_c0 = div_c + 1
+    room_c1 = W - 1
+
+    left_sub = arr[:, :div_c]
+    left_colors = set(np.unique(left_sub)) - {bg}
+
+    sorted_colors = sorted(list(left_colors), key=lambda c: np.sum(left_sub == c), reverse=True)
+
+    for c in sorted_colors:
+        marker_rows = sorted(list(set(r for r in range(H) if arr[r, room_c0] == c or arr[r, room_c1] == c)))
+        marker_cols = sorted(list(set(col for col in range(room_c0, room_c1 + 1) if arr[0, col] == c or arr[H-1, col] == c)))
+
+        if not (marker_rows and marker_cols):
+            continue
+
+        pts = np.argwhere(left_sub == c)
+        g_rmin, g_rmax = pts[:, 0].min(), pts[:, 0].max()
+        g_cmin, g_cmax = pts[:, 1].min(), pts[:, 1].max()
+        g_mid_r = int(np.round((g_rmin + g_rmax) / 2.0))
+        g_mid_c = int(np.round((g_cmin + g_cmax) / 2.0))
+        rel_coords = [(r - g_mid_r, col - g_mid_c) for r, col in pts]
+
+        for r, col in pts:
+            out[r, col] = bg
+
+        for mr in marker_rows:
+            for mc in marker_cols:
+                for dr, dc in rel_coords:
+                    tr = mr + dr
+                    tc = mc + dc
+                    if 0 < tr < H - 1 and room_c0 < tc < room_c1:
+                        out[tr, tc] = c
+
+    return to_grid(out)
+
+
+def extract_crosshair_stamps_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if stamp_crosshair_palette_glyphs solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = stamp_crosshair_palette_glyphs(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

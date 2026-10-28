@@ -802,7 +802,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 63. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 63. Room Perimeter Crosshair Stamp Placement
+    if P.extract_crosshair_stamps_rule(train_pairs):
+        progs.append(
+            Program(
+                name="stamp_crosshair_palette_glyphs",
+                steps=[("stamp_crosshair_palette_glyphs", lambda g: P.stamp_crosshair_palette_glyphs(g))],
+            )
+        )
+
+    # 64. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

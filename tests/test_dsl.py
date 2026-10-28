@@ -1751,6 +1751,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_pin_tumbler_lock_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_stamp_crosshair_palette_glyphs(self):
+        from src.dsl import stamp_crosshair_palette_glyphs, extract_crosshair_stamps_rule
+
+        # Test on Train 0 of 247ef758
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["247ef758"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = stamp_crosshair_palette_glyphs(grid_in)
+        assert res == grid_out
+        assert extract_crosshair_stamps_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 
