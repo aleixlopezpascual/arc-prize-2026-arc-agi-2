@@ -775,7 +775,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 60. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 60. Container Nozzle Exhaust Jet Stream Emission
+    if P.extract_nozzle_jets_rule(train_pairs):
+        progs.append(
+            Program(
+                name="fire_container_nozzle_jets",
+                steps=[("fire_container_nozzle_jets", lambda g: P.fire_container_nozzle_jets(g))],
+            )
+        )
+
+    # 61. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

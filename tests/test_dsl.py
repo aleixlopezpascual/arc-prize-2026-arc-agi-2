@@ -1712,6 +1712,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_harmonic_combs_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_fire_container_nozzle_jets(self):
+        from src.dsl import fire_container_nozzle_jets, extract_nozzle_jets_rule
+
+        # Test on Train 0 of 3dc255db
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["3dc255db"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = fire_container_nozzle_jets(grid_in)
+        assert res == grid_out
+        assert extract_nozzle_jets_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

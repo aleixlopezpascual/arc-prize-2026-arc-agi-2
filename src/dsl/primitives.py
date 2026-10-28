@@ -4478,6 +4478,112 @@ def extract_harmonic_combs_rule(
     return True
 
 
+def fire_container_nozzle_jets(grid: Grid | np.ndarray) -> Grid:
+    """Fires exhaust jet streams from container nozzles and erases interior fuel.
+
+    Identifies 8-connected components containing container walls and interior fuel.
+    Locates the unique pointed nozzle tip (extremum with 1 pixel) pointing outward.
+    Erases all interior fuel particles and emits an exhaust jet of the fuel color from the nozzle into empty background space, preserving fuel particle count.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 3 or W < 3:
+        return to_grid(arr)
+
+    out = arr.copy()
+    bg = 0
+
+    from scipy.ndimage import label
+    lbl, n_comp = label(arr != bg, structure=np.ones((3, 3)))
+
+    for comp_id in range(1, n_comp + 1):
+        pts = np.argwhere(lbl == comp_id)
+        cols_in_comp = np.unique(arr[lbl == comp_id])
+        if len(cols_in_comp) != 2:
+            continue
+        c1, c2 = cols_in_comp
+        cnt1 = np.sum(arr[lbl == comp_id] == c1)
+        cnt2 = np.sum(arr[lbl == comp_id] == c2)
+        wall_col, fuel_col = (c1, c2) if cnt1 > cnt2 else (c2, c1)
+
+        wall_pts = pts[arr[pts[:, 0], pts[:, 1]] == wall_col]
+        fuel_pts = pts[arr[pts[:, 0], pts[:, 1]] == fuel_col]
+        n_fuel = len(fuel_pts)
+
+        for fr, fc in fuel_pts:
+            out[fr, fc] = bg
+
+        rmin, rmax = wall_pts[:, 0].min(), wall_pts[:, 0].max()
+        cmin, cmax = wall_pts[:, 1].min(), wall_pts[:, 1].max()
+
+        top_pts = wall_pts[wall_pts[:, 0] == rmin]
+        bot_pts = wall_pts[wall_pts[:, 0] == rmax]
+        left_pts = wall_pts[wall_pts[:, 1] == cmin]
+        right_pts = wall_pts[wall_pts[:, 1] == cmax]
+
+        candidates = []
+        if len(top_pts) == 1: candidates.append(("UP", top_pts[0][0], top_pts[0][1], -1, 0))
+        if len(bot_pts) == 1: candidates.append(("DOWN", bot_pts[0][0], bot_pts[0][1], 1, 0))
+        if len(left_pts) == 1: candidates.append(("LEFT", left_pts[0][0], left_pts[0][1], 0, -1))
+        if len(right_pts) == 1: candidates.append(("RIGHT", right_pts[0][0], right_pts[0][1], 0, 1))
+
+        if not candidates:
+            continue
+
+        f_mid_r = np.mean(fuel_pts[:, 0])
+        f_mid_c = np.mean(fuel_pts[:, 1])
+
+        wall_set = {tuple(p) for p in wall_pts}
+
+        def score_cand(cand):
+            d_name, tr, tc, dr, dc = cand
+            neck_score = 0
+            if (tr - dr, tc - dc) in wall_set: neck_score += 10
+            if dr != 0:
+                if (tr - dr, tc - 1) in wall_set and (tr - dr, tc + 1) in wall_set: neck_score += 8
+            elif dc != 0:
+                if (tr - 1, tc - dc) in wall_set and (tr + 1, tc - dc) in wall_set: neck_score += 8
+
+            perp_dist = abs(tc - f_mid_c) if dr != 0 else abs(tr - f_mid_r)
+            forward = False
+            if dr == -1 and tr < f_mid_r: forward = True
+            elif dr == 1 and tr > f_mid_r: forward = True
+            elif dc == -1 and tc < f_mid_c: forward = True
+            elif dc == 1 and tc > f_mid_c: forward = True
+
+            if forward: neck_score += 15
+            return -(neck_score - perp_dist)
+
+        candidates.sort(key=score_cand)
+        d_name, tr, tc, dr, dc = candidates[0]
+
+        curr_r, curr_c = tr + dr, tc + dc
+        placed = 0
+        while 0 <= curr_r < H and 0 <= curr_c < W and placed < n_fuel:
+            if arr[curr_r, curr_c] != bg:
+                break
+            out[curr_r, curr_c] = fuel_col
+            placed += 1
+            curr_r += dr
+            curr_c += dc
+
+    return to_grid(out)
+
+
+def extract_nozzle_jets_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if fire_container_nozzle_jets solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = fire_container_nozzle_jets(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

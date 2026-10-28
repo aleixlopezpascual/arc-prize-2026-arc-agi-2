@@ -137,11 +137,15 @@ from src.dsl.primitives import (
     extract_abacus_addition_rule,
     extrapolate_aligned_harmonic_combs,
     extract_harmonic_combs_rule,
+    fire_container_nozzle_jets,
+    extract_nozzle_jets_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "fire_container_nozzle_jets",
+    "extract_nozzle_jets_rule",
     "extrapolate_aligned_harmonic_combs",
     "extract_harmonic_combs_rule",
     "execute_abacus_bead_addition",
