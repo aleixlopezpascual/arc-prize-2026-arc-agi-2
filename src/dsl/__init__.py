@@ -159,11 +159,15 @@ from src.dsl.primitives import (
     extract_histogram_legend_rule,
     assemble_prototype_tile_macrogrid,
     extract_prototype_macrogrid_rule,
+    project_corner_bracket_templates,
+    extract_corner_brackets_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "project_corner_bracket_templates",
+    "extract_corner_brackets_rule",
     "assemble_prototype_tile_macrogrid",
     "extract_prototype_macrogrid_rule",
     "plot_incontext_histogram_legend",

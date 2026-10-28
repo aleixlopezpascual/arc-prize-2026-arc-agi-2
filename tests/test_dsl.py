@@ -1855,6 +1855,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_prototype_macrogrid_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_project_corner_bracket_templates(self):
+        from src.dsl import project_corner_bracket_templates, extract_corner_brackets_rule
+
+        # Test on Train 0 of 4c416de3
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["4c416de3"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = project_corner_bracket_templates(grid_in)
+        assert res == grid_out
+        assert extract_corner_brackets_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

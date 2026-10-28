@@ -874,7 +874,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 71. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 71. Corner Bracket Template Projection
+    if P.extract_corner_brackets_rule(train_pairs):
+        progs.append(
+            Program(
+                name="project_corner_bracket_templates",
+                steps=[("project_corner_bracket_templates", lambda g: P.project_corner_bracket_templates(g))],
+            )
+        )
+
+    # 72. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

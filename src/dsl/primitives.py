@@ -5431,6 +5431,117 @@ def extract_prototype_macrogrid_rule(
     return True
 
 
+def project_corner_bracket_templates(grid: Grid | np.ndarray) -> Grid:
+    """Projects dihedral corner bracket templates onto matching wall corners.
+
+    Identifies an external corner bracket template of color C_template adjacent to a wall of 0s.
+    Detects all wall corners (intersections of orthogonal wall segments of 0) and their quadrant orientations (TL, TR, BL, BR).
+    For each single-pixel interior marker of color C, finds the enclosing corner and projects the dihedral-transformed corner bracket in color C.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 5 or W < 5:
+        return to_grid(arr)
+
+    from scipy.ndimage import label
+
+    vals, counts = np.unique(arr, return_counts=True)
+    bg = int(vals[np.argmax(counts)])
+
+    non_bg_mask = (arr != bg) & (arr != 0)
+    lbl_c, n_c = label(non_bg_mask, structure=np.ones((3, 3)))
+
+    template_pts = None
+    template_col = None
+    for i in range(1, n_c + 1):
+        pts = np.argwhere(lbl_c == i)
+        if len(pts) > 1:
+            template_pts = pts
+            template_col = int(arr[pts[0, 0], pts[0, 1]])
+            break
+
+    if template_pts is None:
+        return to_grid(arr)
+
+    wall_cand = (arr == 0) | (arr == template_col)
+
+    all_corners = []
+    for r in range(H):
+        for c in range(W):
+            if wall_cand[r, c]:
+                is_TL = (c + 2 < W and wall_cand[r, c + 1] and wall_cand[r, c + 2]) and (r + 2 < H and wall_cand[r + 1, c] and wall_cand[r + 2, c])
+                is_TR = (c - 2 >= 0 and wall_cand[r, c - 1] and wall_cand[r, c - 2]) and (r + 2 < H and wall_cand[r + 1, c] and wall_cand[r + 2, c])
+                is_BL = (c + 2 < W and wall_cand[r, c + 1] and wall_cand[r, c + 2]) and (r - 2 >= 0 and wall_cand[r - 1, c] and wall_cand[r - 2, c])
+                is_BR = (c - 2 >= 0 and wall_cand[r, c - 1] and wall_cand[r, c - 2]) and (r - 2 >= 0 and wall_cand[r - 1, c] and wall_cand[r - 2, c])
+
+                if is_TL: all_corners.append(((r, c), (-1, -1)))
+                if is_TR: all_corners.append(((r, c), (-1, 1)))
+                if is_BL: all_corners.append(((r, c), (1, -1)))
+                if is_BR: all_corners.append(((r, c), (1, 1)))
+
+    if not all_corners:
+        return to_grid(arr)
+
+    min_dist = float('inf')
+    best_t_corner = None
+    best_t_dir = None
+    for cpt, cdir in all_corners:
+        d = min(abs(p[0] - cpt[0]) + abs(p[1] - cpt[1]) for p in template_pts)
+        if d < min_dist:
+            min_dist = d
+            best_t_corner = cpt
+            best_t_dir = cdir
+
+    t_dr0, t_dc0 = best_t_dir
+    rel_offsets = [(p[0] - best_t_corner[0], p[1] - best_t_corner[1]) for p in template_pts]
+
+    out = arr.copy()
+
+    for i in range(1, n_c + 1):
+        pts = np.argwhere(lbl_c == i)
+        if len(pts) == 1:
+            pr, pc = pts[0]
+            col = int(arr[pr, pc])
+
+            best_c = None
+            best_cdir = None
+            best_cdist = float('inf')
+            for cpt, cdir in all_corners:
+                dr, dc = cdir
+                if (pr - cpt[0]) * (-dr) >= 0 and (pc - cpt[1]) * (-dc) >= 0:
+                    d = abs(pr - cpt[0]) + abs(pc - cpt[1])
+                    if d < best_cdist:
+                        best_cdist = d
+                        best_c = cpt
+                        best_cdir = cdir
+
+            if best_c is not None:
+                dr, dc = best_cdir
+                scale_r = dr // t_dr0
+                scale_c = dc // t_dc0
+                for ro, co in rel_offsets:
+                    tgt_r = best_c[0] + ro * scale_r
+                    tgt_c = best_c[1] + co * scale_c
+                    if 0 <= tgt_r < H and 0 <= tgt_c < W:
+                        out[tgt_r, tgt_c] = col
+
+    return to_grid(out)
+
+
+def extract_corner_brackets_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if project_corner_bracket_templates solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = project_corner_bracket_templates(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 
