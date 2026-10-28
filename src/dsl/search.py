@@ -811,7 +811,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 64. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 64. Satellite Constellation Hierarchical Glyph Replication
+    if P.extract_satellite_constellation_rule(train_pairs):
+        progs.append(
+            Program(
+                name="replicate_satellite_constellation",
+                steps=[("replicate_satellite_constellation", lambda g: P.replicate_satellite_constellation(g))],
+            )
+        )
+
+    # 65. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

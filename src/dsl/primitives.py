@@ -4842,6 +4842,107 @@ def extract_crosshair_stamps_rule(
     return True
 
 
+def replicate_satellite_constellation(grid: Grid | np.ndarray) -> Grid:
+    """Replicates a master glyph across satellite constellation offset vectors.
+
+    Identifies the master glyph (color A) and satellite constellation (dots of color B with center dot of color A).
+    Displacement vectors from the center dot are scaled by the glyph dimensions (H and W).
+    Clones of the master glyph (color A) are placed at each scaled displacement, while the central master glyph is re-colored to color B.
+    The satellite constellation is erased.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 3 or W < 3:
+        return to_grid(arr)
+
+    out = arr.copy()
+    vals, counts = np.unique(arr, return_counts=True)
+    bg = int(vals[np.argmax(counts)])
+
+    non_bg = [c for c in vals if c != bg]
+    if len(non_bg) != 2:
+        return to_grid(arr)
+
+    from scipy.ndimage import label
+
+    cA, cB = non_bg
+    lbl_A, n_A = label(arr == cA)
+    lbl_B, n_B = label(arr == cB)
+
+    if n_A == 1 or (n_B > n_A):
+        master_col = cA
+        dot_col = cB
+    else:
+        master_col = cB
+        dot_col = cA
+
+    lbl_m, n_m = label(arr == master_col)
+    comp_sizes = [np.sum(lbl_m == i) for i in range(1, n_m + 1)]
+    master_comp_id = np.argmax(comp_sizes) + 1
+
+    master_pts = np.argwhere(lbl_m == master_comp_id)
+    g_rmin, g_rmax = master_pts[:, 0].min(), master_pts[:, 0].max()
+    g_cmin, g_cmax = master_pts[:, 1].min(), master_pts[:, 1].max()
+    gh = g_rmax - g_rmin + 1
+    gw = g_cmax - g_cmin + 1
+
+    dot_pts = np.argwhere(arr == dot_col)
+
+    center_pt = None
+    for i in range(1, n_m + 1):
+        if i != master_comp_id:
+            pts = np.argwhere(lbl_m == i)
+            if len(pts) == 1:
+                center_pt = pts[0]
+                break
+
+    if center_pt is None:
+        return to_grid(arr)
+
+    cr_dot, cc_dot = center_pt
+
+    for dr, dc in dot_pts:
+        out[dr, dc] = bg
+    out[cr_dot, cc_dot] = bg
+
+    for mr, mc in master_pts:
+        out[mr, mc] = dot_col
+
+    rel_glyph = [(r - g_rmin, c - g_cmin) for r, c in master_pts]
+
+    for dr_dot, dc_dot in dot_pts:
+        d_r = dr_dot - cr_dot
+        d_c = dc_dot - cc_dot
+
+        shift_r = (d_r // 2) * gh
+        shift_c = (d_c // 2) * gw
+
+        clone_rmin = g_rmin + shift_r
+        clone_cmin = g_cmin + shift_c
+
+        for r_off, c_off in rel_glyph:
+            tr = clone_rmin + r_off
+            tc = clone_cmin + c_off
+            if 0 <= tr < H and 0 <= tc < W:
+                out[tr, tc] = master_col
+
+    return to_grid(out)
+
+
+def extract_satellite_constellation_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if replicate_satellite_constellation solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = replicate_satellite_constellation(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 
