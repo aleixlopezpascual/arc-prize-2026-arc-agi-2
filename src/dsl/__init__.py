@@ -161,11 +161,15 @@ from src.dsl.primitives import (
     extract_prototype_macrogrid_rule,
     project_corner_bracket_templates,
     extract_corner_brackets_rule,
+    pull_particles_into_tractor_containers,
+    extract_tractor_containers_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "pull_particles_into_tractor_containers",
+    "extract_tractor_containers_rule",
     "project_corner_bracket_templates",
     "extract_corner_brackets_rule",
     "assemble_prototype_tile_macrogrid",

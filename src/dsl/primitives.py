@@ -5541,6 +5541,129 @@ def extract_corner_brackets_rule(
     return True
 
 
+def pull_particles_into_tractor_containers(grid: Grid | np.ndarray) -> Grid:
+    """Pulls target particles into open container cavities with tractor beam trails.
+
+    Identifies open hollow containers of color C_cont and target particles of color 2.
+    Determines the open mouth direction of each container.
+    Finds target particle components that enter through the open mouth along an orthogonal ray.
+    Pulls them into the container's cavity, leaving a trail of color 0 behind.
+    Erases unpulled target particles outside.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 5 or W < 5:
+        return to_grid(arr)
+
+    from scipy.ndimage import label
+
+    vals, counts = np.unique(arr, return_counts=True)
+    bg = int(vals[np.argmax(counts)])
+    target_col = 2
+    cont_cols = [c for c in np.unique(arr) if c != bg and c != target_col]
+    if not cont_cols:
+        return to_grid(arr)
+    cont_col = int(cont_cols[0])
+
+    lbl_tgt, n_tgt = label(arr == target_col, structure=np.ones((3, 3)))
+    tgt_comps = []
+    for i in range(1, n_tgt + 1):
+        pts = np.argwhere(lbl_tgt == i)
+        tgt_comps.append(pts)
+
+    out = arr.copy()
+    for pts in tgt_comps:
+        for r, c in pts:
+            out[r, c] = bg
+
+    lbl_cont, n_cont = label(arr == cont_col, structure=np.ones((3, 3)))
+    containers = []
+    for i in range(1, n_cont + 1):
+        c_pts = np.argwhere(lbl_cont == i)
+        rmin, rmax = c_pts[:, 0].min(), c_pts[:, 0].max()
+        cmin, cmax = c_pts[:, 1].min(), c_pts[:, 1].max()
+
+        top_face = np.sum(arr[rmin, cmin:cmax+1] == cont_col)
+        bot_face = np.sum(arr[rmax, cmin:cmax+1] == cont_col)
+        left_face = np.sum(arr[rmin:rmax+1, cmin] == cont_col)
+        right_face = np.sum(arr[rmin:rmax+1, cmax] == cont_col)
+
+        mouth_dirs = []
+        if top_face > bot_face:
+            mouth_dirs.append((1, 0))
+        elif bot_face > top_face:
+            mouth_dirs.append((-1, 0))
+
+        if left_face > right_face:
+            mouth_dirs.append((0, 1))
+        elif right_face > left_face:
+            mouth_dirs.append((0, -1))
+
+        containers.append((rmin, rmax, cmin, cmax, c_pts, mouth_dirs))
+
+    for rmin, rmax, cmin, cmax, c_pts, mouth_dirs in containers:
+        c_mask = np.zeros((H, W), dtype=bool)
+        for r, c in c_pts:
+            c_mask[r, c] = True
+
+        best_match = None
+        min_steps = float('inf')
+
+        for m_dr, m_dc in mouth_dirs:
+            dr, dc = -m_dr, -m_dc
+            for pts in tgt_comps:
+                step = 1
+                while True:
+                    shifted = pts + step * np.array([dr, dc])
+                    if (
+                        np.any(shifted[:, 0] < 0)
+                        or np.any(shifted[:, 0] >= H)
+                        or np.any(shifted[:, 1] < 0)
+                        or np.any(shifted[:, 1] >= W)
+                    ):
+                        break
+                    if np.any(c_mask[shifted[:, 0], shifted[:, 1]]):
+                        resting_step = step - 1
+                        if resting_step >= 1:
+                            target_pts = pts + resting_step * np.array([dr, dc])
+                            in_bbox = (
+                                np.all(target_pts[:, 0] >= rmin)
+                                and np.all(target_pts[:, 0] <= rmax)
+                                and np.all(target_pts[:, 1] >= cmin)
+                                and np.all(target_pts[:, 1] <= cmax)
+                            )
+                            if in_bbox:
+                                if resting_step < min_steps:
+                                    min_steps = resting_step
+                                    best_match = (pts, resting_step, dr, dc, target_pts)
+                        break
+                    step += 1
+
+        if best_match is not None:
+            pts, v_step, dr, dc, final_pts = best_match
+            for pr, pc in pts:
+                for s in range(0, v_step + 1):
+                    out[pr + s * dr, pc + s * dc] = 0
+            for fr, fc in final_pts:
+                out[fr, fc] = target_col
+
+    return to_grid(out)
+
+
+def extract_tractor_containers_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if pull_particles_into_tractor_containers solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = pull_particles_into_tractor_containers(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

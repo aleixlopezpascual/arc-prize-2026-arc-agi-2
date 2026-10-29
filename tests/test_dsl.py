@@ -1868,6 +1868,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_corner_brackets_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_pull_particles_into_tractor_containers(self):
+        from src.dsl import pull_particles_into_tractor_containers, extract_tractor_containers_rule
+
+        # Test on Train 0 of 8b9c3697
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["8b9c3697"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = pull_particles_into_tractor_containers(grid_in)
+        assert res == grid_out
+        assert extract_tractor_containers_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 
