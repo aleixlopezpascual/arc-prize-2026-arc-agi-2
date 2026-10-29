@@ -165,11 +165,15 @@ from src.dsl.primitives import (
     extract_tractor_containers_rule,
     energize_conductive_circuit_path,
     extract_conductive_circuit_rule,
+    inpaint_symmetric_mandala_window,
+    extract_mandala_inpaint_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "inpaint_symmetric_mandala_window",
+    "extract_mandala_inpaint_rule",
     "energize_conductive_circuit_path",
     "extract_conductive_circuit_rule",
     "pull_particles_into_tractor_containers",

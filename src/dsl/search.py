@@ -901,7 +901,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 74. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 74. Symmetric Mandala Occluded Window Inpainting
+    if P.extract_mandala_inpaint_rule(train_pairs):
+        progs.append(
+            Program(
+                name="inpaint_symmetric_mandala_window",
+                steps=[("inpaint_symmetric_mandala_window", lambda g: P.inpaint_symmetric_mandala_window(g))],
+            )
+        )
+
+    # 75. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

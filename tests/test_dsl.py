@@ -1894,6 +1894,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_conductive_circuit_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_inpaint_symmetric_mandala_window(self):
+        from src.dsl import inpaint_symmetric_mandala_window, extract_mandala_inpaint_rule
+
+        # Test on Train 0 of 0934a4d8
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["0934a4d8"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = inpaint_symmetric_mandala_window(grid_in)
+        assert res == grid_out
+        assert extract_mandala_inpaint_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

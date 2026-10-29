@@ -5766,6 +5766,98 @@ def extract_conductive_circuit_rule(
     return True
 
 
+def inpaint_symmetric_mandala_window(grid: Grid | np.ndarray) -> Grid:
+    """Inpaints an occluded rectangular window in a symmetric mandala using D4 dihedral invariance.
+
+    Detects an occluded solid rectangular window of color 8 in a large grid (e.g. 30x30).
+    Searches across all 8 dihedral transformations (rotations, reflections, transpositions)
+    to find the symmetry operation that maps the occluded window to a completely unoccluded region
+    with maximum global consistency across the rest of the mandala.
+    Restores the occluded window from the symmetric unoccluded region.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 10 or W < 10:
+        return to_grid(arr)
+
+    pts8 = np.argwhere(arr == 8)
+    if len(pts8) == 0:
+        return to_grid(arr)
+
+    r0, rmax = pts8[:, 0].min(), pts8[:, 0].max()
+    c0, cmax = pts8[:, 1].min(), pts8[:, 1].max()
+    gh = rmax - r0 + 1
+    gw = cmax - c0 + 1
+
+    if np.sum(arr[r0:rmax+1, c0:cmax+1] == 8) != gh * gw:
+        return to_grid(arr)
+
+    best_pred = None
+    best_score = -1
+
+    for max_coord in [H - 1, H + 1]:
+        d4_ops = [
+            ("rot180", lambda r, c, m=max_coord: (m - r, m - c)),
+            ("fliplr", lambda r, c, m=max_coord: (r, m - c)),
+            ("flipud", lambda r, c, m=max_coord: (m - r, c)),
+            ("transpose", lambda r, c, m=max_coord: (c, r)),
+            ("anti_transpose", lambda r, c, m=max_coord: (m - c, m - r)),
+            ("rot90", lambda r, c, m=max_coord: (c, m - r)),
+            ("rot270", lambda r, c, m=max_coord: (m - c, r)),
+        ]
+
+        for name, op in d4_ops:
+            all_valid = True
+            patch_pred = np.zeros((gh, gw), dtype=int)
+            for i in range(gh):
+                for j in range(gw):
+                    r = r0 + i
+                    c = c0 + j
+                    sr, sc = op(r, c)
+                    if 0 <= sr < H and 0 <= sc < W and arr[sr, sc] != 8:
+                        patch_pred[i, j] = arr[sr, sc]
+                    else:
+                        all_valid = False
+                        break
+                if not all_valid:
+                    break
+
+            if all_valid:
+                matches = 0
+                total = 0
+                for r in range(H):
+                    for c in range(W):
+                        sr, sc = op(r, c)
+                        if 0 <= sr < H and 0 <= sc < W:
+                            if arr[r, c] != 8 and arr[sr, sc] != 8:
+                                total += 1
+                                if arr[r, c] == arr[sr, sc]:
+                                    matches += 1
+                if total > 0:
+                    score = matches / total
+                    if score > best_score:
+                        best_score = score
+                        best_pred = patch_pred
+
+    if best_pred is not None:
+        return to_grid(best_pred)
+    return to_grid(arr)
+
+
+def extract_mandala_inpaint_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if inpaint_symmetric_mandala_window solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = inpaint_symmetric_mandala_window(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 
