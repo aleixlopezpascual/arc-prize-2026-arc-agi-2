@@ -388,3 +388,33 @@ def test_submission_builder_injects_diversity_selection(tmp_path: Path):
 
 
 
+
+
+def _code(path: Path) -> str:
+    nb = json.loads(path.read_text(encoding="utf-8"))
+    return "\n".join("".join(c.get("source", [])) for c in nb["cells"] if c.get("cell_type") == "code")
+
+
+def test_builder_default_keeps_symbolic_merge(tmp_path: Path):
+    code = _code(build(output_path=tmp_path / "hybrid.ipynb", validation_mode="train"))
+    assert "# Tier 1 Symbolic Induction Filter" in code
+    assert "Global symbolic verification error" in code
+    assert "validation_predictions.json" in code
+
+
+def test_builder_no_symbolic_merge_writes_neural_only(tmp_path: Path):
+    code = _code(build(output_path=tmp_path / "neural.ipynb", validation_mode="train", symbolic_merge=False))
+    assert "# Tier 1 Symbolic Induction Filter" not in code
+    assert "Global symbolic verification error" not in code
+    assert "submission[task_id][i]['attempt_1'] = sanitize_grid(sym_cand)" not in code
+    assert "validation_predictions_neural_only.json" in code
+    # neural selection and the output write are still present
+    assert "neural_raw_results = decoder.run_selection_algo(score_ensemble)" in code
+    assert "json.dump(submission, f)" in code
+
+
+def test_builder_no_symbolic_merge_rejected_for_submission_and_paired(tmp_path: Path):
+    with pytest.raises(ValueError):
+        build(output_path=tmp_path / "a.ipynb", validation_mode="submission", symbolic_merge=False)
+    with pytest.raises(ValueError):
+        build(output_path=tmp_path / "b.ipynb", validation_mode="train", pass_b_policy="paired", symbolic_merge=False)

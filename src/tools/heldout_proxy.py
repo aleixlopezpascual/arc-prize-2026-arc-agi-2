@@ -300,6 +300,15 @@ def main() -> None:
         symbolic = restrict_to_families(symbolic, generic)
         print(f"[{args.split}] --generic-only: {before} -> {sum(1 for r in symbolic.values() if r.get('preds'))} fired tasks")
 
+    if not args.neural.is_file():
+        raise SystemExit(
+            f"Neural predictions not found: {args.neural}\n"
+            "Expected a neural-only run (no symbolic merge) as JSON: "
+            '{task_id: [{"attempt_1": grid, "attempt_2": grid}, ...]}.\n'
+            "Generate one with `python3 -m src.tools.build_submission_notebook "
+            "--validation-mode train --no-symbolic-merge`, run the kernel on Kaggle, "
+            "and download validation_predictions_neural_only.json."
+        )
     neural = json.loads(args.neural.read_text())
     solutions = json.loads(SPLIT_FILES[args.split][1].read_text())
     if args.limit:

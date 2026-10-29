@@ -11,9 +11,14 @@ def build(
     output_path: Path | None = None,
     validation_mode: Literal["submission", "train", "eval"] = "submission",
     pass_b_policy: Literal["broad", "uncertainty", "paired"] = "broad",
+    symbolic_merge: bool = True,
 ) -> Path:
     if pass_b_policy == "paired" and validation_mode != "train":
         raise ValueError("The paired Pass-B validation mode is only supported for train CV.")
+    if not symbolic_merge and validation_mode == "submission":
+        raise ValueError("Neural-only output is a validation artifact; it cannot be used for a submission.")
+    if not symbolic_merge and pass_b_policy == "paired":
+        raise ValueError("Neural-only output is not supported with the paired Pass-B policy.")
 
     base_nb_path = Path(
         "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/notebooks/public_baselines/lb33_89/arc-agi2-lb33-89-minimal-perfpatch.ipynb"
@@ -799,6 +804,9 @@ if time_remaining > 900:
 
     cell9_paths = textwrap.dedent(cell9_paths)
     output_filename = "validation_predictions.json" if validation_mode in ('train', 'eval') else "submission.json"
+    if not symbolic_merge:
+        # Distinct name so a symbolic-free file is never mistaken for the hybrid output.
+        output_filename = "validation_predictions_neural_only.json"
 
     merge_lines = [
         "import os\n",
@@ -912,6 +920,12 @@ if time_remaining > 900:
         '    print("*** Final Hybrid Validation score:", data.validate_submission(reload_submission))\n',
     ]
 
+    if not symbolic_merge:
+        # Drop the Tier 1 pre-pass so attempt_1/attempt_2 stay purely neural (for held-out A/B proxies).
+        start = merge_lines.index("# Tier 1 Symbolic Induction Filter\n")
+        end = next(i for i, line in enumerate(merge_lines) if "Global symbolic verification error" in line)
+        del merge_lines[start : end + 1]
+
     if pass_b_policy == "paired":
         # Skip the notebook's internal benchmark; the paired outputs are scored locally via src.metrics.
         merge_lines = merge_lines[:-3]
@@ -968,7 +982,17 @@ if __name__ == "__main__":
     parser.add_argument("--output", type=str, default=None, help="Output path for the notebook")
     parser.add_argument("--validation-mode", type=str, choices=["submission", "train", "eval"], default="submission")
     parser.add_argument("--pass-b-policy", type=str, choices=["broad", "uncertainty", "paired"], default="broad")
+    parser.add_argument(
+        "--no-symbolic-merge",
+        action="store_true",
+        help="Skip the Tier 1 symbolic override; write neural-only predictions (validation modes only).",
+    )
     args = parser.parse_args()
 
     out_path = Path(args.output) if args.output else None
-    build(output_path=out_path, validation_mode=args.validation_mode, pass_b_policy=args.pass_b_policy)
+    build(
+        output_path=out_path,
+        validation_mode=args.validation_mode,
+        pass_b_policy=args.pass_b_policy,
+        symbolic_merge=not args.no_symbolic_merge,
+    )
