@@ -5857,6 +5857,103 @@ def extract_mandala_inpaint_rule(
     return True
 
 
+def execute_turtle_bytecode_path(grid: Grid | np.ndarray) -> Grid:
+    """Executes visual turtle bytecode instructions from left half onto right canvas.
+
+    Detects a vertical dividing line at column 7 partitioning left instruction memory (width 7)
+    from right execution canvas (width 7).
+    Finds the starting cursor dot (color 5) in the right canvas.
+    Parses instruction blocks on the left arranged in 3x3 blocks with 4-row stride
+    (left column of blocks followed by right column of blocks).
+    Executes turtle commands sequentially:
+    - Color 1: step down 1 row, draw line RIGHT of length 3 (span curr_c .. curr_c+2, new endpoint curr_c+2).
+    - Color 2: step down 1 row, draw line LEFT of length 2 (span curr_c-1 .. curr_c, new endpoint curr_c-1).
+    - Color 3: step down 1 row, draw line LEFT of length 4 (span curr_c-3 .. curr_c, new endpoint curr_c-3).
+    - Color 6: drop DOWN by 2 rows along current column (new endpoint curr_r+2).
+    Returns the executed path canvas of size (H, 7).
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if W != 15:
+        return to_grid(arr)
+
+    div_c = W // 2
+    left = arr[:, :div_c]
+    right = arr[:, div_c+1:]
+
+    pts5 = np.argwhere(right == 5)
+    if len(pts5) == 0:
+        return to_grid(arr)
+    start_r, start_c = int(pts5[0, 0]), int(pts5[0, 1])
+
+    n_blocks = (H + 1) // 4
+    left_blocks = []
+    right_blocks = []
+    for b in range(n_blocks):
+        r_start = b * 4
+        sub_l = left[r_start:r_start+3, 0:3]
+        sub_r = left[r_start:r_start+3, 4:7]
+        col_l_vals = np.unique(sub_l[sub_l != 0])
+        col_r_vals = np.unique(sub_r[sub_r != 0])
+        if len(col_l_vals) == 0 or len(col_r_vals) == 0:
+            return to_grid(arr)
+        left_blocks.append(int(col_l_vals[0]))
+        right_blocks.append(int(col_r_vals[0]))
+
+    instructions = left_blocks + right_blocks
+
+    out = np.zeros((H, 7), dtype=int)
+    out[start_r, start_c] = 5
+
+    curr_r = start_r
+    curr_c = start_c
+
+    for op in instructions:
+        if op == 6:
+            if curr_r + 2 >= H:
+                break
+            out[curr_r + 1, curr_c] = 6
+            out[curr_r + 2, curr_c] = 6
+            curr_r += 2
+        elif op == 1:
+            curr_r += 1
+            if curr_r >= H or curr_c + 2 >= 7:
+                break
+            for c in range(curr_c, curr_c + 3):
+                out[curr_r, c] = 1
+            curr_c = curr_c + 2
+        elif op == 2:
+            curr_r += 1
+            if curr_r >= H or curr_c - 1 < 0:
+                break
+            for c in range(curr_c - 1, curr_c + 1):
+                out[curr_r, c] = 2
+            curr_c = curr_c - 1
+        elif op == 3:
+            curr_r += 1
+            if curr_r >= H or curr_c - 3 < 0:
+                break
+            for c in range(curr_c - 3, curr_c + 1):
+                out[curr_r, c] = 3
+            curr_c = curr_c - 3
+
+    return to_grid(out)
+
+
+def extract_turtle_bytecode_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if execute_turtle_bytecode_path solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = execute_turtle_bytecode_path(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 
