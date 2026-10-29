@@ -1,0 +1,21 @@
+docs/intel/top_notebooks.md
+  s_2c0e787e9b9f2b::t_6809f37cd7fb5a 72-92
+docs/PUBLIC_NOTEBOOKS_BENCHMARK_EVALUATION.md
+  s_2c0e787e9b9f2b::t_b705541d0e7e05 15,19-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "bf2b6bfca00f580b50d5d78ae2f07a59e0412680",
+  "prompts": {},
+  "sessions": {
+    "s_2c0e787e9b9f2b": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "2d27286b-4bec-49a9-851f-b8b320ca6feb",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
