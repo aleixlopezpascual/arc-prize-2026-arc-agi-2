@@ -107,20 +107,38 @@ The neural model's best prediction is **never displaced**, mathematically preven
 | `hybrid-v14-kernel` | Bilateral Symmetry + Ranked Pillars + Legend Cavity (36 Prims) | 0.0581 (10/172) | 0.0880 (98/1076) | **Completed (Val: 5.81%)** | Solves 8 evaluation tasks (10/172 outputs). Pushed as Kernel v14 |
 | `hybrid-v15-kernel` | Parallel Line Segment Standardization (37 Prims) | 0.0640 (11/172) | 0.0880 (98/1076) | **28.06%** (Sub `56979030`) | Solves 9 evaluation tasks (11/172 outputs). |
 | `hybrid-v16-kernel` | Liquid Gravity Flow into Cavities (38 Prims) | 0.0698 (12/172) | 0.0880 (98/1076) | **29.31%** (Sub `57036813`) | Solves 10 evaluation tasks (12/172 outputs). Cluster Val: 10.0! |
-| `hybrid-v17-kernel` | Deficit-First GPU Scheduling + CRC32 Determinism | 0.0698 (12/172) | 0.0880 (98/1076) | **Pending (Sub `57115410`)** | Cluster Val: 10.0! Solves 10 tasks. Actively scoring. |
+---
+
+## 🛡️ 3. Submission Engine Hardening & Root-Cause Resolution (Version 28 Fix)
+
+Following an unhandled rerun error in submissions v26 and v27 (`"Your notebook hit an unhandled error while rerunning your code. Note that the hidden dataset can be larger/smaller/different than the public dataset"`), a systematic debugging investigation uncovered and resolved three critical root causes:
+
+1. **Primitive Bounds Fix (`src/dsl/primitives.py`):**
+   - Primitive 46 (`simulate_projectile_cannons`) previously accessed `out[1, col_idx]` and `out[9, col_idx]` without verifying grid dimensions. On hidden test grids with $H < 10$ (such as `d5c634a2`), this raised an unhandled `IndexError`.
+   - **Resolution:** Added early bounds check `if H < 10 or W < 10: return to_grid(arr)` and strict coordinate guards (`pr < H and pc < W`). Verified across all 1,000 tasks with zero errors.
+
+2. **Clean Script Generation & Dataset Fallbacks (`src/tools/build_submission_notebook.py`):**
+   - Triple-quoted string interpolation previously left an unmatched trailing quote in `arc_solver.py` (Cell 6), triggering a `SyntaxError` when workers imported `worker`.
+   - Dataset paths lacked fallback resolution to `/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json`.
+   - **Resolution:** Replaced multiline string literals with explicit string concatenation and added robust fallbacks for all competition dataset mount points.
+
+3. **Fault-Tolerant Execution & Output Sanitization (Cell 9):**
+   - Candidate generation in `search_dsl_programs` is now fully wrapped in `try...except Exception:` blocks.
+   - Tier-1 symbolic verification in Cell 9 catches any individual task exception, safely falling back to Tier-2 neural predictions.
+   - Implemented `sanitize_grid(g)` to guarantee that every entry written to `submission.json` is a strictly valid 2D list of integers in $[0, 9]$.
 
 ---
 
 ## ⚙️ 4. Active Background Processes & Automation
 
 1. **Submission Status**:
-   - Version 17 submitted on October 12, 2026: Submission ID `57115410` (`SubmissionStatus.PENDING`).
-   - Daily limit remaining today: 1 (fresh quota reset available).
+   - **Staged Submission:** **Version 28** (76 Symbolic Primitives, 36.67% / 44-task local benchmark solve, 58/172 test outputs, Attempt-2 Structural Diversity Reranker).
+   - Daily limit remaining today: **1** (fresh quota available).
 
 2. **Kaggle Kernel Workflow**:
    - **Kernel Slug:** `aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt`
    - **Cluster Hardware:** 4x NVIDIA L4 GPUs (96 GB VRAM).
-   - **Last Remote Run:** Version 17 finished in 31.2m, logging **Cluster Validation: 10.0**.
+   - **Last Remote Run:** Version 27 finished in 65.5m, logging **Cluster Validation: 29.33** (All-time competition record).
    - **Submission Notebook:** Built and pre-compiled at `notebooks/submissions/hybrid_sota_v1/submission_kernel.ipynb`.
 
 ---
@@ -128,11 +146,16 @@ The neural model's best prediction is **never displaced**, mathematically preven
 ## 🧪 5. Testing & Verification
 
 - **Full Suite Command:** `python3 -m pytest tests/`
-- **Current Test Count:** **85 passing unit tests** in 0.25s
-  - `tests/test_dsl.py`: 73 tests
-  - `tests/test_metrics.py`: 6 tests
+- **Current Test Count:** **169 passing unit tests** in 1.53s
+  - `tests/test_dsl.py`: 112 tests
+  - `tests/test_diversity_reranker.py`: 11 tests
+  - `tests/test_pass_priority.py`: 14 tests
+  - `tests/test_submission_notebook_builder.py`: 12 tests
+  - `tests/test_neural_cv.py`: 6 tests
   - `tests/test_neural.py`: 6 tests
-- **Pre-Compile Gate:** `python3 -m src.tools.build_submission_notebook` validates `compile(arc_dsl_content)` before generating `submission_kernel.ipynb`.
+  - `tests/test_metrics.py`: 6 tests
+  - `tests/test_evaluate_neural_cv.py`: 2 tests
+- **Pre-Compile Gate:** `python3 -m src.tools.build_submission_notebook` validates syntax across all cells before writing `submission_kernel.ipynb`.
 
 ---
 
@@ -145,15 +168,15 @@ When launching the next session:
    ```
 2. **Check Kernel Status & Outputs:**
    ```bash
-   tail -n 15 auto_submit.log
+   tail -n 25 auto_submit.log
    kaggle kernels status aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt
    ```
-3. **If Daily Quota is Reset & Submission is Needed:**
+3. **Deploy Staged Version 28:**
    ```bash
-   python3 -u -m src.tools.auto_submit --version 18
+   kaggle kernels push -p notebooks/submissions/hybrid_sota_v1
    ```
 4. **Git Remote Push Rule:**
-   Always prefix with `GIT_SSH_COMMAND="ssh"`:
+   Always prefix with `GIT_SSH_COMMAND=ssh`:
    ```bash
-   GIT_SSH_COMMAND="ssh" git push origin master
+   GIT_SSH_COMMAND=ssh git push origin master
    ```
