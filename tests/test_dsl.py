@@ -1881,6 +1881,20 @@ class TestVersion13Primitives:
         assert res == grid_out
         assert extract_tractor_containers_rule([{"input": grid_in, "output": grid_out}])
 
+    def test_energize_conductive_circuit_path(self):
+        from src.dsl import energize_conductive_circuit_path, extract_conductive_circuit_rule
+
+        # Test on Train 0 of 7b0280bc
+        import json
+        with open("input/arc-agi_evaluation_challenges.json") as f:
+            t = json.load(f)["7b0280bc"]["train"][0]
+        grid_in = t["input"]
+        grid_out = t["output"]
+        res = energize_conductive_circuit_path(grid_in)
+        assert res == grid_out
+        assert extract_conductive_circuit_rule([{"input": grid_in, "output": grid_out}])
+
+
 
 
 

@@ -163,11 +163,15 @@ from src.dsl.primitives import (
     extract_corner_brackets_rule,
     pull_particles_into_tractor_containers,
     extract_tractor_containers_rule,
+    energize_conductive_circuit_path,
+    extract_conductive_circuit_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "energize_conductive_circuit_path",
+    "extract_conductive_circuit_rule",
     "pull_particles_into_tractor_containers",
     "extract_tractor_containers_rule",
     "project_corner_bracket_templates",

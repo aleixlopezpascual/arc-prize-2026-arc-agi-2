@@ -5663,6 +5663,110 @@ def extract_tractor_containers_rule(
     return True
 
 
+def energize_conductive_circuit_path(grid: Grid | np.ndarray) -> Grid:
+    """Energizes the shortest conductive circuit path connecting two battery terminals.
+
+    Identifies terminal pad colors and wire colors.
+    Battery terminals: the terminal color with exactly 2 components (T1, T2).
+    Load pads: the terminal color with > 2 components.
+    Constructs a component connectivity graph between components.
+    Finds the shortest path of components connecting T1 and T2.
+    Energizes the path:
+    - Wire components in the path turn into color 5.
+    - Load pad components in the path turn into color 3.
+    - Battery terminals and unconnected elements remain untouched.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 5 or W < 5:
+        return to_grid(arr)
+
+    from scipy.ndimage import label
+    import networkx as nx
+
+    vals, counts = np.unique(arr, return_counts=True)
+    bg = int(vals[np.argmax(counts)])
+    non_bg = [c for c in np.unique(arr) if c != bg]
+
+    pad_cols = []
+    wire_col = None
+    for c in non_bg:
+        lbl, n = label(arr == c, structure=np.ones((3, 3)))
+        sizes = [int(np.sum(lbl == i)) for i in range(1, n + 1)]
+        if all(s in [4, 8, 9, 18] for s in sizes):
+            pad_cols.append((c, n, sizes[0]))
+        else:
+            wire_col = c
+
+    bat_candidates = [c for c, n, sz in pad_cols if n == 2]
+    load_candidates = [c for c, n, sz in pad_cols if n > 2]
+    if not bat_candidates or not load_candidates or wire_col is None:
+        return to_grid(arr)
+
+    bat_col = int(bat_candidates[0])
+    load_col = int(load_candidates[0])
+
+    lbl_bat, n_bat = label(arr == bat_col, structure=np.ones((3, 3)))
+    lbl_load, n_load = label(arr == load_col, structure=np.ones((3, 3)))
+    lbl_wire, n_wire = label(arr == wire_col, structure=np.ones((3, 3)))
+
+    G = nx.Graph()
+    G.add_node(("bat", 1))
+    G.add_node(("bat", 2))
+    for i in range(1, n_load + 1):
+        G.add_node(("load", i))
+    for j in range(1, n_wire + 1):
+        G.add_node(("wire", j))
+
+    all_comps = []
+    all_comps.append((("bat", 1), set(tuple(p) for p in np.argwhere(lbl_bat == 1))))
+    all_comps.append((("bat", 2), set(tuple(p) for p in np.argwhere(lbl_bat == 2))))
+    for i in range(1, n_load + 1):
+        all_comps.append((("load", i), set(tuple(p) for p in np.argwhere(lbl_load == i))))
+    for j in range(1, n_wire + 1):
+        all_comps.append((("wire", j), set(tuple(p) for p in np.argwhere(lbl_wire == j))))
+
+    for i in range(len(all_comps)):
+        for j in range(i + 1, len(all_comps)):
+            id1, pts1 = all_comps[i]
+            id2, pts2 = all_comps[j]
+            touches = any(max(abs(p1[0] - p2[0]), abs(p1[1] - p2[1])) == 1 for p1 in pts1 for p2 in pts2)
+            if touches:
+                G.add_edge(id1, id2)
+
+    if not nx.has_path(G, ("bat", 1), ("bat", 2)):
+        return to_grid(arr)
+
+    shortest_p = nx.shortest_path(G, ("bat", 1), ("bat", 2))
+
+    out = arr.copy()
+    for comp_type, comp_id in shortest_p:
+        if comp_type == "load":
+            pts = np.argwhere(lbl_load == comp_id)
+            for r, c in pts:
+                out[r, c] = 3
+        elif comp_type == "wire":
+            pts = np.argwhere(lbl_wire == comp_id)
+            for r, c in pts:
+                out[r, c] = 5
+
+    return to_grid(out)
+
+
+def extract_conductive_circuit_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if energize_conductive_circuit_path solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = energize_conductive_circuit_path(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

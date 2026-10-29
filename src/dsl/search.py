@@ -892,7 +892,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 73. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 73. Conductive Circuit Path Energization
+    if P.extract_conductive_circuit_rule(train_pairs):
+        progs.append(
+            Program(
+                name="energize_conductive_circuit_path",
+                steps=[("energize_conductive_circuit_path", lambda g: P.energize_conductive_circuit_path(g))],
+            )
+        )
+
+    # 74. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"
