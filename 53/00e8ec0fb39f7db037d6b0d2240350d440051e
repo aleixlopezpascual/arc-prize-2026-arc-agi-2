@@ -1,0 +1,21 @@
+docs/intel/unconsidered_and_recent_notebooks_audit.md
+  s_6158daade752c2::t_b9cd7ebd624841 1-121
+docs/intel/top_notebooks.md
+  s_6158daade752c2::t_7144d772f28665 18-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "5300e8ec0fb39f7db037d6b0d2240350d440051e",
+  "prompts": {},
+  "sessions": {
+    "s_6158daade752c2": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "d26ade0e-6e1d-405d-83b5-a677b225e572",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
