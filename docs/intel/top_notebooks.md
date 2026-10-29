@@ -15,6 +15,11 @@ This document tracks and analyzes the most influential public notebooks and code
 | **ARC-AGI 2 Agentic Multi-turn Reasoning** | Khoi Nguyen | 2026-10-10 | 8 | - | `khoinguyennguyen/arc-agi-2-agentic-multi-turn-reasoning` | vLLM + persistent Jupyter sandbox code-execution feedback loop. |
 | **ARC2 NVARC+ v1** | Luxshan Thavarasa | 2026-09-08 | 101 | **`29.31%`** | `luxluxshan/arc2-nvarc-v1` | Qwen 4B TTT with test-time data augmentation. |
 | **[Baseline] NVARC Winning Solution (T4x2)** | parthenos | 2026-04-03 | 223 | **`28.89%`** | `nihilisticneuralnet/baseline-nvarc-arc-25-winning-solution-for-t4x2` | 2025 NVARC baseline ported to Kaggle T4 dual accelerators. |
+| **Monty-ARC: Thousand Brains ARC-AGI-2** | rahim3 | 2026-10-26 | 1 | - | `rahim3/monty-arc-thousand-brains-arc-agi-2` | Hawkins's Thousand Brains theory: 8 sensorimotor modules + LOO + 2:1 consensus voting. |
+| **Factored Topological Synthesizer v2** | Vigneshwara K. Alugunulla | 2026-10-26 | 0 | - | `vigneshalugunulla/arc-prize-2026-symbolic-synthesizer-v2` | 44-primitive factored DSL spanning 6 algebraic families with MDL ranking. |
+| **ARC2 v54 Verified Geometry Hybrid L4** | Ayodeji | 2026-07-23 | 20 | **`~32-33%`** | `ayodejiibrahimlateef/arc2-v54-verified-geometry-hybrid-l4` | CPU border-ray obstacle propagation + masked reflection + Qwen 4B LoRA. |
+| **Qwen TTT with Symbolic Fallback** | medvax | 2026-10-26 | 5 | - | `medvax/arc-agi-2-qwen-ttt-with-symbolic-fallback` | Dual-pass Qwen TTT with bounded CPU geometry pass and anchored primary selection. |
+| **Neuro-Symbolic Solver with Qwen** | Priyal Mantri | 2026-10-26 | 0 | - | `priyalmantri/arc-agi-2-neuro-symbolic-solver-with-qwen` | 4-connectivity `PerceptionEngine`, `SceneGraphBuilder`, `MirrorMatrixMemory`, and Qwen 2.5 Coder. |
 
 ---
 
