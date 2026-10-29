@@ -22,8 +22,41 @@
 | 732723 | (PUBLIC) Nex-N2-mini vs Aquila-mini: two 35B post-trains on ARC-AGI-2, head to head | 5 | 2 | 2026-08-04 11:43:51.258000 |
 | 731040 | does task 963c33f8 contains an error ? | 5 | 5 | 2026-07-30 17:14:17.309000 |
 | 697058 | Funny observation | 4 | 6 | 2026-05-05 05:24:59.299000 |
+| 753674 | Request for Deadline Extension or Rerun of Failed/Final Submissions | 25 | 9 | 2026-10-28 23:18:01.122000 |
+| 753659 | 3rd day without working sub | 24 | 13 | 2026-10-28 22:04:24.443000 |
+| 750577 | Watching LLM Agents Solve ARC-AGI-2 | 24 | 10 | 2026-10-19 00:10:47.398000 |
+| 747515 | Update on "Kaggle Error" Submissions & Queue Delays | 21 | 37 | 2026-10-08 22:04:06.132000 |
+| 750546 | Qwen3.8 or something else? | 17 | 38 | 2026-10-18 19:43:49.856000 |
+| 752531 | My submission has been running for the past 19 hours | 16 | 14 | 2026-10-25 08:17:35.666000 |
+| 753723 | Scoring 24h+ — proposal if delays persist | 15 | 5 | 2026-10-29 04:34:11.346000 |
+| 753315 | Unstable GPU server | 11 | 18 | 2026-10-27 20:39:58.678000 |
+| 752709 | Are solutions using Qwen3.8-Flash-Next eligible for prizes? | 11 | 2 | 2026-10-26 01:18:51.067000 |
+| 748082 | Qwen3.8-27B / Flash-Next: ARC-AGI-2 results within Kaggle’s compute limits? | 7 | 33 | 2026-10-10 14:47:28.908000 |
+| 753820 | Some data points on the current unknown Kaggle platform issue | 7 | 2 | 2026-10-29 12:30:32.098000 |
+| 753865 | Significant submission score drop not reproduced locally | 5 | 2 | 2026-10-29 16:03:18.456000 |
+| 748741 | Are Codex- or Claude-generated synthetic ARC puzzles allowed for model training? | 4 | 4 | 2026-10-12 23:51:48.700000 |
+| 751292 | Question on Grand Prize and Private Leaderboard | 1 | 22 | 2026-10-21 09:25:56.618000 |
 
 ## High-Value Technical Discussions
+
+*(For the complete comprehensive late-stage forum audit, see `docs/intel/unconsidered_and_recent_discussions_audit.md`)*
+
+### Topic 750546: Qwen3.8 or something else? (The 55%+ Public LB Surge)
+- **Context:** Community discussion deconstructing the jump from ~35% to 55-60%+ on the public leaderboard.
+- **Key Discovery:** Leading teams adopted **Qwen3.8-Flash-Next** and **Qwen3.8-27B** wrapped in an iterative Python REPL execution harness (the "Duck harness", pioneered in Daniel Franzen's ARC-AGI-3 milestone solution).
+- **Ensemble Gain:** Participants reported lifting scores from 35% to 45% simply by ensembling their existing NVARC pipeline with a Qwen3.8-27B run.
+- **Compute Reality:** A 27B model generating ~70k tokens median per task requires 365–440 tok/s on 4x L4 to cover all 240 test tasks in 12 hours. Teams without aggressive optimization or early exit hit global timeouts.
+
+### Topic 753315, 753820, 753865: Kaggle Cluster Instability & 10x Inter-GPU Bottleneck
+- **Hardware Contention:** Saturated 4x L4 cluster due to concurrent ARC-AGI-2 and Google Gemma 4 Agent competitions.
+- **Severe Node Variance:** Certain 4x L4 nodes exhibit up to **10x slower inter-GPU communication bandwidth**, crippling multi-GPU communication and causing timeouts.
+- **Score Volatility:** Teams observed unprovoked drops from 56.94% to 26.67% or 0.00 without code changes due to timeouts on slow nodes.
+- **Protection:** Independent single-GPU workers (no inter-GPU synchronization) and strict per-task wall-clock timeouts (150s cap) with fallback.
+
+### Topic 751292: Critical Deadline Rule Clarification
+- **Deadline:** November 2, 2026, 23:59 UTC.
+- **Rule Clarification:** Kaggle staff corrected an earlier comment: **pending submissions that are still scoring when the deadline passes cannot be safely selected for final evaluation.**
+- **Action:** Final submissions must be launched at least 36–48 hours before the deadline to accommodate 24h+ queue wait times.
 
 ### Topic 694698: 95% on ARC AGI1 evaluation
 
