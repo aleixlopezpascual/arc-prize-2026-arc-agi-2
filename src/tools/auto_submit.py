@@ -113,7 +113,11 @@ def watch_and_submit(
                     )
 
                 # 4. Fire competition submission
-                if version == 25:
+                if version == 28:
+                    msg = f"ARC-AGI-2 Hybrid SOTA v{version} (76 Primitives + Hardened Rerun Engine + Diversity Reranker - 36.67% Benchmark)"
+                elif version == 27 or version == 26:
+                    msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Optimal Union + 38 Symbolic Primitives + Deep Eval)"
+                elif version == 25:
                     msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Dual-Pass Pooling Seed 1+137 + 42 Primitives - Record Val 9.30%)"
                 elif version == 24:
                     msg = f"ARC-AGI-2 Hybrid SOTA v{version} (Optical Ray Mirrors + Cheap-First - Record Val 9.30%)"
