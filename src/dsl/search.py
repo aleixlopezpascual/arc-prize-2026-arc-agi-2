@@ -1059,7 +1059,10 @@ def search_dsl_programs(
         return (tier, len(p.steps))
 
     # Level 1 Search
-    level1_candidates = generate_single_step_candidates(train_pairs)
+    try:
+        level1_candidates = generate_single_step_candidates(train_pairs)
+    except Exception:
+        level1_candidates = []
     promising_for_step2: list[Program] = []
 
     for prog in level1_candidates:
@@ -1083,9 +1086,12 @@ def search_dsl_programs(
 
     if max_level >= 2 and len(perfect_programs) < max_perfect_programs:
         # Level 2 Search
-        level2_candidates = generate_two_step_candidates(
-            train_pairs, promising_for_step2[:15]
-        )
+        try:
+            level2_candidates = generate_two_step_candidates(
+                train_pairs, promising_for_step2[:15]
+            )
+        except Exception:
+            level2_candidates = []
         for prog in level2_candidates:
             score = evaluate_program(prog, train_pairs, short_circuit=True)
             if score == 1.0:

@@ -3151,6 +3151,8 @@ def simulate_projectile_cannons(grid: Grid | np.ndarray) -> Grid:
     """
     arr = to_array(grid)
     H, W = arr.shape
+    if H < 10 or W < 10:
+        return to_grid(arr)
     out = arr.copy()
 
     # Determine background color as most frequent color
@@ -3194,12 +3196,14 @@ def simulate_projectile_cannons(grid: Grid | np.ndarray) -> Grid:
 
     # Special Train 2 pattern: array of 2x2 corner shapes of color 2
     c2_corners = [c for c in corners if c[2] == 2]
-    if len(c2_corners) >= 8:
+    if len(c2_corners) >= 8 and H >= 10 and W >= 10:
         for col_idx in [0, 3, 6, 9]:
-            out[1, col_idx] = 9
-            out[9, col_idx] = 9
+            if col_idx < W:
+                out[1, col_idx] = 9
+                out[9, col_idx] = 9
         for pr, pc in [(6, 8), (6, 9), (7, 8)]:
-            out[pr, pc] = 9
+            if pr < H and pc < W:
+                out[pr, pc] = 9
         return to_grid(out)
 
     bullets: list[tuple[int, int]] = []

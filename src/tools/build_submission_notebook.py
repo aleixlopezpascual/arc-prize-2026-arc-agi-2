@@ -243,23 +243,31 @@ def score_ensemble(guesses):
 
     # Cell 6: arc_solver.py (with deterministic CRC32 seeding and dynamic task timeouts)
     solver_source = "".join(base_nb["cells"][5]["source"])
-    worker_dataset_selection = """    if rerun_mode:
-        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"
-    else:
-        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"""
-    worker_validation_selection = """    validation_mode = os.getenv("ARC_VALIDATION_MODE", "submission")
-    if validation_mode == "train":
-        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_training_challenges.json"
-        if not os.path.exists(test_path):
-            test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_training_challenges.json"
-    elif validation_mode == "eval":
-        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
-        if not os.path.exists(test_path):
-            test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"
-    elif rerun_mode:
-        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"
-    else:
-        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"""
+    worker_dataset_selection = (
+        '    if rerun_mode:\n'
+        '        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"\n'
+        '    else:\n'
+        '        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"'
+    )
+    worker_validation_selection = (
+        '    validation_mode = os.getenv("ARC_VALIDATION_MODE", "submission")\n'
+        '    if validation_mode == "train":\n'
+        '        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_training_challenges.json"\n'
+        '        if not os.path.exists(test_path):\n'
+        '            test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_training_challenges.json"\n'
+        '    elif validation_mode == "eval":\n'
+        '        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"\n'
+        '        if not os.path.exists(test_path):\n'
+        '            test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"\n'
+        '    elif rerun_mode:\n'
+        '        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"\n'
+        '        if not os.path.exists(test_path):\n'
+        '            test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_test_challenges.json"\n'
+        '    else:\n'
+        '        test_path = "/kaggle/input/competitions/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"\n'
+        '        if not os.path.exists(test_path):\n'
+        '            test_path = "/kaggle/input/arc-prize-2026-arc-agi-2/arc-agi_evaluation_challenges.json"'
+    )
     if worker_dataset_selection not in solver_source:
         raise ValueError("Could not find the expected worker dataset selection block.")
     solver_source = solver_source.replace(worker_dataset_selection, worker_validation_selection)
@@ -476,7 +484,10 @@ if __name__ == "__main__":
             if key not in ["0934a4d8", "36a08778", "981571dc", "aa4ec2a5"]:
                 continue
         task_train = data[key]["train"]
-        progs = arc_dsl.search_dsl_programs(task_train, max_level=1, max_perfect_programs=2)
+        try:
+            progs = arc_dsl.search_dsl_programs(task_train, max_level=1, max_perfect_programs=2)
+        except Exception:
+            progs = []
         if progs:
             easy_tasks.append(key)
         else:
@@ -809,23 +820,35 @@ if time_remaining > 900:
         '    decoder.load_decoded_results("/kaggle/inference_outputs_b", run_name=".b")\n',
         "\n",
         "# Diversity Selection Helper: ensures Attempt 2 is structurally distinct from Attempt 1\n",
+        "def sanitize_grid(g):\n",
+        "    if g is None:\n",
+        "        return [[0]]\n",
+        "    try:\n",
+        "        arr = np.asarray(g, dtype=int)\n",
+        "        if arr.ndim != 2 or arr.size == 0:\n",
+        "            return [[0]]\n",
+        "        arr = np.clip(arr, 0, 9)\n",
+        "        return arr.tolist()\n",
+        "    except Exception:\n",
+        "        return [[0]]\n",
+        "\n",
         "def select_diverse_pair(cand_list, fallback=None):\n",
         "    clean = [c for c in cand_list if c is not None]\n",
         "    if not clean:\n",
-        "        fb = [[0]] if fallback is None else (fallback.tolist() if hasattr(fallback, 'tolist') else fallback)\n",
+        "        fb = sanitize_grid(fallback)\n",
         "        return fb, fb\n",
-        "    a1 = clean[0].tolist() if hasattr(clean[0], 'tolist') else clean[0]\n",
+        "    a1 = sanitize_grid(clean[0])\n",
         "    for c in clean[1:]:\n",
-        "        c_list = c.tolist() if hasattr(c, 'tolist') else c\n",
-        "        if np.shape(c_list) != np.shape(a1):\n",
-        "            return a1, c_list\n",
-        "        diff = int(np.sum(np.asarray(c_list) != np.asarray(a1)))\n",
+        "        c_clean = sanitize_grid(c)\n",
+        "        if np.shape(c_clean) != np.shape(a1):\n",
+        "            return a1, c_clean\n",
+        "        diff = int(np.sum(np.asarray(c_clean) != np.asarray(a1)))\n",
         "        if diff >= 2 and (diff / np.asarray(a1).size) >= 0.05:\n",
-        "            return a1, c_list\n",
+        "            return a1, c_clean\n",
         "    for c in clean[1:]:\n",
-        "        c_list = c.tolist() if hasattr(c, 'tolist') else c\n",
-        "        if not np.array_equal(np.asarray(c_list), np.asarray(a1)):\n",
-        "            return a1, c_list\n",
+        "        c_clean = sanitize_grid(c)\n",
+        "        if not np.array_equal(np.asarray(c_clean), np.asarray(a1)):\n",
+        "            return a1, c_clean\n",
         "    return a1, a1\n",
         "\n",
         "# Base neural predictions with interleaved probability and voting ensemble\n",
@@ -835,7 +858,7 @@ if time_remaining > 900:
         "# Apply structural diversity reranking across base neural predictions\n",
         "for base_key, ordered_cands in neural_raw_results.items():\n",
         "    if '_' in base_key:\n",
-        "        t_id, sub_idx = base_key.split('_')\n",
+        "        t_id, sub_idx = base_key.rsplit('_', 1)\n",
         "        sub_i = int(sub_idx)\n",
         "        if t_id in submission and sub_i < len(submission[t_id]):\n",
         "            c1, c2 = select_diverse_pair(ordered_cands, fallback=submission[t_id][sub_i].get('attempt_1'))\n",
@@ -844,28 +867,39 @@ if time_remaining > 900:
         "\n",
         "# Tier 1 Symbolic Induction Filter\n",
         'print("*** Running Tier 1 Symbolic Verification pre-pass...")\n',
-        "symbolic_solver = arc_dsl.DSLSolver(max_level=2)\n",
-        "tier1_hits = 0\n",
+        "try:\n",
+        "    symbolic_solver = arc_dsl.DSLSolver(max_level=2)\n",
+        "    tier1_hits = 0\n",
         "\n",
-        "for task_id, task in data.queries.items():\n",
-        '    train_pairs = task.get("train", [])\n',
-        "    perfect_progs = arc_dsl.search_dsl_programs(train_pairs, max_level=2, max_perfect_programs=2)\n",
-        "    if perfect_progs:\n",
-        "        best_name = perfect_progs[0][0].name\n",
-        '        print(f"[Tier 1 Verified] Task {task_id}: {best_name}")\n',
-        "        sym_attempts = symbolic_solver.solve_task(task)\n",
-        "        if task_id in submission and len(submission[task_id]) == len(sym_attempts):\n",
-        "            tier1_hits += 1\n",
-        "            for i, sym_item in enumerate(sym_attempts):\n",
-        '                base_cand_1 = submission[task_id][i].get("attempt_1")\n',
-        '                base_cand_2 = submission[task_id][i].get("attempt_2")\n',
-        '                sym_cand = sym_item["attempt_1"]\n',
-        "                # Optimal 2-attempt union: keep top neural guess if distinct from symbolic\n",
-        '                submission[task_id][i]["attempt_1"] = sym_cand\n',
-        "                _, div_cand = select_diverse_pair([sym_cand, base_cand_1, base_cand_2], fallback=sym_cand)\n",
-        '                submission[task_id][i]["attempt_2"] = div_cand\n',
+        "    for task_id, task in data.queries.items():\n",
+        "        try:\n",
+        '            train_pairs = task.get("train", [])\n',
+        "            perfect_progs = arc_dsl.search_dsl_programs(train_pairs, max_level=2, max_perfect_programs=2)\n",
+        "            if perfect_progs:\n",
+        "                best_name = perfect_progs[0][0].name\n",
+        '                print(f"[Tier 1 Verified] Task {task_id}: {best_name}")\n',
+        "                sym_attempts = symbolic_solver.solve_task(task)\n",
+        "                if task_id in submission and len(submission[task_id]) == len(sym_attempts):\n",
+        "                    tier1_hits += 1\n",
+        "                    for i, sym_item in enumerate(sym_attempts):\n",
+        '                        base_cand_1 = submission[task_id][i].get("attempt_1")\n',
+        '                        base_cand_2 = submission[task_id][i].get("attempt_2")\n',
+        '                        sym_cand = sym_item["attempt_1"]\n',
+        "                        submission[task_id][i]['attempt_1'] = sanitize_grid(sym_cand)\n",
+        "                        _, div_cand = select_diverse_pair([sym_cand, base_cand_1, base_cand_2], fallback=sym_cand)\n",
+        "                        submission[task_id][i]['attempt_2'] = sanitize_grid(div_cand)\n",
+        "        except Exception as e_task:\n",
+        '            print(f"Warning: Symbolic verification error on task {task_id}: {e_task}")\n',
         "\n",
-        'print(f"*** Tier 1 Symbolic Verified Hits: {tier1_hits}/{len(data.queries)} tasks")\n',
+        '    print(f"*** Tier 1 Symbolic Verified Hits: {tier1_hits}/{len(data.queries)} tasks")\n',
+        "except Exception as e_sym:\n",
+        '    print(f"Warning: Global symbolic verification error: {e_sym}")\n',
+        "\n",
+        "# Defensive validation of all submission entries\n",
+        "for k in list(submission.keys()):\n",
+        "    for item in submission[k]:\n",
+        "        item['attempt_1'] = sanitize_grid(item.get('attempt_1'))\n",
+        "        item['attempt_2'] = sanitize_grid(item.get('attempt_2'))\n",
         "\n",
         f'with open("{output_filename}", "w") as f:\n',
         "    json.dump(submission, f)\n",
