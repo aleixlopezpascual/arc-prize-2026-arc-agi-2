@@ -32,9 +32,10 @@
   - `Hybrid v25`: `23.47%` (Submission ID 57475078, Cluster Validation Score: `14.0`!, `SubmissionStatus.COMPLETE`)
   - `Hybrid v25 (Rerun)`: **`25.56%`** (Submission ID `57609744`, `SubmissionStatus.COMPLETE` on 2026-10-25)
   - `Hybrid v26`: (Submission ID `57669765`, Cluster Validation Score: **`17.33`**, `SubmissionStatus.COMPLETE` on 2026-10-26)
-  - `Hybrid v27`: (Submission ID **`57708431`**, Cluster Validation Score: **`29.33`**! [ALL-TIME COMPETITION RECORD], `SubmissionStatus.COMPLETE` on 2026-10-27)
-- **Staged Submission:** **Version 28** (76 Symbolic Primitives, 36.67% / 44-task local eval solve, 58/172 test outputs, Attempt-2 Structural Diversity Reranker, Broad Pass B verified on 5-fold CV).
-- **Recent Completed Kernel:** **Version 27** (Submission Ref: `57708431`, Public Status: `COMPLETE`, Record Cluster Val: **`29.33`**!, output cached at `submissions/submission_hybrid_sota_v27.json`).
+  - `Hybrid v27`: (Submission ID `57708431`, Cluster Validation Score: **`29.33`**, `SubmissionStatus.COMPLETE` on 2026-10-27)
+  - `Hybrid v28`: (Submission ID **`57777146`**, Cluster Validation Score: **`47.33`**! [ALL-TIME COMPETITION RECORD], `SubmissionStatus.PENDING` on 2026-10-29)
+- **Active Competition Submission:** **Version 28** (Submission Ref: `57777146`, Status: `PENDING`, Record Cluster Val: **`47.33`**!, output cached at `submissions/submission_hybrid_sota_v28.json`).
+- **Recent Completed Kernel:** **Version 28** (76 Symbolic Primitives, 36.67% / 44-task local eval solve, 58/172 test outputs, Attempt-2 Structural Diversity Reranker, Broad Pass B verified on 5-fold CV).
 
 ---
 

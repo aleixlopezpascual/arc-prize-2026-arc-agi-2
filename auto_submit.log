@@ -1,86 +1,60 @@
-[*] Starting Auto-Submit Watcher for kernel [aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt] (v27)
+[*] Starting Auto-Submit Watcher for kernel [aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt] (v28)
 [*] Target competition: arc-prize-2026-arc-agi-2
-[16:24:15] Elapsed: 0.0m | Kernel Status: KernelWorkerStatus.QUEUED
-[16:25:00] Elapsed: 0.8m | Kernel Status: KernelWorkerStatus.QUEUED
-[16:25:47] Elapsed: 1.5m | Kernel Status: KernelWorkerStatus.QUEUED
-[16:26:32] Elapsed: 2.3m | Kernel Status: KernelWorkerStatus.QUEUED
-[16:27:18] Elapsed: 3.1m | Kernel Status: KernelWorkerStatus.QUEUED
-[16:28:04] Elapsed: 3.8m | Kernel Status: KernelWorkerStatus.QUEUED
-[16:28:50] Elapsed: 4.6m | Kernel Status: KernelWorkerStatus.QUEUED
-[16:29:36] Elapsed: 5.4m | Kernel Status: KernelWorkerStatus.QUEUED
-[16:30:21] Elapsed: 6.1m | Kernel Status: KernelWorkerStatus.QUEUED
-[16:31:07] Elapsed: 6.9m | Kernel Status: KernelWorkerStatus.QUEUED
-[16:31:53] Elapsed: 7.6m | Kernel Status: KernelWorkerStatus.QUEUED
-[16:32:39] Elapsed: 8.4m | Kernel Status: KernelWorkerStatus.QUEUED
-[16:33:25] Elapsed: 9.2m | Kernel Status: KernelWorkerStatus.QUEUED
-[16:34:11] Elapsed: 9.9m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:34:56] Elapsed: 10.7m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:35:42] Elapsed: 11.5m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:36:28] Elapsed: 12.2m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:37:14] Elapsed: 13.0m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:37:59] Elapsed: 13.8m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:38:45] Elapsed: 14.5m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:39:31] Elapsed: 15.3m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:40:17] Elapsed: 16.0m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:41:02] Elapsed: 16.8m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:41:48] Elapsed: 17.6m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:42:34] Elapsed: 18.3m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:43:19] Elapsed: 19.1m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:44:05] Elapsed: 19.9m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:44:51] Elapsed: 20.6m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:45:37] Elapsed: 21.4m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:46:22] Elapsed: 22.1m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:47:08] Elapsed: 22.9m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:47:54] Elapsed: 23.7m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:48:39] Elapsed: 24.4m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:49:25] Elapsed: 25.2m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:50:11] Elapsed: 25.9m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:50:57] Elapsed: 26.7m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:51:43] Elapsed: 27.5m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:52:28] Elapsed: 28.2m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:53:14] Elapsed: 29.0m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:54:00] Elapsed: 29.8m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:54:46] Elapsed: 30.5m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:55:31] Elapsed: 31.3m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:56:17] Elapsed: 32.1m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:57:03] Elapsed: 32.8m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:57:49] Elapsed: 33.6m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:58:34] Elapsed: 34.3m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:59:20] Elapsed: 35.1m | Kernel Status: KernelWorkerStatus.RUNNING
-[17:00:06] Elapsed: 35.9m | Kernel Status: KernelWorkerStatus.RUNNING
-[17:04:07] Elapsed: 39.9m | Kernel Status: KernelWorkerStatus.RUNNING
-[17:10:26] Elapsed: 46.2m | Kernel Status: KernelWorkerStatus.RUNNING
-[18:00:42] Elapsed: 96.5m | Kernel Status: KernelWorkerStatus.COMPLETE
+[16:28:51] Elapsed: 0.0m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:29:37] Elapsed: 0.8m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:30:23] Elapsed: 1.5m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:31:09] Elapsed: 2.3m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:31:54] Elapsed: 3.1m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:32:40] Elapsed: 3.8m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:33:25] Elapsed: 4.6m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:34:11] Elapsed: 5.3m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:34:57] Elapsed: 6.1m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:35:42] Elapsed: 6.9m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:36:28] Elapsed: 7.6m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:37:13] Elapsed: 8.4m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:37:59] Elapsed: 9.1m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:38:45] Elapsed: 9.9m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:39:30] Elapsed: 10.7m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:40:16] Elapsed: 11.4m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:41:02] Elapsed: 12.2m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:41:47] Elapsed: 12.9m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:42:33] Elapsed: 13.7m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:43:50] Elapsed: 15.0m | Kernel Status: KernelWorkerStatus.RUNNING
+[16:50:19] Elapsed: 21.5m | Kernel Status: UNKNOWN
+[17:11:02] Elapsed: 42.2m | Kernel Status: KernelWorkerStatus.RUNNING
+[17:15:57] Elapsed: 47.1m | Kernel Status: KernelWorkerStatus.RUNNING
+[17:43:36] Elapsed: 74.8m | Kernel Status: KernelWorkerStatus.COMPLETE
 [+] Kernel [aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt] has COMPLETED successfully!
 [+] Output verified: 100% compliant with schema across 120 tasks.
-[+] Cached verified submission to /Users/aleix.lopez/arc-prize-2026-arc-agi-2/submissions/submission_hybrid_sota_v27.json
+[+] Cached verified submission to /Users/aleix.lopez/arc-prize-2026-arc-agi-2/submissions/submission_hybrid_sota_v28.json
 [*] Remaining daily submissions: 1
-[*] Firing competition submission: 'ARC-AGI-2 Hybrid SOTA v27 (Optimal Union + 38 Symbolic Primitives + Deep Eval)'...
+[*] Firing competition submission: 'ARC-AGI-2 Hybrid SOTA v28 (76 Primitives + Hardened Rerun Engine + Diversity Reranker - 36.67% Benchmark)'...
 [+] Submission output: Warning: Looks like you're using an outdated `kaggle` version (installed: 2.2.4), please consider upgrading to the latest version (2.2.5)
 0 submissions remaining today.
 [*] Live Submissions Queue:
 Warning: Looks like you're using an outdated `kaggle` version (installed: 2.2.4), please consider upgrading to the latest version (2.2.5)
-     ref  fileName         date                        description                                                                                        status                     publicScore  privateScore  
---------  ---------------  --------------------------  -------------------------------------------------------------------------------------------------  -------------------------  -----------  ------------  
-57708431  submission.json  2026-10-27 17:16:03.857000  ARC-AGI-2 Hybrid SOTA v27 (Optimal Union + 38 Symbolic Primitives + Deep Eval)                     SubmissionStatus.PENDING                              
-57669765  submission.json  2026-10-26 14:43:58.400000  ARC-AGI-2 Hybrid SOTA v26 (Optimal Union + 38 Symbolic Primitives + Deep Eval)                     SubmissionStatus.COMPLETE                             
-57609744  submission.json  2026-10-24 23:53:33.787000  User-authorized v25 resubmission                                                                   SubmissionStatus.COMPLETE  25.56                      
-57475078  submission.json  2026-10-21 09:12:52.230000  ARC-AGI-2 Hybrid SOTA v25 (Dual-Pass Pooling Seed 1+137 + 42 Primitives - Record Val 9.30%)        SubmissionStatus.COMPLETE  23.47                      
-57439702  submission.json  2026-10-20 13:25:24.557000  ARC-AGI-2 Hybrid SOTA v24 (Optical Ray Mirrors + Cheap-First - Record Val 9.30%)                   SubmissionStatus.COMPLETE  22.78                      
-57372890  submission.json  2026-10-19 00:00:59.610000  ARC-AGI-2 Hybrid SOTA v23 (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)                     SubmissionStatus.COMPLETE  23.33                      
-57329657  submission.json  2026-10-18 00:00:13.407000  ARC-AGI-2 Hybrid SOTA v22 (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)                     SubmissionStatus.COMPLETE  22.78                      
-57315906  submission.json  2026-10-17 15:13:58.973000  ARC-AGI-2 Hybrid SOTA v21 (Cross-Family Pass@2 Selection + 40 Primitives - Record Val 12.0)        SubmissionStatus.COMPLETE  24.44                      
-57264962  submission.json  2026-10-16 10:08:27.863000  ARC-AGI-2 Hybrid SOTA v20 (Multi-Room Partition Overlay + 40 Primitives - Record Val 8.14)         SubmissionStatus.COMPLETE  25.97                      
-57232077  submission.json  2026-10-15 13:29:21.817000  ARC-AGI-2 Hybrid SOTA v19 (Sokoban Channel Sliding + Neural Invariant Pruning - Record Val 7.56)   SubmissionStatus.COMPLETE  26.39                      
-57175238  submission.json  2026-10-14 08:44:27.110000  ARC-AGI-2 Hybrid SOTA v18 (Sokoban Channel Sliding + Neural Invariant Pruning - Record Val 7.56)   SubmissionStatus.COMPLETE  25.00                      
-57115410  submission.json  2026-10-12 18:14:00.007000  ARC-AGI-2 Hybrid SOTA v17 (Deficit-First GPU Scheduling + CRC32 Determinism - Record Val 10.0)     SubmissionStatus.COMPLETE  26.94                      
-57036813  submission.json  2026-10-10 08:34:02.013000  ARC-AGI-2 Hybrid SOTA v16 (Liquid Gravity Flow + Parallel Line Standardization - Record Val 6.98)  SubmissionStatus.COMPLETE  29.31                      
-56979030  submission.json  2026-10-09 00:00:32.667000  ARC-AGI-2 Hybrid SOTA v15 (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)                     SubmissionStatus.COMPLETE  28.06                      
-56944583  submission.json  2026-10-08 08:28:34.270000  ARC-AGI-2 Hybrid SOTA v13 (score_ensemble + 33 Primitives - Record Val 5.0)                        SubmissionStatus.COMPLETE  30.14                      
-56893501  submission.json  2026-10-07 00:00:05.013000  ARC-AGI-2 Hybrid SOTA v12 (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)                     SubmissionStatus.COMPLETE  29.31                      
-56875914  submission.json  2026-10-06 08:46:52.137000  ARC-AGI-2 Hybrid SOTA v8 (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)                      SubmissionStatus.COMPLETE  30.97                      
-56836175  submission.json  2026-10-05 00:00:43.260000  ARC-AGI-2 Hybrid SOTA v7 (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)                      SubmissionStatus.COMPLETE  30.97                      
-56828374  submission.json  2026-10-04 16:02:45.973000  ARC-AGI-2 Hybrid SOTA v6 (Optimal Union + Raycasting + Rigid Gravity)                              SubmissionStatus.COMPLETE  28.47                      
-56806096  submission.json  2026-10-03 20:22:39.650000  ARC-AGI-2 Hybrid SOTA v5 (Optimal Union + 129 Symbolic Hits)                                       SubmissionStatus.COMPLETE  30.69                      
-56772292  submission.json  2026-10-02 11:01:18.737000  ARC-AGI-2 Hybrid SOTA (Tier 1 Symbolic + Tier 2 Qwen 4B TTT)                                       SubmissionStatus.COMPLETE  28.89                      
-56755141  submission.json  2026-10-01 16:36:06.177000  ARC-AGI-2 SOTA Baseline LB 33.89                                                                   SubmissionStatus.COMPLETE  29.31
+     ref  fileName         date                        description                                                                                                status                     publicScore  privateScore  
+--------  ---------------  --------------------------  ---------------------------------------------------------------------------------------------------------  -------------------------  -----------  ------------  
+57777146  submission.json  2026-10-29 16:43:52.720000  ARC-AGI-2 Hybrid SOTA v28 (76 Primitives + Hardened Rerun Engine + Diversity Reranker - 36.67% Benchmark)  SubmissionStatus.PENDING                              
+57708431  submission.json  2026-10-27 17:16:03.857000  ARC-AGI-2 Hybrid SOTA v27 (Optimal Union + 38 Symbolic Primitives + Deep Eval)                             SubmissionStatus.COMPLETE                             
+57669765  submission.json  2026-10-26 14:43:58.400000  ARC-AGI-2 Hybrid SOTA v26 (Optimal Union + 38 Symbolic Primitives + Deep Eval)                             SubmissionStatus.COMPLETE                             
+57609744  submission.json  2026-10-24 23:53:33.787000  User-authorized v25 resubmission                                                                           SubmissionStatus.COMPLETE  25.56                      
+57475078  submission.json  2026-10-21 09:12:52.230000  ARC-AGI-2 Hybrid SOTA v25 (Dual-Pass Pooling Seed 1+137 + 42 Primitives - Record Val 9.30%)                SubmissionStatus.COMPLETE  23.47                      
+57439702  submission.json  2026-10-20 13:25:24.557000  ARC-AGI-2 Hybrid SOTA v24 (Optical Ray Mirrors + Cheap-First - Record Val 9.30%)                           SubmissionStatus.COMPLETE  22.78                      
+57372890  submission.json  2026-10-19 00:00:59.610000  ARC-AGI-2 Hybrid SOTA v23 (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)                             SubmissionStatus.COMPLETE  23.33                      
+57329657  submission.json  2026-10-18 00:00:13.407000  ARC-AGI-2 Hybrid SOTA v22 (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)                             SubmissionStatus.COMPLETE  22.78                      
+57315906  submission.json  2026-10-17 15:13:58.973000  ARC-AGI-2 Hybrid SOTA v21 (Cross-Family Pass@2 Selection + 40 Primitives - Record Val 12.0)                SubmissionStatus.COMPLETE  24.44                      
+57264962  submission.json  2026-10-16 10:08:27.863000  ARC-AGI-2 Hybrid SOTA v20 (Multi-Room Partition Overlay + 40 Primitives - Record Val 8.14)                 SubmissionStatus.COMPLETE  25.97                      
+57232077  submission.json  2026-10-15 13:29:21.817000  ARC-AGI-2 Hybrid SOTA v19 (Sokoban Channel Sliding + Neural Invariant Pruning - Record Val 7.56)           SubmissionStatus.COMPLETE  26.39                      
+57175238  submission.json  2026-10-14 08:44:27.110000  ARC-AGI-2 Hybrid SOTA v18 (Sokoban Channel Sliding + Neural Invariant Pruning - Record Val 7.56)           SubmissionStatus.COMPLETE  25.00                      
+57115410  submission.json  2026-10-12 18:14:00.007000  ARC-AGI-2 Hybrid SOTA v17 (Deficit-First GPU Scheduling + CRC32 Determinism - Record Val 10.0)             SubmissionStatus.COMPLETE  26.94                      
+57036813  submission.json  2026-10-10 08:34:02.013000  ARC-AGI-2 Hybrid SOTA v16 (Liquid Gravity Flow + Parallel Line Standardization - Record Val 6.98)          SubmissionStatus.COMPLETE  29.31                      
+56979030  submission.json  2026-10-09 00:00:32.667000  ARC-AGI-2 Hybrid SOTA v15 (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)                             SubmissionStatus.COMPLETE  28.06                      
+56944583  submission.json  2026-10-08 08:28:34.270000  ARC-AGI-2 Hybrid SOTA v13 (score_ensemble + 33 Primitives - Record Val 5.0)                                SubmissionStatus.COMPLETE  30.14                      
+56893501  submission.json  2026-10-07 00:00:05.013000  ARC-AGI-2 Hybrid SOTA v12 (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)                             SubmissionStatus.COMPLETE  29.31                      
+56875914  submission.json  2026-10-06 08:46:52.137000  ARC-AGI-2 Hybrid SOTA v8 (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)                              SubmissionStatus.COMPLETE  30.97                      
+56836175  submission.json  2026-10-05 00:00:43.260000  ARC-AGI-2 Hybrid SOTA v7 (Kaleidoscope + Kronecker + 1x1 Classifiers + Genus)                              SubmissionStatus.COMPLETE  30.97                      
+56828374  submission.json  2026-10-04 16:02:45.973000  ARC-AGI-2 Hybrid SOTA v6 (Optimal Union + Raycasting + Rigid Gravity)                                      SubmissionStatus.COMPLETE  28.47                      
+56806096  submission.json  2026-10-03 20:22:39.650000  ARC-AGI-2 Hybrid SOTA v5 (Optimal Union + 129 Symbolic Hits)                                               SubmissionStatus.COMPLETE  30.69                      
+56772292  submission.json  2026-10-02 11:01:18.737000  ARC-AGI-2 Hybrid SOTA (Tier 1 Symbolic + Tier 2 Qwen 4B TTT)                                               SubmissionStatus.COMPLETE  28.89                      
+56755141  submission.json  2026-10-01 16:36:06.177000  ARC-AGI-2 SOTA Baseline LB 33.89                                                                           SubmissionStatus.COMPLETE  29.31
