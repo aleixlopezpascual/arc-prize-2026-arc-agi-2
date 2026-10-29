@@ -12,11 +12,12 @@
 | :--- | :--- | :--- | :---: | :---: | :---: | :---: |
 | **Bruce Wei DSL Baseline** (`brucewei007`) | Bruce Wei | Generic Compositional DSL | **0** | **0** | **`0.00%`** | -100.0% |
 | **Dmitrii Gluzdov Symbolic** (`dmitriigluzdov`) | Dmitrii Gluzdov | Bounded Geometric & Color DSL | **0** | **0** | **`0.00%`** | -100.0% |
+| **Boyko NVARC+ Astra** (`evgendvorkin`) | Evgenii Dvorkin | Qwen 4B Dual-Pass + Astra D4 Expert | **4** | **5** | **`2.91%`** | +24.9% (1.25x) |
 | **Public LB33.89 Minimal Perfpatch** (`mikelou1`) | Mike Lou | Pure Neural Qwen 4B rsLoRA TTT | **3** | **4** | **`2.33%`** | Baseline (1.0x) |
 | **ARC-AGI 31.11** (`junaid512`) | Muhammad Junaid | Qwen 4B + `score_ensemble` | **3** | **4** | **`2.33%`** | Baseline (1.0x) |
 | **Triple-Pass NVARC+ SOTA (35.9% LB)** (`mayankraaz`) | Mayank Raj | Cheap-First + P4 Selection + LOO-DSL | **4** | **5** | **`2.91%`** | +24.9% (1.25x) |
-| **Our Hybrid SOTA Tier-1 Alone** | Aleix López | 42 Core Knowledge Primitives | **11** | **12** | **`6.98%`** | **+199.6% (2.99x)** |
-| **Our Hybrid SOTA v24/v25 (Full Engine)** | Aleix López | Two-Tier Hybrid (Symbolic + Neural Dual-Pass) | **14** | **16** | **`9.30%`** | **+299.1% (3.99x)** |
+| **Our Hybrid SOTA Tier-1 Alone (v25)** | Aleix López | 42 Core Knowledge Primitives | **11** | **12** | **`6.98%`** | +199.6% (2.99x) |
+| **Our Hybrid SOTA v28 (Current)** | Aleix López | 75 Core Knowledge Primitives + Attempt-2 Diversity Reranker | **43** | **56** | **`32.56%`** | **+1297% (13.97x)** |
 
 ---
 

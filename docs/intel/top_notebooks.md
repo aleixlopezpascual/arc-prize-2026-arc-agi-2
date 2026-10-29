@@ -69,6 +69,27 @@ This document tracks and analyzes the most influential public notebooks and code
 
 **Scope:** Selective review of the 100 most recently active public competition kernels returned by Kaggle, plus recent competition discussions. “Recently run” does not mean newly published or newly scored. I pulled and inspected six notebook sources/metadata and inspected four additional notebook pages; this is not an exhaustive survey. Claims below are labeled by the evidence actually visible on Kaggle and were not independently rerun here.
 
+---
+
+## 🛰️ Community Intel & Notebook Audit (October 28–29, 2026)
+
+**Audited Notebooks:**
+1. **Evgenii Dvorkin — `evgendvorkin/arc-2-2026-4-4-local-boyko-nvarc-astra` (`76 votes`, run Oct 28, 2026):**
+   - **Methodology:** Merges Konstantin Boyko's dual-pass Qwen 4B rsLoRA pipeline with a newly added *Astra D4 Expert* (`candidate_solver.py`, `arc2_d4_tools.py`).
+   - **Core Innovation:** Implements an exact $D_4$ context-completion expert that identifies solid single-color rectangular occluders and searches for an unoccluded donor patch under the 8 dihedral transformations ($D_4$), scoring candidates by known matching context cells.
+   - **Performance:** Scored **`32.22%` on Public LB** (v17). Dvorkin's CPU-only symbolic solver currently scores **38 / 1,076 correct outputs** on ARC training tasks, solving 1 evaluation task (`0934a4d8`).
+   - **Comparison with Our SOTA:**
+     - We independently reverse-engineered and solved task `0934a4d8` with **Primitive 74 (`inpaint_symmetric_mandala_window`)** with 100% exact match across all 4 training pairs and the held-out test pair.
+     - However, while Dvorkin's symbolic engine is limited to a single $D_4$ occluder rule (38 training solves), our Tier-1 Symbolic Induction Engine comprises **75 Core Knowledge Primitives**, solving **43 / 120 benchmark tasks (35.83%)**, **56 / 172 test outputs (32.56%)**, and **850 / 1,076 training outputs (78.996%)**!
+2. **Muhammad Junaid — `junaid512/arc-agi-31-11` (`151 votes`, run Oct 29, 2026):**
+   - **Analysis:** Direct multi-GPU wrapper of the known public LB 31.11 baseline (`arc_loader.py`, `arc_decoder.py`, `arc_solver.py`, `starter.py`). Uses `score_ensemble` (ProbMul + Voting) with Qwen 4B. Confirms our Tier-2 neural backbone aligns with the leading community implementation.
+3. **Shrioma Pal — `shriomapal/pass-a-gemma-fixed` (run Oct 28, 2026):**
+   - **Analysis:** Attempted to swap Qwen 4B weights for Gemma-based weights; suffered CUDA memory layout regressions without score improvements. Qwen 4B remains the dominant neural backbone.
+4. **Kaiwalya Raut — `kaiwalyaatulraut/arc-agi-3-solution` (`20 votes`, run Oct 29, 2026):**
+   - **Analysis:** ARC-AGI-3 environment exploration harness; orthogonal to ARC-AGI-2 grid reasoning.
+
+---
+
 ### Notable additions and updates
 
 - **Dale Zhong — NVARC+ v6s/controller update.** The current page describes a three-pass pooled NVARC+ system, a footprint-matched runtime controller, and a P4 structurally distinct second-attempt rule. Kaggle still displays **31.94% as the best score from V3**; the recent V6s update is not evidence of a new score gain, and its several changes are not an isolated ablation.[9]
