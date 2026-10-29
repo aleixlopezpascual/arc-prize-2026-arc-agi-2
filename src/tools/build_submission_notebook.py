@@ -1040,6 +1040,7 @@ if time_remaining > 900:
     else:
         dst_path = output_path
 
+    dst_path.parent.mkdir(parents=True, exist_ok=True)
     dst_path.write_text(json.dumps(out_nb, indent=1))
     print(f"Successfully generated hybrid submission notebook at {dst_path}")
     return dst_path

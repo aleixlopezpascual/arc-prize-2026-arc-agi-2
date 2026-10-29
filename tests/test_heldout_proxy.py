@@ -83,3 +83,19 @@ def test_restrict_to_families_disables_other_families():
     out = restrict_to_families(symbolic, {"generic"})
     assert out["t1"]["preds"] == [A]
     assert out["t2"]["preds"] is None
+
+
+def test_score_policies_handles_subset_neural_file():
+    # Neural file covers only t1/t2; t3 (symbolic fires, in solutions) must not count anywhere.
+    symbolic = {"t1": _sym(A), "t2": _sym(D), "t3": _sym(A)}
+    neural = {
+        "t1": [{"attempt_1": B, "attempt_2": C}],
+        "t2": [{"attempt_1": B, "attempt_2": C}],
+    }
+    solutions = {"t1": [A], "t2": [C], "t3": [A]}
+    res = score_policies(symbolic, neural, solutions, policies=("neural", "union", "union_loo"))
+    assert res["neural"]["total"] == 2
+    assert res["union"]["total"] == 2
+    assert (res["union"]["gains"], res["union"]["losses"]) == (1, 1)
+    # LOO precision ignores t3: for t1 the only other covered task is t2 (wrong) -> (0 + .5) / (1 + 1) = .25 < .5
+    assert res["union_loo"]["gains"] == 0

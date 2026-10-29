@@ -444,3 +444,9 @@ def test_builder_rejects_bad_task_ids(tmp_path: Path, bad):
 def test_builder_rejects_task_ids_for_submission(tmp_path: Path):
     with pytest.raises(ValueError):
         build(output_path=tmp_path / "x.ipynb", validation_mode="submission", task_ids=["a"])
+
+
+def test_builder_creates_missing_output_directory(tmp_path: Path):
+    out = tmp_path / "nested" / "dir" / "kernel.ipynb"
+    assert build(output_path=out, validation_mode="train") == out
+    assert out.exists()
