@@ -5953,6 +5953,147 @@ def extract_turtle_bytecode_rule(
     return True
 
 
+def solve_four_box_analogy_puzzle(grid: Grid | np.ndarray) -> Grid:
+    """Solves a 4-box proportional analogy puzzle in a 2x2 matrix of bordered boxes.
+
+    Identifies a 2x2 arrangement of bordered square boxes of size S x S (S in [4, 5, 6, 7]).
+    Finds the unique empty box (all 0s) representing the puzzle question mark.
+    Evaluates analogy transformations across occupied boxes:
+    1. Palette substitution under D4: matches non-zero masks under dihedral rotations/reflections,
+       derives the color mapping, and applies it to the donor box.
+    2. Vertical bitwise inversion: if BL is inv(TL), then missing TR is inv(BR).
+    3. Geometric differential reflection: if TR is TL minus an erased component,
+       then missing BR is BL plus the horizontally flipped component.
+    Returns the solved S x S missing box.
+    """
+    arr = to_array(grid)
+    H, W = arr.shape
+    if H < 10 or W < 10:
+        return to_grid(arr)
+
+    found_boxes_by_size = {}
+    for sz in [4, 5, 6, 7]:
+        b_list = []
+        for r in range(H - sz + 1):
+            for c in range(W - sz + 1):
+                if r > 0 and r + sz < H and c > 0 and c + sz < W:
+                    top = arr[r-1, c-1:c+sz+1]
+                    bot = arr[r+sz, c-1:c+sz+1]
+                    left = arr[r-1:r+sz+1, c-1]
+                    right = arr[r-1:r+sz+1, c+sz]
+                    all_b = np.concatenate([top, bot, left, right])
+                    vals, counts = np.unique(all_b, return_counts=True)
+                    if np.max(counts) >= len(all_b) - 2:
+                        b_list.append(((r, c), arr[r:r+sz, c:c+sz]))
+        if len(b_list) == 4:
+            found_boxes_by_size[sz] = b_list
+
+    if not found_boxes_by_size:
+        return to_grid(arr)
+
+    sz = max(found_boxes_by_size.keys())
+    boxes_with_pos = found_boxes_by_size[sz]
+
+    boxes_with_pos.sort(key=lambda x: (x[0][0], x[0][1]))
+    top_pair = sorted(boxes_with_pos[:2], key=lambda x: x[0][1])
+    bot_pair = sorted(boxes_with_pos[2:], key=lambda x: x[0][1])
+
+    A = top_pair[0][1]
+    B = top_pair[1][1]
+    C = bot_pair[0][1]
+    D = bot_pair[1][1]
+
+    four_boxes = [("TL", A), ("TR", B), ("BL", C), ("BR", D)]
+    empty_candidates = [i for i, (name, b) in enumerate(four_boxes) if np.all(b == 0)]
+    if not empty_candidates:
+        return to_grid(arr)
+    empty_idx = empty_candidates[0]
+    empty_name = four_boxes[empty_idx][0]
+
+    occupied = [(i, name, b) for i, (name, b) in enumerate(four_boxes) if i != empty_idx]
+    palette_map = None
+    donor_box = None
+
+    for i1, name1, b1 in occupied:
+        for i2, name2, b2 in occupied:
+            if i1 == i2:
+                continue
+            for k in range(4):
+                for fl in [False, True]:
+                    t_b1 = np.rot90(b1, k)
+                    if fl:
+                        t_b1 = np.fliplr(t_b1)
+                    mask1 = (t_b1 != 0)
+                    mask2 = (b2 != 0)
+                    if np.array_equal(mask1, mask2) and np.any(mask1):
+                        m = {}
+                        consistent = True
+                        for r in range(sz):
+                            for c in range(sz):
+                                if mask1[r, c]:
+                                    v1 = t_b1[r, c]
+                                    v2 = b2[r, c]
+                                    if v1 in m and m[v1] != v2:
+                                        consistent = False
+                                        break
+                                    m[v1] = v2
+                        if consistent:
+                            third_idx = [i for i, _, _ in occupied if i not in [i1, i2]][0]
+                            donor = four_boxes[third_idx][1]
+                            donor_cols = [c for c in np.unique(donor) if c != 0]
+                            if any(c in m for c in donor_cols):
+                                palette_map = m
+                                donor_box = donor
+                                break
+                    if palette_map:
+                        break
+                if palette_map:
+                    break
+            if palette_map:
+                break
+        if palette_map:
+            break
+
+    if palette_map is not None:
+        pred = donor_box.copy()
+        for r in range(sz):
+            for c in range(sz):
+                if pred[r, c] in palette_map:
+                    pred[r, c] = palette_map[pred[r, c]]
+        return to_grid(pred)
+
+    if empty_name == "TR":
+        if np.array_equal((C != 0), (A == 0)):
+            non_zero_D = np.unique(D[D != 0])[0]
+            pred = np.where(D == 0, non_zero_D, 0)
+            return to_grid(pred)
+
+    if empty_name == "BR":
+        diff_AB = (A != 0) & (B == 0)
+        if np.any(diff_AB):
+            non_zero_C = np.unique(C[C != 0])
+            col = non_zero_C[0] if len(non_zero_C) > 0 else 2
+            pred = C.copy()
+            pred[np.fliplr(diff_AB)] = col
+            return to_grid(pred)
+
+    return to_grid(arr)
+
+
+def extract_four_box_analogy_rule(
+    train_pairs: list[dict[str, Any]],
+) -> bool:
+    """Checks if solve_four_box_analogy_puzzle solves 100% of training pairs."""
+    for pair in train_pairs:
+        inp = pair["input"]
+        out = pair["output"]
+        pred = solve_four_box_analogy_puzzle(inp)
+        if not grid_equal(pred, out):
+            return False
+    return True
+
+
+
 
 
 

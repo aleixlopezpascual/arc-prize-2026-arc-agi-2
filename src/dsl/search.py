@@ -919,7 +919,16 @@ def generate_single_step_candidates(train_pairs: list[dict[str, Any]]) -> list[P
             )
         )
 
-    # 76. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
+    # 76. Four-Box Proportional Analogy Puzzle
+    if P.extract_four_box_analogy_rule(train_pairs):
+        progs.append(
+            Program(
+                name="solve_four_box_analogy_puzzle",
+                steps=[("solve_four_box_analogy_puzzle", lambda g: P.solve_four_box_analogy_puzzle(g))],
+            )
+        )
+
+    # 77. Cellular Automata 3x3 Local Rules (fallback generic memorizer)
     rules_3x3 = extract_3x3_local_rules(train_pairs)
     if rules_3x3 is not None:
         ca_name = "cellular_automata_3x3"

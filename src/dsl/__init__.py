@@ -169,11 +169,15 @@ from src.dsl.primitives import (
     extract_mandala_inpaint_rule,
     execute_turtle_bytecode_path,
     extract_turtle_bytecode_rule,
+    solve_four_box_analogy_puzzle,
+    extract_four_box_analogy_rule,
 )
 from src.dsl.search import Program, search_dsl_programs
 from src.dsl.solver import DSLSolver
 
 __all__ = [
+    "solve_four_box_analogy_puzzle",
+    "extract_four_box_analogy_rule",
     "execute_turtle_bytecode_path",
     "extract_turtle_bytecode_rule",
     "inpaint_symmetric_mandala_window",
