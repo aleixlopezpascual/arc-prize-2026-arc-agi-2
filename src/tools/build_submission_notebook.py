@@ -12,7 +12,13 @@ def build(
     validation_mode: Literal["submission", "train", "eval"] = "submission",
     pass_b_policy: Literal["broad", "uncertainty", "paired"] = "broad",
     symbolic_merge: bool = True,
+    task_ids: list[str] | None = None,
 ) -> Path:
+    if task_ids is not None:
+        if validation_mode == "submission":
+            raise ValueError("Task subsets are a validation artifact; they cannot be used for a submission.")
+        if not task_ids or len(set(task_ids)) != len(task_ids) or not all(isinstance(t, str) and t for t in task_ids):
+            raise ValueError("task_ids must be a non-empty list of unique task ID strings.")
     if pass_b_policy == "paired" and validation_mode != "train":
         raise ValueError("The paired Pass-B validation mode is only supported for train CV.")
     if not symbolic_merge and validation_mode == "submission":
@@ -131,7 +137,55 @@ global_end_time = time.time() + 12 * 3600 - 600
     cells.append(base_nb["cells"][2])
 
     # Cell 3: arc_loader.py
-    cells.append(base_nb["cells"][3])
+    loader_cell = base_nb["cells"][3]
+    if task_ids is not None:
+        # Restrict every ArcDataset.from_file() call (workers, uncertainty map, merge) to the chosen tasks.
+        loader_cell = json.loads(json.dumps(loader_cell))
+        loader_source = "".join(loader_cell["source"])
+        old_from_file = (
+            "        return cls(\n"
+            "            queries=json.loads(queries),\n"
+            "            is_orig=True,\n"
+            "            keys=keys,\n"
+            "        )\n"
+        )
+        new_from_file = (
+            "        import os\n"
+            "        queries = json.loads(queries)\n"
+            '        ids_file = os.getenv("ARC_TASK_IDS_FILE")\n'
+            "        if ids_file and keys is None:\n"
+            "            with open(ids_file) as f:\n"
+            "                wanted = set(json.load(f))\n"
+            "            keys = sorted(k for k in queries if k in wanted)\n"
+            "        return cls(\n"
+            "            queries=queries,\n"
+            "            is_orig=True,\n"
+            "            keys=keys,\n"
+            "        )\n"
+        )
+        if loader_source.count(old_from_file) != 1:
+            raise ValueError("Could not find the expected ArcDataset.from_file block.")
+        loader_cell["source"] = loader_source.replace(old_from_file, new_from_file).splitlines(keepends=True)
+    cells.append(loader_cell)
+    if task_ids is not None:
+        ids_source = (
+            "import json\n"
+            "import os\n"
+            f"TASK_IDS = {sorted(task_ids)!r}\n"
+            'with open("/kaggle/working/task_ids.json", "w") as f:\n'
+            "    json.dump(TASK_IDS, f)\n"
+            'os.environ["ARC_TASK_IDS_FILE"] = "/kaggle/working/task_ids.json"\n'
+            'print(f"*** Restricting run to {len(TASK_IDS)} task IDs")\n'
+        )
+        cells.append(
+            {
+                "cell_type": "code",
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
+                "source": [ids_source],
+            }
+        )
 
     # Cell 4: arc_dsl.py
     cells.append(
@@ -538,6 +592,20 @@ if __name__ == "__main__":
     finally:
         cleanup_barriers(barrier_dir, barrier_tag)
 """
+    if task_ids is not None:
+        # The deficit-first router reads the raw JSON, so filter it here too.
+        old_route = '    with open(test_path, "r") as f:\n        data = json.load(f)\n'
+        new_route = (
+            old_route
+            + '    _ids_file = os.getenv("ARC_TASK_IDS_FILE")\n'
+            + "    if _ids_file:\n"
+            + "        with open(_ids_file) as _f:\n"
+            + "            _wanted = set(json.load(_f))\n"
+            + "        data = {{k: v for k, v in data.items() if k in _wanted}}\n"
+        )
+        if starter_source.count(old_route) != 1:
+            raise ValueError("Could not find the expected starter data-load block.")
+        starter_source = starter_source.replace(old_route, new_route)
     cells.append(
         {
             "cell_type": "code",
@@ -983,6 +1051,12 @@ if __name__ == "__main__":
     parser.add_argument("--validation-mode", type=str, choices=["submission", "train", "eval"], default="submission")
     parser.add_argument("--pass-b-policy", type=str, choices=["broad", "uncertainty", "paired"], default="broad")
     parser.add_argument(
+        "--task-ids-file",
+        type=str,
+        default=None,
+        help="JSON list of task IDs; restricts a validation run to those tasks.",
+    )
+    parser.add_argument(
         "--no-symbolic-merge",
         action="store_true",
         help="Skip the Tier 1 symbolic override; write neural-only predictions (validation modes only).",
@@ -995,4 +1069,5 @@ if __name__ == "__main__":
         validation_mode=args.validation_mode,
         pass_b_policy=args.pass_b_policy,
         symbolic_merge=not args.no_symbolic_merge,
+        task_ids=json.loads(Path(args.task_ids_file).read_text()) if args.task_ids_file else None,
     )

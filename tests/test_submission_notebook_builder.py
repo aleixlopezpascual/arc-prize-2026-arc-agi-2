@@ -418,3 +418,29 @@ def test_builder_no_symbolic_merge_rejected_for_submission_and_paired(tmp_path: 
         build(output_path=tmp_path / "a.ipynb", validation_mode="submission", symbolic_merge=False)
     with pytest.raises(ValueError):
         build(output_path=tmp_path / "b.ipynb", validation_mode="train", pass_b_policy="paired", symbolic_merge=False)
+
+
+def test_builder_task_ids_restrict_loader_and_router(tmp_path: Path):
+    ids = ["007bbfb7", "009d5c81"]
+    code = _code(build(output_path=tmp_path / "subset.ipynb", validation_mode="train", task_ids=ids))
+    assert f"TASK_IDS = {ids!r}" in code
+    assert 'os.environ["ARC_TASK_IDS_FILE"]' in code
+    # patched ArcDataset.from_file and the starter's raw-JSON router both honor the file
+    assert 'ids_file = os.getenv("ARC_TASK_IDS_FILE")' in code
+    assert "_wanted = set(json.load(_f))" in code
+
+
+def test_builder_without_task_ids_is_unchanged(tmp_path: Path):
+    code = _code(build(output_path=tmp_path / "full.ipynb", validation_mode="train"))
+    assert "ARC_TASK_IDS_FILE" not in code
+
+
+@pytest.mark.parametrize("bad", [[], ["a", "a"], ["a", ""]])
+def test_builder_rejects_bad_task_ids(tmp_path: Path, bad):
+    with pytest.raises(ValueError):
+        build(output_path=tmp_path / "x.ipynb", validation_mode="train", task_ids=bad)
+
+
+def test_builder_rejects_task_ids_for_submission(tmp_path: Path):
+    with pytest.raises(ValueError):
+        build(output_path=tmp_path / "x.ipynb", validation_mode="submission", task_ids=["a"])
