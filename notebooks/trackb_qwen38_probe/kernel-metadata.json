@@ -1,0 +1,28 @@
+{
+  "id": "aleixlopez/arc-agi2-trackb-qwen38-single-l4-probe",
+  "title": "ARC AGI2 TrackB Qwen38 single L4 probe",
+  "code_file": "probe.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "keywords": [
+    "gpu"
+  ],
+  "docker_image_pinning_type": "original",
+  "docker_image": "gcr.io/kaggle-private-byod/python@sha256:320043e14c68293f1c946585b9257123385205a58af4b94b17d31868cae4e868",
+  "dataset_sources": [
+    "mirzamilanfarabi/arc3-vllm-h100-wheelhouse-v3"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [
+    "arc-prize-2026-arc-agi-2"
+  ],
+  "model_sources": [
+    "nguyenminhtric/qwen3-8-27b-gptq-int4/Transformers/gptq-int4/1",
+    "josephayanda/qwen3-8-27b-gptq-w4a16/PyTorch/default/2"
+  ],
+  "machine_shape": "NvidiaL4"
+}
