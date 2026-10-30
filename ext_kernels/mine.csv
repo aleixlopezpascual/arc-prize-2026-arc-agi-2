@@ -1,0 +1,22 @@
+Warning: Looks like you're using an outdated `kaggle` version (installed: 2.2.4), please consider upgrading to the latest version (2.2.5)
+ref,title,author,lastRunTime,totalVotes
+,[Private Notebook],,2010-04-01 00:00:00,0
+,[Private Notebook],,2010-04-01 00:00:00,0
+aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt,ARC AGI2 Hybrid SOTA Symbolic TTT,Aleix López,2026-10-30 00:05:43.807000,0
+aleixlopez/arc-agi2-neural-only-train-subset,ARC AGI2 Neural Only Train Subset,Aleix López,2026-10-29 21:38:28.043000,0
+aleixlopez/arc-agi-3-duck-v21,ARC-AGI-3 Duck V21,Aleix López,2026-10-29 21:28:11.830000,0
+aleixlopez/arc-agi-3-duck-v20,ARC-AGI-3 Duck V20,Aleix López,2026-10-29 12:39:14.007000,0
+aleixlopez/arc-agi-3-duck-v19,ARC-AGI-3 Duck V19,Aleix López,2026-10-27 10:24:34.927000,0
+aleixlopez/arc-agi-3-duck-v18,ARC-AGI-3 Duck V18,Aleix López,2026-10-26 15:59:59.753000,0
+aleixlopez/arc-agi-3-duck-v17,ARC-AGI-3 Duck V17,Aleix López,2026-10-25 17:17:18.737000,0
+aleixlopez/arc-agi2-pass-b-paired-5-fold-validation,ARC-AGI2 Pass B Paired 5-Fold Validation,Aleix López,2026-10-24 13:36:58.213000,0
+aleixlopez/arc-agi2-pass-b-uncertainty-5-fold-validation,ARC-AGI2 Pass B Uncertainty 5-Fold Validation,Aleix López,2026-10-22 13:23:29.730000,0
+aleixlopez/arc-agi2-pass-b-broad-5-fold-validation,ARC-AGI2 Pass B Broad 5-Fold Validation,Aleix López,2026-10-22 13:20:37.427000,0
+aleixlopez/arc-agi-3-franzen-v1-baseline-control,ARC-AGI-3 Franzen V1 Baseline Control,Aleix López,2026-10-22 12:30:31.283000,0
+aleixlopez/rsna-knee-micro-calibration-exp-22,RSNA Knee Micro-Calibration Exp-22,Aleix López,2026-10-21 10:26:36.447000,0
+aleixlopez/rsna-knee-series-selection-inventory-20261021,rsna-knee-series-selection-inventory-20261021,Aleix López,2026-10-21 08:29:13.710000,0
+aleixlopez/arc-agi-3-duck-v16,ARC-AGI-3 Duck V16,Aleix López,2026-10-20 13:49:07.820000,0
+aleixlopez/rsna-knee-grandmaster-superstack-0960,RSNA Knee Grandmaster Superstack 0960,Aleix López,2026-10-19 21:46:22.700000,0
+aleixlopez/rsna-knee-dinov2-fold-0,RSNA Knee DINOv2 Fold 0,Aleix López,2026-10-19 18:25:40.153000,0
+aleixlopez/arc-agi-3-duck-v15,ARC-AGI-3 Duck V15,Aleix López,2026-10-19 14:54:27.483000,0
+aleixlopez/arc-agi-3-duck-v14,ARC-AGI-3 Duck V14,Aleix López,2026-10-18 22:02:51.730000,0

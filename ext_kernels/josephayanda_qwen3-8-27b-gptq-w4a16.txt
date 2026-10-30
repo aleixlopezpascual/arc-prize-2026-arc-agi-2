@@ -1,0 +1,29 @@
+Warning: Looks like you're using an outdated `kaggle` version (installed: 2.2.4), please consider upgrading to the latest version (2.2.5)
+{
+  "id": 765119,
+  "ref": "josephayanda/qwen3-8-27b-gptq-w4a16",
+  "title": "Qwen3.8-27B GPTQ W4A16 (pearsonkyle mirror)",
+  "subtitle": "pearsonkyle/Qwen3.8-27B-GPTQ-W4A16 @ 4e2c2d8f pinned mirror for ARC3 offline inference",
+  "author": "Joseph Ayanda",
+  "slug": "qwen3-8-27b-gptq-w4a16",
+  "description": "# Model Summary\n\nPinned mirror of Hugging Face pearsonkyle/Qwen3.8-27B-GPTQ-W4A16 at revision 4e2c2d8f592d5641beefa6a75357f43cf3756392 for the ARC Prize 2026 ARC-AGI-3 submission (offline vLLM inference on RTX PRO 6000).\n\nUpstream license: Apache-2.0 (Qwen pretrained model).\n\n# Model Characteristics\n\nQwen3.8-27B compressed-tensors pack-quantized W4A16 (group size 128, symmetric), plus bf16 MTP and visual shards as packed by upstream.",
+  "instances": [
+    {
+      "id": 755116,
+      "slug": "default",
+      "framework": "MODEL_FRAMEWORK_PY_TORCH",
+      "overview": "Pinned mirror of pearsonkyle/Qwen3.8-27B-GPTQ-W4A16 @ 4e2c2d8f for ARC-AGI-3 offline vLLM inference.",
+      "usage": "# Model Format\n\ncompressed-tensors pack-quantized W4A16 Safetensors + bf16 MTP/visual shards; serve with vLLM.\n\n# Model Usage\n\nAttach as a Kaggle Model source; mount path /kaggle/input/qwen3-8-27b-gptq-w4a16/pytorch/default/1.",
+      "versionId": 1007293,
+      "versionNumber": 2,
+      "url": "https://www.kaggle.com/models/josephayanda/qwen3-8-27b-gptq-w4a16/PyTorch/default",
+      "licenseName": "Apache 2.0",
+      "totalUncompressedBytes": 19448179984
+    }
+  ],
+  "provenanceSources": "pearsonkyle/Qwen3.8-27B-GPTQ-W4A16",
+  "url": "https://www.kaggle.com/models/josephayanda/qwen3-8-27b-gptq-w4a16",
+  "voteCount": 0,
+  "authorImageUrl": "https://storage.googleapis.com/kaggle-avatars/thumbnails/34157718-kg.jpeg?t=2026-09-28-09-39-45",
+  "updateTime": "2026-09-28T15:59:10.103Z"
+}
