@@ -12,7 +12,8 @@
 ### Official Standings & In-Flight Submissions
 - **Current Official Best:** **`30.97%`** (Kernel versions 7 and 8, Submission IDs `56836175` & `56875914`).
 - **Submission v28 (`57777146`):** Scored **`23.06%`** public LB. (Confirms local 47.33 eval score was memorization of evaluation set primitives rather than generalizable abstract reasoning; public score drops on unseen test).
-- **Submission v29 (`57806728`):** Submitted Oct 30 13:23 UTC — currently **`PENDING`** (Kaggle scoring turnaround is 24–36h).
+- **Submission v29 (`57806728`):** Completed scoring at **`23.89%`**.
+- **Submission v30 / Oct 31 Slot (`57844167`):** Submitted Oct 31 — currently **`PENDING`** (Boyko dual-pass fork v3).
 - **Hard Deadline:** November 2, 23:59 UTC.
 - **Last Safe Submission Window:** November 1, 00:00–06:00 UTC (submissions pending at deadline cannot be safely selected).
 
@@ -25,8 +26,7 @@
   3. *Sidecar GPU Sync:* Corrected `nb["metadata"]["kaggle"]["isGpuEnabled"]` from `false` to `true` to ensure Nvidia L4 allocation.
   4. *Dynamic Mount Path Resolver:* Fixed hardcoded `/kaggle/input/notebooks/...` and `/kaggle/input/datasets/...` paths that broke on Kaggle CLI batch mounts. Added dynamic recursive search for `unsloth_dir`, `packages_dir` (flash-attn), `model_name`, and `test_path`.
 - **Current Execution Status:**
-  - Pushed as **Kernel Version 3** (`KernelWorkerStatus.QUEUED` / running on Nvidia L4).
-  - Background daemon (`watch_and_push_boyko.py`) monitoring status every 60s, will download to `out_boyko/` and run `src/validator.py` upon completion (~1.5h).
+  - Kernel Version 3 completed successfully (runtime 1h 27m), passed all schema validation checks, and was officially submitted to Kaggle under ref `57844167`.
 
 ### Decision Rule for Today's (Oct 31) Submission Slot
 1. **If Boyko test run completes & passes validator:**
