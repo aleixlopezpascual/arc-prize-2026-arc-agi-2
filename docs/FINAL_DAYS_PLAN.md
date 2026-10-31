@@ -11,7 +11,7 @@ Written 2026-10-30 ~12:30 UTC. All times are **UTC**.
 | Last safe submission | **Nov 1, ~00:00–06:00** |
 | Usable daily slots | **Oct 30 (today), Oct 31, Nov 1** (Nov 2 is too late to score) |
 | GPU quota | **30h weekly quota reset verified at 00:00 UTC Oct 31** |
-| Submissions in flight | v28: **23.06** (complete), v29: **PENDING** (submitted Oct 30 13:23 UTC) |
+| Submissions in flight | v28: **23.06** (complete), v29: **23.89** (complete), Oct 31: **57844167 PENDING** (Boyko dual-pass v3) |
 | Our best public score | **30.97** (kernel versions 7 and 8) |
 | Bronze cutoff (top 10%, #352 of 3,527) | **32.22** (silver #176: 33.06), snapshot Oct 30 08:42 |
 | Kaggle health | General submission errors and slow nodes reported; errored submissions still use the day's slot |
@@ -42,17 +42,14 @@ Written 2026-10-30 ~12:30 UTC. All times are **UTC**.
 - [x] Deployed background watcher (`watch_and_push_boyko.py`) to monitor execution, retrieve outputs, and validate `submission.json`.
 - [ ] Await verification run completion (~1.5h) and confirm logs (`[fork] fallback submission.json written`, `[V22 Astra] promote=False`, `[V22 selector] submission.json saved`).
 
-### Saturday Oct 31 — slot 2
-- [ ] **If the Boyko test run completed and its output is valid → submit it:**
-  ```bash
-  kaggle competitions submit -c arc-prize-2026-arc-agi-2 -k aleixlopez/arc-agi2-boyko-dualpass-fork -v 1 -f submission.json -m "Boyko dual-pass fork v1"
-  ```
-- [ ] **Otherwise → submit the kernel version 8 re-run** (no quota needed):
-  ```bash
-  kaggle competitions submit -c arc-prize-2026-arc-agi-2 -k aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt -v 8 -f submission.json -m "v8 re-roll"
-  ```
-- [ ] Submit **early in the day**, so a Kaggle-side error leaves time to react.
-- [ ] Check status a few times: `kaggle competitions submissions arc-prize-2026-arc-agi-2 | head -5`
+### Saturday Oct 31 — slot 2 — COMPLETED
+- [x] Boyko verification run (version 3) completed with status COMPLETE and passed all schema validators.
+- [x] Submitted for Oct 31 slot:
+  - **Submission Ref:** `57844167`
+  - **Kernel:** `aleixlopez/arc-agi2-boyko-dualpass-fork` (version 3)
+  - **Message:** "Boyko dual-pass fork v3 (Oct 31 slot)"
+  - **Status:** `SubmissionStatus.PENDING`
+- [ ] Check status periodically until scoring completes (expected ~Nov 1).
 
 ### Sunday Nov 1 — slot 3 (the last safe one), submit between 00:00 and 06:00
 Pick by this rule:
