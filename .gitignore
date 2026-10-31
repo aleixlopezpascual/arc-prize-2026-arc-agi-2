@@ -20,3 +20,9 @@ venv/
 .ruff_cache/
 .superpowers/
 
+
+# Local test run artifacts
+watch_boyko.log
+out_hybrid.log
+out_boyko/
+out_hybrid/

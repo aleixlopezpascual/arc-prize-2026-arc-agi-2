@@ -48,6 +48,7 @@ def main(nb_path, meta_path):
         if c["cell_type"] == "code":
             c["outputs"] = []
     nb["cells"][budget_idx + 1:budget_idx + 1] = [code_cell(PROMOTE_CELL), code_cell(FALLBACK_CELL)]
+    nb.setdefault("metadata", {}).setdefault("kaggle", {})["isGpuEnabled"] = True
     (OUT / "submission_kernel.ipynb").write_text(json.dumps(nb, indent=1))
 
     meta = json.loads(Path(meta_path).read_text())

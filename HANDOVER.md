@@ -7,6 +7,39 @@
 
 ---
 
+## 🚨 0. Final 72-Hour Endgame Status (Updated Oct 31, 2026 - 00:25 UTC)
+
+### Official Standings & In-Flight Submissions
+- **Current Official Best:** **`30.97%`** (Kernel versions 7 and 8, Submission IDs `56836175` & `56875914`).
+- **Submission v28 (`57777146`):** Scored **`23.06%`** public LB. (Confirms local 47.33 eval score was memorization of evaluation set primitives rather than generalizable abstract reasoning; public score drops on unseen test).
+- **Submission v29 (`57806728`):** Submitted Oct 30 13:23 UTC — currently **`PENDING`** (Kaggle scoring turnaround is 24–36h).
+- **Hard Deadline:** November 2, 23:59 UTC.
+- **Last Safe Submission Window:** November 1, 00:00–06:00 UTC (submissions pending at deadline cannot be safely selected).
+
+### Oct 31 GPU Quota Reset & Boyko Dual-Pass NVARC Fork
+- **GPU Quota:** Weekly 30.00h allocation successfully reset at **00:00:19 UTC, Oct 31**.
+- **Candidate:** Konstantin Boyko dual-pass Qwen3-4B BF16 fork (`aleixlopez/arc-agi2-boyko-dualpass-fork`). Upstream 4-run public LB average is **32.12%** (31.81–32.64), right at the bronze cutoff (~32.22).
+- **Hardening & Auditing Applied:**
+  1. *Early Fallback Assertion:* Injected initial fallback `submission.json` before any heavy compute so early timeout/kill never produces 0.00.
+  2. *Shadow-Mode Astra Expert:* Pinned `ARC_ASTRA_PROMOTE=0` (proven V17-V20 neural selector runs; unscored V21/V22 expert runs strictly in diagnostic shadow mode).
+  3. *Sidecar GPU Sync:* Corrected `nb["metadata"]["kaggle"]["isGpuEnabled"]` from `false` to `true` to ensure Nvidia L4 allocation.
+  4. *Dynamic Mount Path Resolver:* Fixed hardcoded `/kaggle/input/notebooks/...` and `/kaggle/input/datasets/...` paths that broke on Kaggle CLI batch mounts. Added dynamic recursive search for `unsloth_dir`, `packages_dir` (flash-attn), `model_name`, and `test_path`.
+- **Current Execution Status:**
+  - Pushed as **Kernel Version 3** (`KernelWorkerStatus.QUEUED` / running on Nvidia L4).
+  - Background daemon (`watch_and_push_boyko.py`) monitoring status every 60s, will download to `out_boyko/` and run `src/validator.py` upon completion (~1.5h).
+
+### Decision Rule for Today's (Oct 31) Submission Slot
+1. **If Boyko test run completes & passes validator:**
+   ```bash
+   kaggle competitions submit -c arc-prize-2026-arc-agi-2 -k aleixlopez/arc-agi2-boyko-dualpass-fork -v 1 -f submission.json -m "Boyko dual-pass fork v1"
+   ```
+2. **If Boyko test run encounters any environment/execution failure:**
+   ```bash
+   kaggle competitions submit -c arc-prize-2026-arc-agi-2 -k aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt -v 8 -f submission.json -m "v8 re-roll"
+   ```
+
+---
+
 ## 🏆 1. Executive Status & Official Leaderboard Standings
 
 - **Current Official Score:** **`30.97%`** (Submission ID `56836175` & `56875914`, `SubmissionStatus.COMPLETE`)
