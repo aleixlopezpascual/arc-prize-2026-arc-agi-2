@@ -10,10 +10,11 @@
 ## 🚨 0. Final 72-Hour Endgame Status (Updated Oct 31, 2026 - 00:25 UTC)
 
 ### Official Standings & In-Flight Submissions
-- **Current Official Best:** **`30.97%`** (Kernel versions 7 and 8, Submission IDs `56836175` & `56875914`).
+- **Current Official Best:** **`31.39%`** (Submission ID `57844167`, Boyko dual-pass fork v3, ranked #807 globally).
 - **Submission v28 (`57777146`):** Scored **`23.06%`** public LB. (Confirms local 47.33 eval score was memorization of evaluation set primitives rather than generalizable abstract reasoning; public score drops on unseen test).
 - **Submission v29 (`57806728`):** Completed scoring at **`23.89%`**.
-- **Submission v30 / Oct 31 Slot (`57844167`):** Submitted Oct 31 — currently **`PENDING`** (Boyko dual-pass fork v3).
+- **Submission v30 / Oct 31 Slot (`57844167`):** Scored **`31.39%`** (new team record!).
+- **Submission v31 / Nov 1 Slot (`57886566`):** Submitted Nov 1 23:29 UTC — currently **`PENDING`** (Boyko dual-pass fork v3 re-roll).
 - **Hard Deadline:** November 2, 23:59 UTC.
 - **Last Safe Submission Window:** November 1, 00:00–06:00 UTC (submissions pending at deadline cannot be safely selected).
 
