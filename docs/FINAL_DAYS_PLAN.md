@@ -11,7 +11,7 @@ Written 2026-10-30 ~12:30 UTC. All times are **UTC**.
 | Last safe submission | **Nov 1, ~00:00–06:00** |
 | Usable daily slots | **Oct 30 (today), Oct 31, Nov 1** (Nov 2 is too late to score) |
 | GPU quota | **30h weekly quota reset verified at 00:00 UTC Oct 31** |
-| Submissions in flight | Oct 31: `57844167` (**31.39** - new all-time best!), Nov 1: `57886566` (**PENDING**, Boyko re-roll) |
+| Submissions in flight | Oct 31: `57844167` (**31.39** complete), Nov 1: `57886566` (PENDING), Nov 2: `57904772` (PENDING) |
 | Our best public score | **31.39** (submission `57844167`, Boyko dual-pass v3) |
 | Bronze cutoff (top 10%, #352 of 3,527) | **32.22** (silver #176: 33.06), snapshot Oct 30 08:42 |
 | Kaggle health | General submission errors and slow nodes reported; errored submissions still use the day's slot |
@@ -58,12 +58,15 @@ Written 2026-10-30 ~12:30 UTC. All times are **UTC**.
   - **Message:** "Boyko dual-pass fork v3 (Nov 1 re-roll)"
   - **Status:** `SubmissionStatus.PENDING`
 
-### Monday Nov 2 — selection day (no new submissions)
-- [ ] By **~20:00**, open My Submissions and select the **two highest COMPLETE scores**.
-  - Default if nothing new beats it: **v7 or v8 (30.97)** + the best new submission.
-  - Never select a submission that is still PENDING or ERROR.
-- [ ] Keep at least one 30.97 version selected unless two newer ones both score above it.
-- [ ] If Kaggle grants a deadline extension (forum topic 753674), re-read this plan; don't improvise new code.
+### Monday Nov 2 — Selection & Deadline Day — IN PROGRESS
+- [x] Submitted final daily slot (ref `57904772`) at 10:13 UTC to guarantee eligibility under any potential Konwinski backlog extension.
+- [ ] Monitor in-flight runs:
+  - `57886566` (submitted Nov 1 23:29 UTC, running ~11h)
+  - `57904772` (submitted Nov 2 10:13 UTC)
+- [ ] By ~20:00–22:00 UTC (2–4 hours before deadline), execute final selection on Kaggle UI:
+  - **Slot 1 (SOTA Candidate):** Highest of Boyko dual-pass runs (`57844167` at **31.39**, or a pending run if complete and higher).
+  - **Slot 2 (Anti-Shakeup Anchor):** Hybrid Baseline v8 (`56875914` at **30.97**).
+  - **Strict Rule:** Never select an unscored (PENDING or ERROR) submission.
 
 ## 3. Rules for the remaining days
 1. **One change per decision, decided by public scores only.** No decisions from the local benchmark.

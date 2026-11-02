@@ -14,7 +14,8 @@
 - **Submission v28 (`57777146`):** Scored **`23.06%`** public LB. (Confirms local 47.33 eval score was memorization of evaluation set primitives rather than generalizable abstract reasoning; public score drops on unseen test).
 - **Submission v29 (`57806728`):** Completed scoring at **`23.89%`**.
 - **Submission v30 / Oct 31 Slot (`57844167`):** Scored **`31.39%`** (new team record!).
-- **Submission v31 / Nov 1 Slot (`57886566`):** Submitted Nov 1 23:29 UTC — currently **`PENDING`** (Boyko dual-pass fork v3 re-roll).
+- **Submission v31 / Nov 1 Slot (`57886566`):** Submitted Nov 1 23:29 UTC — currently **`PENDING`** (~11h in flight).
+- **Submission v32 / Nov 2 Slot (`57904772`):** Submitted Nov 2 10:13 UTC — currently **`PENDING`** (Final day slot).
 - **Hard Deadline:** November 2, 23:59 UTC.
 - **Last Safe Submission Window:** November 1, 00:00–06:00 UTC (submissions pending at deadline cannot be safely selected).
 
