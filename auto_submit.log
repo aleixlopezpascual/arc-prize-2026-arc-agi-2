@@ -1,41 +1,11 @@
-[*] Starting Auto-Submit Watcher for kernel [aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt] (v28)
-[*] Target competition: arc-prize-2026-arc-agi-2
-[16:28:51] Elapsed: 0.0m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:29:37] Elapsed: 0.8m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:30:23] Elapsed: 1.5m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:31:09] Elapsed: 2.3m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:31:54] Elapsed: 3.1m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:32:40] Elapsed: 3.8m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:33:25] Elapsed: 4.6m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:34:11] Elapsed: 5.3m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:34:57] Elapsed: 6.1m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:35:42] Elapsed: 6.9m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:36:28] Elapsed: 7.6m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:37:13] Elapsed: 8.4m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:37:59] Elapsed: 9.1m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:38:45] Elapsed: 9.9m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:39:30] Elapsed: 10.7m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:40:16] Elapsed: 11.4m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:41:02] Elapsed: 12.2m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:41:47] Elapsed: 12.9m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:42:33] Elapsed: 13.7m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:43:50] Elapsed: 15.0m | Kernel Status: KernelWorkerStatus.RUNNING
-[16:50:19] Elapsed: 21.5m | Kernel Status: UNKNOWN
-[17:11:02] Elapsed: 42.2m | Kernel Status: KernelWorkerStatus.RUNNING
-[17:15:57] Elapsed: 47.1m | Kernel Status: KernelWorkerStatus.RUNNING
-[17:43:36] Elapsed: 74.8m | Kernel Status: KernelWorkerStatus.COMPLETE
-[+] Kernel [aleixlopez/arc-agi2-hybrid-sota-symbolic-ttt] has COMPLETED successfully!
-[+] Output verified: 100% compliant with schema across 120 tasks.
-[+] Cached verified submission to /Users/aleix.lopez/arc-prize-2026-arc-agi-2/submissions/submission_hybrid_sota_v28.json
-[*] Remaining daily submissions: 1
-[*] Firing competition submission: 'ARC-AGI-2 Hybrid SOTA v28 (76 Primitives + Hardened Rerun Engine + Diversity Reranker - 36.67% Benchmark)'...
-[+] Submission output: Warning: Looks like you're using an outdated `kaggle` version (installed: 2.2.4), please consider upgrading to the latest version (2.2.5)
-0 submissions remaining today.
-[*] Live Submissions Queue:
 Warning: Looks like you're using an outdated `kaggle` version (installed: 2.2.4), please consider upgrading to the latest version (2.2.5)
      ref  fileName         date                        description                                                                                                status                     publicScore  privateScore  
 --------  ---------------  --------------------------  ---------------------------------------------------------------------------------------------------------  -------------------------  -----------  ------------  
-57777146  submission.json  2026-10-29 16:43:52.720000  ARC-AGI-2 Hybrid SOTA v28 (76 Primitives + Hardened Rerun Engine + Diversity Reranker - 36.67% Benchmark)  SubmissionStatus.PENDING                              
+57904772  submission.json  2026-11-02 10:13:52.337000  Boyko dual-pass fork v3 (Nov 2 slot)                                                                       SubmissionStatus.PENDING                              
+57886566  submission.json  2026-11-01 23:29:45.323000  Boyko dual-pass fork v3 (Nov 1 re-roll)                                                                    SubmissionStatus.PENDING                              
+57844167  submission.json  2026-10-31 16:13:57.310000  Boyko dual-pass fork v3 (Oct 31 slot)                                                                      SubmissionStatus.COMPLETE  31.39                      
+57806728  submission.json  2026-10-30 13:23:54.190000  ARC-AGI-2 Hybrid SOTA v29 (Oct 30 run)                                                                     SubmissionStatus.COMPLETE  23.89                      
+57777146  submission.json  2026-10-29 16:43:52.720000  ARC-AGI-2 Hybrid SOTA v28 (76 Primitives + Hardened Rerun Engine + Diversity Reranker - 36.67% Benchmark)  SubmissionStatus.COMPLETE  23.06                      
 57708431  submission.json  2026-10-27 17:16:03.857000  ARC-AGI-2 Hybrid SOTA v27 (Optimal Union + 38 Symbolic Primitives + Deep Eval)                             SubmissionStatus.COMPLETE                             
 57669765  submission.json  2026-10-26 14:43:58.400000  ARC-AGI-2 Hybrid SOTA v26 (Optimal Union + 38 Symbolic Primitives + Deep Eval)                             SubmissionStatus.COMPLETE                             
 57609744  submission.json  2026-10-24 23:53:33.787000  User-authorized v25 resubmission                                                                           SubmissionStatus.COMPLETE  25.56                      
@@ -57,4 +27,4 @@ Warning: Looks like you're using an outdated `kaggle` version (installed: 2.2.4)
 56828374  submission.json  2026-10-04 16:02:45.973000  ARC-AGI-2 Hybrid SOTA v6 (Optimal Union + Raycasting + Rigid Gravity)                                      SubmissionStatus.COMPLETE  28.47                      
 56806096  submission.json  2026-10-03 20:22:39.650000  ARC-AGI-2 Hybrid SOTA v5 (Optimal Union + 129 Symbolic Hits)                                               SubmissionStatus.COMPLETE  30.69                      
 56772292  submission.json  2026-10-02 11:01:18.737000  ARC-AGI-2 Hybrid SOTA (Tier 1 Symbolic + Tier 2 Qwen 4B TTT)                                               SubmissionStatus.COMPLETE  28.89                      
-56755141  submission.json  2026-10-01 16:36:06.177000  ARC-AGI-2 SOTA Baseline LB 33.89                                                                           SubmissionStatus.COMPLETE  29.31
+56755141  submission.json  2026-10-01 16:36:06.177000  ARC-AGI-2 SOTA Baseline LB 33.89                                                                           SubmissionStatus.COMPLETE  29.31                      
