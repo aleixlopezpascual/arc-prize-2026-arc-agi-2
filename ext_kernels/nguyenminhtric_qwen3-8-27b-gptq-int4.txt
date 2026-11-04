@@ -1,0 +1,25 @@
+Warning: Looks like you're using an outdated `kaggle` version (installed: 2.2.4), please consider upgrading to the latest version (2.2.5)
+{
+  "id": 757633,
+  "ref": "nguyenminhtric/qwen3-8-27b-gptq-int4",
+  "title": "Qwen3.8-27B-GPTQ-INT4",
+  "author": "NguyenMinhTric",
+  "slug": "qwen3-8-27b-gptq-int4",
+  "instances": [
+    {
+      "id": 746912,
+      "slug": "gptq-int4",
+      "framework": "MODEL_FRAMEWORK_TRANSFORMERS",
+      "fineTunable": true,
+      "versionId": 994155,
+      "versionNumber": 1,
+      "url": "https://www.kaggle.com/models/nguyenminhtric/qwen3-8-27b-gptq-int4/Transformers/gptq-int4",
+      "licenseName": "Apache 2.0",
+      "totalUncompressedBytes": 17068993830
+    }
+  ],
+  "url": "https://www.kaggle.com/models/nguyenminhtric/qwen3-8-27b-gptq-int4",
+  "voteCount": 1,
+  "authorImageUrl": "https://storage.googleapis.com/kaggle-avatars/thumbnails/22240546-kg.jpg?t=2026-04-14-09-39-17",
+  "updateTime": "2026-09-15T07:30:33.572Z"
+}

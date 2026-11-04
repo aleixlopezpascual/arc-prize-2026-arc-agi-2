@@ -6,6 +6,8 @@ import textwrap
 from pathlib import Path
 from typing import Literal
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
 
 def build(
     output_path: Path | None = None,
@@ -26,26 +28,14 @@ def build(
     if not symbolic_merge and pass_b_policy == "paired":
         raise ValueError("Neural-only output is not supported with the paired Pass-B policy.")
 
-    base_nb_path = Path(
-        "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/notebooks/public_baselines/lb33_89/arc-agi2-lb33-89-minimal-perfpatch.ipynb"
-    )
+    base_nb_path = REPO_ROOT / "notebooks/public_baselines/lb33_89/arc-agi2-lb33-89-minimal-perfpatch.ipynb"
     base_nb = json.loads(base_nb_path.read_text())
 
-    primitives_py = Path(
-        "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/src/dsl/primitives.py"
-    ).read_text()
-    overlay_py = Path(
-        "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/src/dsl/overlay.py"
-    ).read_text()
-    ca_py = Path(
-        "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/src/dsl/cellular_automata.py"
-    ).read_text()
-    search_py = Path(
-        "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/src/dsl/search.py"
-    ).read_text()
-    solver_py = Path(
-        "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/src/dsl/solver.py"
-    ).read_text()
+    primitives_py = (REPO_ROOT / "src/dsl/primitives.py").read_text()
+    overlay_py = (REPO_ROOT / "src/dsl/overlay.py").read_text()
+    ca_py = (REPO_ROOT / "src/dsl/cellular_automata.py").read_text()
+    search_py = (REPO_ROOT / "src/dsl/search.py").read_text()
+    solver_py = (REPO_ROOT / "src/dsl/solver.py").read_text()
 
     # Create arc_dsl.py content
     arc_dsl_content = "%%writefile arc_dsl.py\n"
@@ -403,9 +393,7 @@ def score_ensemble(guesses):
     )
 
     if pass_b_policy in ('uncertainty', 'paired'):
-        pass_priority_py = Path(
-            "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/src/neural/pass_priority.py"
-        ).read_text()
+        pass_priority_py = (REPO_ROOT / "src/neural/pass_priority.py").read_text()
         cells.append(
             {
                 "cell_type": "code",
@@ -1034,8 +1022,9 @@ if time_remaining > 900:
     }
 
     if output_path is None:
-        dst_path = Path(
-            "/Users/aleix.lopez/arc-prize-2026-arc-agi-2/notebooks/submissions/hybrid_sota_v1/submission_kernel.ipynb"
+        dst_path = (
+            REPO_ROOT
+            / "notebooks/submissions/hybrid_sota_v1/submission_kernel.ipynb"
         )
     else:
         dst_path = output_path
