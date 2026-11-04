@@ -1,0 +1,21 @@
+docs/SOLUTION_WRITEUP.md
+  s_5c463a7157163c::t_0c3e7aeff6707a 1-229
+README.md
+  s_5c463a7157163c::t_4874af27417eec 12-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "edf29e997fbe072272dde04b5525357803a1c5a2",
+  "prompts": {},
+  "sessions": {
+    "s_5c463a7157163c": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "3da09572-db2b-4d07-9a73-af8955265cc6",
+        "model": "gemini-3.8-flash"
+      },
+      "human_author": "Aleix López <aleix.lopez@glovoapp.com>"
+    }
+  }
+}
