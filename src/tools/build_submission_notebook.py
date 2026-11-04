@@ -589,7 +589,7 @@ if __name__ == "__main__":
             + "    if _ids_file:\n"
             + "        with open(_ids_file) as _f:\n"
             + "            _wanted = set(json.load(_f))\n"
-            + "        data = {{k: v for k, v in data.items() if k in _wanted}}\n"
+            + "        data = {k: v for k, v in data.items() if k in _wanted}\n"
         )
         if starter_source.count(old_route) != 1:
             raise ValueError("Could not find the expected starter data-load block.")

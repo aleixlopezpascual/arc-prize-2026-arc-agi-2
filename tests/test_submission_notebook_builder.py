@@ -430,6 +430,25 @@ def test_builder_task_ids_restrict_loader_and_router(tmp_path: Path):
     assert "_wanted = set(json.load(_f))" in code
 
 
+def test_builder_task_ids_router_filter_executes(tmp_path: Path):
+    """The patched starter block must run: a `{{...}}` typo is a valid set-of-dict that only fails at runtime."""
+    code = _code(build(output_path=tmp_path / "subset.ipynb", validation_mode="train", task_ids=["a"]))
+    marker = '    _ids_file = os.getenv("ARC_TASK_IDS_FILE")\n'
+    block = code[code.index(marker) :]
+    block = block[: block.index("\n\n")]
+    ids_file = tmp_path / "ids.json"
+    ids_file.write_text(json.dumps(["a"]))
+    scope = {"os": __import__("os"), "json": json, "data": {"a": 1, "b": 2}}
+    import os
+
+    os.environ["ARC_TASK_IDS_FILE"] = str(ids_file)
+    try:
+        exec("if True:\n" + block, scope)
+    finally:
+        del os.environ["ARC_TASK_IDS_FILE"]
+    assert scope["data"] == {"a": 1}
+
+
 def test_builder_without_task_ids_is_unchanged(tmp_path: Path):
     code = _code(build(output_path=tmp_path / "full.ipynb", validation_mode="train"))
     assert "ARC_TASK_IDS_FILE" not in code
