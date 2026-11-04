@@ -9,6 +9,9 @@
 
 An open-source competitive engineering and research workspace for the [ARC Prize 2026 (ARC-AGI-2)](https://www.kaggle.com/competitions/arc-prize-2026-arc-agi-2) benchmark on Kaggle.
 
+> 📖 **Official Solution Writeup:**  
+> Read our full technical breakdown, mathematical architecture, and Goodhart's Law post-mortem in [**`docs/SOLUTION_WRITEUP.md`**](docs/SOLUTION_WRITEUP.md).
+
 This repository implements, audits, and evaluates two complementary AI reasoning paradigms:
 1. **The High-Ceiling Neural SOTA (31.39% Public LB):** An optimized, hardened dual-pass Test-Time Training (TTT) pipeline built on Qwen-4B BF16 with independent seed pooling (`seed=1` and `seed=137`), on-GPU constrained DFS logit slicing, and dynamic CLI batch mount resolution.
 2. **The Two-Tier Hybrid Architecture (30.97% Anchor):** A deterministic Domain Specific Language (DSL) perception engine with combinatorial search over geometric primitives, integrated with neural TTT via an optimal 2-attempt monotonic union.
